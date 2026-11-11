@@ -1,0 +1,20 @@
+# Mortez: classic site at /, the 3D world at /chateau/
+Options -Indexes
+RewriteEngine On
+
+# Straight into a room of the Chateau
+RewriteRule ^chateau/store/?$    chateau/?room=merch   [R=302,L,QSA]
+RewriteRule ^chateau/library/?$  chateau/?room=library [R=302,L,QSA]
+RewriteRule ^chateau/theater/?$  chateau/?room=film    [R=302,L,QSA]
+RewriteRule ^chateau/chapel/?$   chateau/?room=film    [R=302,L,QSA]
+RewriteRule ^chateau/reaper/?$   chateau/?room=station [R=302,L,QSA]
+RewriteRule ^chateau/foyer/?$    chateau/?room=foyer   [R=302,L,QSA]
+
+# Old pages
+RewriteRule ^tour/?$ / [R=301,L]
+RewriteRule ^merch/?$ shop/ [R=301,L]
+
+# Private files
+<FilesMatch "^(settings\.json|.*\.csv)$">
+  Require all denied
+</FilesMatch>

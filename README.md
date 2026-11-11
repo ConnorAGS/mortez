@@ -38,3 +38,13 @@ Search for these names:
 - Hauntings, the relics hunt, Play together and the Booking form.
 
 **Still placeholder:** Theater videos, merch products and checkout, the band bio and story stops, streaming links, and the real booking inbox.
+
+
+## Site structure (Nov 2026)
+
+- `site/index.html`: the classic home page (mortezmusic.com). The hero is the Chateau gate; every section has a doorway into a room.
+- `site/chateau/`: the 3D world. Deep links: `/chateau/?room=library|merch|film|station|foyer`, or the short routes in `site/.htaccess` (`/chateau/store`, `/chateau/library`, `/chateau/theater`, `/chateau/reaper`).
+- `site/shop/`: the flat online shop (products arrive from the Printful sync, `merch.php`, still to come).
+- `site/data/releases.js`: every release and lyric. The Chateau library and the classic Lyrics section both read it.
+- `site/coven.php`: mailing-list sign-ups, saved to `coven-subscribers.csv` one level above the web root.
+- Links, videos and room cards on the home page: the `LINKS`, `VIDEOS` and `ROOMS` lists near the top of the script in `site/index.html`.

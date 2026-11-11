@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mortez Shop</title>
+<meta name="description" content="Official Mortez merch: shirts, hoodies and relics. Shop online or walk into the haunted store inside the Chateau.">
+<link rel="canonical" href="https://mortezmusic.com/shop/">
+<link rel="icon" href="../media/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Figtree:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root { --night: #0a0809; --crypt: #141012; --stone: #2a2326; --bone: #efe8e8; --ash: #a59b9e; --blood: #e0323c; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--night); color: var(--bone); font: 400 17px/1.6 "Figtree", system-ui, sans-serif; }
+a { color: inherit; }
+.wrap { max-width: 1360px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header .wrap { display: flex; align-items: center; gap: 18px; padding-block: 18px; border-bottom: 1px solid var(--stone); }
+.mark { font: 34px/1 "Pirata One", Georgia, serif; text-decoration: none; } .mark span { color: var(--blood); }
+.back { margin-left: auto; font: 500 12px "JetBrains Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--ash); text-decoration: none; }
+.label { font: 500 12px "JetBrains Mono", monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--ash); } .label b { color: var(--blood); font-weight: 500; }
+h1 { font: 400 clamp(72px, 13vw, 180px)/.82 "Pirata One", Georgia, serif; margin: 14px 0 18px; }
+.hero { padding-block: clamp(48px, 8vw, 110px) 36px; display: grid; gap: 8px; }
+.lede { max-width: 54ch; color: var(--ash); margin: 0; }
+.btn { display: inline-flex; padding: 14px 22px; border-radius: 999px; font: 600 15px "Figtree", sans-serif; text-decoration: none; border: 1px solid rgba(239,232,232,.28); }
+.btn-blood { background: var(--blood); border-color: var(--blood); color: #fff; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; padding-block: 24px 90px; }
+.card { display: grid; gap: 10px; text-decoration: none; }
+.card .img { aspect-ratio: 1; max-width: 100%; border-radius: 4px; border: 1px solid var(--stone); background: var(--crypt) center / cover; }
+.card b { font-weight: 600; } .card span { color: var(--blood); font: 500 13px "JetBrains Mono", monospace; }
+.empty { border: 1px dashed var(--stone); border-radius: 4px; padding: 36px; color: var(--ash); grid-column: 1 / -1; }
+footer { border-top: 1px solid var(--stone); padding-block: 26px; font: 500 11px "JetBrains Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--ash); }
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="mark" href="../">Morte<span>z</span></a><a class="back" href="../">← Back to the site</a></div></header>
+<main class="wrap">
+  <section class="hero">
+    <span class="label"><b>Official merch</b> · wares · relics</span>
+    <h1>The shop</h1>
+    <p class="lede">Shirts, hoodies and relics, printed to order and shipped to you. Prefer to browse in person? The haunted store inside the Chateau stocks the same pieces.</p>
+    <div class="row"><a class="btn btn-blood" href="../chateau/?room=merch">Shop in the Chateau</a><a class="btn" href="../">Mortez home</a></div>
+  </section>
+  <section class="grid" id="grid" aria-label="Products"></section>
+</main>
+<footer><div class="wrap">© 2026 Mortez</div></footer>
+<script>
+// Products arrive from the Printful sync (merch.php). Until it is connected, the grid explains itself.
+(async function () {
+  const grid = document.getElementById("grid"), esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  let items = [];
+  try { const r = await fetch("../merch.php", { headers: { Accept: "application/json" } }); if (r.ok) items = (await r.json()).products || []; } catch (e) {}
+  grid.innerHTML = items.length ? items.map(p => `<a class="card" id="${esc(p.id)}" href="#${esc(p.id)}"><div class="img" style="background-image:url('${esc(p.image)}')"></div><b>${esc(p.name)}</b><span>${esc(p.price)}</span></a>`).join("")
+    : `<div class="empty">The full catalogue is being stocked. Check back soon, or step into the Chateau's store to see it first.</div>`;
+})();
+</script>
+</body>
+</html>
