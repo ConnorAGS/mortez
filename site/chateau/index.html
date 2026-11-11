@@ -2933,7 +2933,8 @@ body.riding .relics { display: none; }
     for (let i = 0; i < fullEdge.length; i += 5) { const [x, z] = fullEdge[i]; const col = new THREE.Mesh(new THREE.CylinderGeometry(.22, .26, BY - .5, 10), ivory); col.position.set(x * 1.01, (BY - .5) / 2, z); root.add(col); colliders.push({ x: O.x + x, z: O.z + z, r: .35, y: 0 }); }
 
     // ---- stacked opera boxes flanking the stage (two levels each side)
-    const boxSeats = [];
+    const boxSeats = [], sideDoors = [];
+    const doorM = std(0x5a0a12, { roughness: .8 }), panelM = std(0x141216, { roughness: .9 });
     [-1, 1].forEach(sx => [[BY, true], [BY + 3.6, false]].forEach(([y, walk]) => [-20.5, -23.5].forEach((z, i) => {
       const g = new THREE.Group(); g.position.set(sx * (NW - 1.6), y, z); root.add(g);
       const front = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 1.1, 18, 1, true, sx > 0 ? Math.PI : 0, Math.PI), ivory); front.position.set(-sx * .2, .5, 0); g.add(front);
@@ -2942,16 +2943,40 @@ body.riding .relics { display: none; }
       const drape = new THREE.Mesh(new THREE.PlaneGeometry(3, 2.4), velvet); drape.position.set(sx * 1.2, 2.2, 0); drape.rotation.y = -sx * Math.PI / 2; g.add(drape);
       const swag = new THREE.Mesh(new THREE.TorusGeometry(1.4, .12, 6, 14, Math.PI), velvet); swag.position.set(-sx * .1, 2.9, 0); swag.rotation.set(Math.PI, sx * Math.PI / 2, 0); swag.scale.y = .35; g.add(swag);
       // two velvet armchairs in every box, angled at the screen
-      [-.5, .5].forEach(dz => { const ch = new THREE.Group(); ch.position.set(sx * .3, 0, dz); ch.rotation.y = Math.PI + sx * .9; g.add(ch); box(.62, .14, .6, velvet, 0, .42, 0, ch).castShadow = false; box(.62, .8, .1, velvet, 0, .85, -.28, ch).castShadow = false; [-1, 1].forEach(k => box(.08, .3, .55, gold, k * .32, .55, 0, ch).castShadow = false); });
+      [-.6, .6].forEach(dz => { const ch = new THREE.Group(); ch.position.set(-sx * .8, 0, dz); ch.rotation.y = Math.PI + sx * .9; g.add(ch); box(.62, .14, .6, velvet, 0, .42, 0, ch).castShadow = false; box(.62, .8, .1, velvet, 0, .85, -.28, ch).castShadow = false; [-1, 1].forEach(k => box(.08, .3, .55, gold, k * .32, .55, 0, ch).castShadow = false); });
       boxSeats.push({ sx, z, y, walk, g, i });
     })));
-    [-1, 1].forEach(sx => [-22, -25].forEach(z => box(NW - BI, 3.4, .2, black, sx * (BI + (NW - BI) / 2), BY + 1.7, z + 3.5, root).castShadow = false));
+    // the two lower stage boxes are real rooms: a floor, a back wall against the proscenium, and a panelled partition with a door into each
+    // (the walls block you; the doors swing open as you walk up). Walk on from the side-box corridor: antechamber, Stage Box, then the Royal Box.
+    const SPZ = [-19, -22], SDX0 = 13.0, SDX1 = 14.2;   // partition z positions; the doorway spans |x| 13.0 to 14.2
+    const stageDoors = [];
+    [-1, 1].forEach(sx => {
+      box(NW - 11.6, .45, 8.2, black, sx * (11.6 + NW) / 2, BY - .225, -21, root).castShadow = false;   // floor out over the stage wings
+      const cpt = new THREE.Mesh(new THREE.PlaneGeometry(NW - 12.2, 7.6), velvet); cpt.rotation.x = -Math.PI / 2; cpt.position.set(sx * (12.2 + NW) / 2, BY + .015, -21); root.add(cpt);
+      box(NW - 11.6, 3.4, .25, panelM, sx * (11.6 + NW) / 2, BY + 1.7, -25.1, root).castShadow = false;   // back wall by the proscenium
+      SPZ.forEach((zp, j) => {
+        // panelled partition with a doorway near the outer wall; ivory frame, gold lintel, a lit plaque
+        box(SDX0 - 11.7, 3.4, .16, panelM, sx * (11.7 + SDX0) / 2, BY + 1.7, zp, root).castShadow = false;
+        box(NW - SDX1, 3.4, .16, panelM, sx * (SDX1 + NW) / 2, BY + 1.7, zp, root).castShadow = false;
+        box(SDX1 - SDX0, 3.4 - 2.4, .18, panelM, sx * (SDX0 + SDX1) / 2, BY + 2.9, zp, root).castShadow = false;
+        [SDX0, SDX1].forEach(dx => box(.1, 2.4, .22, ivory, sx * dx, BY + 1.2, zp, root).castShadow = false);
+        box(SDX1 - SDX0 + .3, .12, .24, gold, sx * (SDX0 + SDX1) / 2, BY + 2.44, zp, root).castShadow = false;
+        const pt = (() => { const [c, g] = cv(256, 96); g.fillStyle = "#120a0c"; g.fillRect(0, 0, 256, 96); g.strokeStyle = "#c9a14a"; g.lineWidth = 6; g.strokeRect(5, 5, 246, 86); g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "#e9d9b0"; g.font = `400 46px ${DISP}`; g.fillText(j ? "ROYAL BOX" : "STAGE BOX", 128, 52); return tex(c); })();
+        const pq = new THREE.Mesh(new THREE.PlaneGeometry(1, .38), new THREE.MeshBasicMaterial({ map: pt })); pq.position.set(sx * (SDX0 + SDX1) / 2, BY + 2.82, zp + .1); root.add(pq);
+        const sc = new THREE.Mesh(new THREE.SphereGeometry(.1, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffd08a })); sc.position.set(sx * (SDX1 + .45), BY + 2.3, zp + .12); root.add(sc);
+        // the door: hinged on the inner side of the frame, swings into the box
+        const pivot = new THREE.Group(); pivot.position.set(sx * (SDX0 + .02), BY, zp); root.add(pivot);
+        box(SDX1 - SDX0 - .04, 2.28, .06, doorM, sx * (SDX1 - SDX0) / 2, 1.14, 0, pivot).castShadow = false;
+        [.6, 1.6].forEach(y => box(.8, .45, .08, gold, sx * (SDX1 - SDX0) / 2, y, 0, pivot).castShadow = false);
+        const kn = new THREE.Mesh(new THREE.SphereGeometry(.05, 8, 6), gold); kn.position.set(sx * (SDX1 - SDX0 - .15), 1.1, .06); pivot.add(kn);
+        sideDoors.push({ pivot, x: O.x + sx * (SDX0 + SDX1) / 2, z: O.z + zp, sx, open: 0 });
+      });
+    });
 
 
     // ---- the side boxes: a corridor along each side wall, a numbered door into each private box overlooking the stalls
-    const sideBoxes = [], sideDoors = [];
+    const sideBoxes = [];
     const plaqueT = n => { const [c, g] = cv(256, 96); g.fillStyle = "#120a0c"; g.fillRect(0, 0, 256, 96); g.strokeStyle = "#c9a14a"; g.lineWidth = 6; g.strokeRect(5, 5, 246, 86); g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "#e9d9b0"; g.font = `400 58px ${DISP}`; g.fillText("BOX " + n, 128, 52); return tex(c); };
-    const doorM = std(0x5a0a12, { roughness: .8 }), panelM = std(0x141216, { roughness: .9 });
     [-1, 1].forEach(sx => {
       for (let k = 0; k < SBN; k++) {
         const z0 = SBZ0 + k * SBL, z1 = z0 + SBL, zc = (z0 + z1) / 2, num = (sx < 0 ? 0 : SBN) + k + 1;   // Box 1 (and 6) sit nearest the stage
@@ -3053,7 +3078,7 @@ body.riding .relics { display: none; }
     const sitNpc = (x, y, z, ry, kind) => { const m = buildReaper(kind, new THREE.MeshBasicMaterial({ color: CHARACTERS[kind].eye })); m.position.set(x, y + .42, z - .05); m.rotation.y = ry; m.scale.setScalar(.92); root.add(m); crowd.push({ m, ph: crowd.length * 1.3 }); };
     [[0, 0, 2], [1, 1, 1], [2, 2, 0], [3, 0, 4], [4, 1, 2], [6, 2, 3], [7, 0, 1], [9, 1, 0], [11, 2, 2]].forEach(([r, bi, s], i) => { if (!rows[r] || rows[r].tier != null) return; taken.add(r + ":" + bi + ":" + s); sitNpc(seatX(bi, s), 0, rows[r].z, Math.PI, i % 3 === 1 ? "lady" : "reaper"); });
     sideBoxes.forEach((sb, i) => { if (i % 2) return; [2, 3].forEach((si, j) => { const st = sb.seats[si]; if ((i + j) % 3 !== 2) sitNpc(st.x, BY, st.z + .05, st.ry, (i + j) % 2 ? "lady" : "reaper"); }); });
-    boxSeats.filter(b2 => !b2.walk && b2.i === 1).forEach((b2, i) => sitNpc(b2.g.position.x + b2.sx * .3, b2.y, b2.z + .5, Math.PI + b2.sx * .9, i % 2 ? "lady" : "reaper"));
+    boxSeats.filter(b2 => !b2.walk && b2.i === 1).forEach((b2, i) => sitNpc(b2.g.position.x - b2.sx * .8, b2.y, b2.z + .6, Math.PI + b2.sx * .9, i % 2 ? "lady" : "reaper"));
     const screenC = L(0, SY, SZ);
     const seatAt = (x, y, z, ry, stand) => ({ sit: L(x, y + .42, z - .05), rot: ry, pos: L(x, y + 2.85, z + .8), screenC, screenW: SW, screenH: SH, stand });
     rows.forEach((row, r) => {
@@ -3066,15 +3091,15 @@ body.riding .relics { display: none; }
         });
       } else [-1, 1].forEach(sx => inter.push({ spot: L(sx * .6, row.y, row.z + .9), lvl: row.y, label: "Sit up in the balcony", obj: new THREE.Object3D(), act: () => sitDown(seatAt(sx * 2.4, row.y, row.z, Math.PI, L(sx * .6, row.y, row.z + 1.1))) }));
     });
-    const boxSeat = (b2, stand) => { const x = b2.g.position.x + b2.sx * .3, z = b2.z - .5; return { sit: L(x, b2.y + .42, z), rot: Math.PI + b2.sx * .9, pos: L(x - b2.sx * 2.1, b2.y + 2.3, z + .2), screenC, screenW: SW, screenH: SH, stand, aim: true }; };
+    const boxSeat = (b2, stand) => { const x = b2.g.position.x - b2.sx * .8, z = b2.z - .6; return { sit: L(x, b2.y + .42, z), rot: Math.PI + b2.sx * .9, pos: L(x - b2.sx * 2.1, b2.y + 2.3, z + .2), screenC, screenW: SW, screenH: SH, stand, aim: true }; };
     const BOX_NAMES = { "-1:1": "Left lower box", "-1:0": "Left upper box", "1:1": "Right lower box", "1:0": "Right upper box" };
-    const boxChoices = sx => boxSeats.filter(b2 => b2.sx === sx && (b2.walk || b2.i === 0)).map(b2 => ({ b2, name: (sx < 0 ? "Left" : "Right") + (b2.walk ? " lower box" : " upper box") + (b2.walk ? (b2.i ? " (front)" : " (back)") : "") }));
+    const boxChoices = sx => boxSeats.filter(b2 => b2.sx === sx && (b2.walk || b2.i === 0)).map(b2 => ({ b2, name: (sx < 0 ? "Left " : "Right ") + (b2.walk ? (b2.i ? "royal box" : "stage box") : "upper box") }));
     const sideSeat = (sb, i) => { const st = sb.seats[i], fx = Math.sin(st.ry), fz = Math.cos(st.ry); return { sit: L(st.x, BY + .42, st.z), rot: st.ry, pos: L(st.x - fx * .75, BY + 2.05, st.z - fz * .75), screenC, screenW: SW, screenH: SH, stand: L(sb.sx * 11.9, BY, sb.zc), aim: true }; };
     sideBoxes.forEach(sb => {
       inter.push({ spot: L(sb.sx * 10.6, BY, sb.zc - 1.6), lvl: BY, label: "Sit in Box " + sb.num + " (front row)", obj: new THREE.Object3D(), act: () => sitDown(sideSeat(sb, 0)) });   // by the rail, nearest the stage
       inter.push({ spot: L(sb.sx * 11.7, BY, sb.zc + 1.3), lvl: BY, label: "Sit in Box " + sb.num + " (back row)", obj: new THREE.Object3D(), act: () => sitDown(sideSeat(sb, 5)) });   // against the back wall
     });
-    boxSeats.filter(b2 => b2.walk).forEach(b2 => inter.push({ spot: L(b2.sx * (NW - 1.4), BY, b2.z + 1.2), lvl: BY, label: "Sit in the box", obj: new THREE.Object3D(), act: () => sitDown(boxSeat(b2, L(b2.sx * (NW - 1.4), BY, b2.z + 1.4))) }));
+    boxSeats.filter(b2 => b2.walk).forEach(b2 => inter.push({ spot: L(b2.sx * 13.4, BY, b2.z + .4), lvl: BY, label: "Sit in the " + (b2.i ? "Royal Box" : "Stage Box"), obj: new THREE.Object3D(), act: () => sitDown(boxSeat(b2, L(b2.sx * 13.6, BY, b2.z + .6))) }));
     void BOX_NAMES;
     // the box-seat ushers: at the foot of the stage on each side, they show you straight to a box (no climbing)
     [-1, 1].forEach(sx => {
@@ -3131,7 +3156,7 @@ body.riding .relics { display: none; }
       const sb = sideBox(ax, z);
       if (sb === "in" || sb === "door") c.push(BY);
       if (sb !== "wall" && sb !== "in" && sb !== "door" && !inHall(x, z) && z > -17 && (ax > BI ? z < ZE - 6 + .25 : z < RBK - .1) && !(onStair && sh < BY - .05)) { const tz = ax < BI ? tierAt(z) : 0, h = BY + TIERH * tz; if (!inPew(x, z, h)) c.push(h); }
-      if (ax > NW - 3 && z > -25 && z <= -17) c.push(BY);   // the lower opera boxes
+      if (ax > 12 && z > -24.85 && z <= -17 && !SPZ.some(zp => Math.abs(z - zp) < .22 && !(ax > SDX0 + .15 && ax < SDX1 - .15))) c.push(BY);   // the lower stage boxes: partitions block except at their doors
       let best = null, bd = .75; c.forEach(h => { const d = Math.abs(h - y); if (d < bd) { bd = d; best = h; } }); return best;
     };
     const sp = {
@@ -3145,7 +3170,7 @@ body.riding .relics { display: none; }
       interactables: inter, setScreen, idleScreen, seatOccluders: () => crowd.map(c => c.m),
       init() { idleScreen(); },
       update(t, dt, near, enteringId) {
-        sideDoors.forEach(d => { const dd = Math.hypot(avatar.position.x - d.x, avatar.position.z - d.z), want = dd < 2.2 && Math.abs((sp.footY || 0) - BY) < 1 ? 1 : 0; d.open += (want - d.open) * Math.min(1, dt * 5); d.pivot.rotation.y = -d.sx * 1.45 * d.open; });
+        sideDoors.forEach(d => { const dd = Math.hypot(avatar.position.x - d.x, avatar.position.z - d.z), want = dd < 2.2 && Math.abs((sp.footY || 0) - BY) < 1 ? 1 : 0; d.open += (want - d.open) * Math.min(1, dt * 5); d.pivot.rotation.y = (d.k || 1) * -d.sx * 1.45 * d.open; });
         doors.update(near, enteringId, dt);
         if (reduce) return;
         flames.forEach((f, i) => f.scale.y = 1.5 + Math.sin(t / 45 + i) * .3);
