@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Booking | Mortez</title>
+<meta name="description" content="Booking, press and everything else for Mortez.">
+<link rel="canonical" href="https://chateau.mortezmusic.com/contact/">
+
+<link rel="icon" href="/media/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website"><meta property="og:url" content="https://chateau.mortezmusic.com/contact/">
+<meta property="og:title" content="Booking | Mortez"><meta property="og:description" content="Booking, press and everything else for Mortez.">
+<meta property="og:image" content="https://chateau.mortezmusic.com/media/share.jpg"><meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0b0a0c">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Figtree:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/assets/pages.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://chateau.mortezmusic.com/"}, {"@type": "ListItem", "position": 2, "name": "Booking", "item": "https://chateau.mortezmusic.com/contact/"}]}]}</script>
+</head>
+<body>
+<header class="top"><div class="wrap top-in">
+  <a class="logo" href="/">Mortez</a>
+  <nav class="nav" aria-label="Main"><a href="/music/">Music</a><a href="/videos/">Videos</a><a href="/tour/">Tour</a><a href="/merch/">Merch</a><a href="/story/">Story</a><a href="/contact/" aria-current="page">Booking</a></nav>
+  <a class="enter" href="/?room=contact">Enter the Chateau ▸</a>
+</div></header>
+<main class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <span>Booking</span></nav>
+<section class="hero"><p class="kick">Booking</p><h1>Get in touch</h1><p class="lead">Booking, press and everything else.</p>
+<div class="contact-grid"><a class="ccard" href="mailto:booking@mortezmusic.com"><small>Email</small><b>booking@mortezmusic.com</b></a></div>
+<p><a class="btn" href="/?contact=1">Open the contact form ▸</a></p></section>
+</main>
+<footer class="foot"><div class="wrap foot-in">
+  <div><b>Mortez</b><p>Gothic opera, darkwave and metal.</p></div>
+  <nav aria-label="Site"><a href="/music/">Music</a><a href="/videos/">Videos</a><a href="/tour/">Tour</a><a href="/merch/">Merch</a><a href="/story/">Story</a><a href="/contact/" aria-current="page">Booking</a><a href="/">The Chateau</a></nav>
+  <div class="social"><a href="mailto:booking@mortezmusic.com">booking@mortezmusic.com</a></div>
+</div></footer>
+<script>
+// Click-to-play: swap a video thumbnail for the YouTube player only when someone asks for it
+document.querySelectorAll("[data-yt]").forEach(el => el.addEventListener("click", e => {
+  e.preventDefault();
+  el.outerHTML = '<div class="player"><iframe src="https://www.youtube-nocookie.com/embed/' + el.dataset.yt + '?autoplay=1&rel=0" title="' + el.dataset.title + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>';
+}));
+</script>
+</body>
+</html>

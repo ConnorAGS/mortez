@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Story | Mortez</title>
+<meta name="description" content="The story of Mortez, told one stop at a time beneath the cemetery.">
+<link rel="canonical" href="https://chateau.mortezmusic.com/story/">
+
+<link rel="icon" href="/media/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website"><meta property="og:url" content="https://chateau.mortezmusic.com/story/">
+<meta property="og:title" content="The Story | Mortez"><meta property="og:description" content="The story of Mortez, told one stop at a time beneath the cemetery.">
+<meta property="og:image" content="https://chateau.mortezmusic.com/media/share.jpg"><meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0b0a0c">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Figtree:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/assets/pages.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://chateau.mortezmusic.com/"}, {"@type": "ListItem", "position": 2, "name": "Story", "item": "https://chateau.mortezmusic.com/story/"}]}]}</script>
+</head>
+<body>
+<header class="top"><div class="wrap top-in">
+  <a class="logo" href="/">Mortez</a>
+  <nav class="nav" aria-label="Main"><a href="/music/">Music</a><a href="/videos/">Videos</a><a href="/tour/">Tour</a><a href="/merch/">Merch</a><a href="/story/" aria-current="page">Story</a><a href="/contact/">Booking</a></nav>
+  <a class="enter" href="/?room=mine">Enter the Chateau ▸</a>
+</div></header>
+<main class="wrap">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <span>Story</span></nav>
+<article class="story"><p class="kick">Beneath the cemetery</p><h1>The story</h1><p><a class="btn" href="/?room=mine">Descend into the crypt ▸</a></p><section class="chapter"><p class="kick">Prologue · Beneath the Chateau</p><h3>Mortez</h3><p>Gothic opera, darkwave and metal. The band&#x27;s story, one stop at a time.</p><blockquote>Placeholder. The band&#x27;s own words go here.</blockquote></section><section class="chapter"><p class="kick">Act I · Chapter one</p><h3>How it began</h3><p>Placeholder. Send the band&#x27;s story and it fills these stops.</p></section><section class="chapter"><p class="kick">Act II · Chapter two</p><h3>The first record</h3><p>Placeholder.</p></section><section class="chapter"><p class="kick">Act III · Chapter three</p><h3>On stage</h3><p>Placeholder.</p></section><section class="chapter"><p class="kick">Epilogue · Next</p><h3>Bring us to your town</h3><p>Promoters, venues and press: the booking desk is upstairs in the Chateau.</p></section></article>
+</main>
+<footer class="foot"><div class="wrap foot-in">
+  <div><b>Mortez</b><p>Gothic opera, darkwave and metal.</p></div>
+  <nav aria-label="Site"><a href="/music/">Music</a><a href="/videos/">Videos</a><a href="/tour/">Tour</a><a href="/merch/">Merch</a><a href="/story/" aria-current="page">Story</a><a href="/contact/">Booking</a><a href="/">The Chateau</a></nav>
+  <div class="social"><a href="mailto:booking@mortezmusic.com">booking@mortezmusic.com</a></div>
+</div></footer>
+<script>
+// Click-to-play: swap a video thumbnail for the YouTube player only when someone asks for it
+document.querySelectorAll("[data-yt]").forEach(el => el.addEventListener("click", e => {
+  e.preventDefault();
+  el.outerHTML = '<div class="player"><iframe src="https://www.youtube-nocookie.com/embed/' + el.dataset.yt + '?autoplay=1&rel=0" title="' + el.dataset.title + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>';
+}));
+</script>
+</body>
+</html>

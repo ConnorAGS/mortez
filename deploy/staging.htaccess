@@ -1,0 +1,8 @@
+# Staging copy: keep it out of search engines
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+</IfModule>
+# Don't serve the admin settings file directly
+<Files "settings.json">
+  Require all denied
+</Files>
