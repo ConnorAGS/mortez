@@ -3308,9 +3308,16 @@ body.riding .relics { display: none; }
     const reg = new THREE.Group(); reg.position.set(2.5, 1.16, ZB + 3.2); root.add(reg); box(.6, .3, .45, black, 0, .15, 0, reg); const scr = box(.5, .32, .04, black, 0, .5, -.12, reg); scr.rotation.x = -.3; const scrG = new THREE.Mesh(new THREE.PlaneGeometry(.44, .26), new THREE.MeshBasicMaterial({ color: 0xff3a3a })); scrG.position.set(0, .5, -.09); scrG.rotation.x = -.3; reg.add(scrG);
     colliders.push({ x: O.x - 2.6, z: O.z + ZB + 3.2, r: 1.4 }, { x: O.x + 1.4, z: O.z + ZB + 3.2, r: 1.4 }, { x: O.x + 3.4, z: O.z + ZB + 3.2, r: 1 });
     const keeper = buildReaper("lady", new THREE.MeshBasicMaterial({ color: 0xff3a5a })); keeper.position.set(-1.2, 0, ZB + 1.8); root.add(keeper);
-    // behind the counter: the Coven candles and the hats, repeated across the back wall
-    const backs = byKind("candle").concat(byKind("hat")); if (!backs.length) backs.push(MERCH[0]);
-    let bi = 0; for (let r = 0; r < 3; r++) for (let k = 0; k < 7; k++) { const x = -6 + k * 2; if (Math.abs(x) < 3.6 && r === 0) continue; const p = backs[bi++ % backs.length]; const m = prodPlane(p, 1.2, x, 1.6 + r * 1.4, ZB + .04); if (r === 1) offer(p, m, L(x, 0, ZB + 4.6), "View the " + p.name); }
+    // behind the counter: two wooden shelf units either side of the neon, so the MORTEZ sign stays clear.
+    // Left: the Coven candles (one scent per column). Right: the hats and the phone case.
+    const leftP = byKind("candle"), rightP = byKind("hat").concat(byKind("case"));
+    [[-1, leftP.length ? leftP : [MERCH[0]]], [1, rightP.length ? rightP : [MERCH[1] || MERCH[0]]]].forEach(([side, ps]) => {
+      const cols = [6.4, 8.4, 10.4].map(x => x * side);
+      box(6.6, 4.6, .5, wood, 8.4 * side, 2.55, ZB + .3, root); // the unit's back
+      [.85, 2.25, 3.65, 5.05].forEach(y => box(6.6, .08, .7, wood, 8.4 * side, y, ZB + .5, root).castShadow = false); // shelves
+      [-3.3, 3.3].forEach(dx => box(.12, 4.6, .7, wood, 8.4 * side + dx, 2.55, ZB + .5, root).castShadow = false); // sides
+      cols.forEach((x, k) => { const p = ps[k % ps.length]; [0, 1, 2].forEach(r => { const m = prodPlane(p, 1.05, x, 1.5 + r * 1.4, ZB + .58); if (r === 1) offer(p, m, L(x, 0, ZB + 4.6), "View the " + p.name); }); });
+    });
     const counterP = pk("candle", 0); offer(counterP, reg, L(2.5, 0, ZB + 4.6), "At the counter: " + counterP.name);
 
     // left wall: shelving of folded tees; right wall: a hanging rail of hoodies
@@ -3345,7 +3352,7 @@ body.riding .relics { display: none; }
     // centre floor: two display tables with mannequins wearing the merch, and a glass case of small things
     const table = (x, z, ps) => { const t = new THREE.Group(); t.position.set(x, 0, z); root.add(t); box(3.2, .9, 1.8, black, 0, .45, 0, t); box(3.3, .06, 1.9, ivory, 0, .92, 0, t).castShadow = false; ps.forEach((p, i) => { const fold = box(.8, .16, .7, std(new THREE.Color(p.color).getHex()), -1 + i * 1, 1.03, 0, t); fold.castShadow = false; const card = new THREE.Mesh(new THREE.PlaneGeometry(.6, .6), new THREE.MeshBasicMaterial({ map: merchTex(p, 128) })); card.position.set(-1 + i * 1, 1.4, .45); card.rotation.x = -.35; t.add(card); offer(p, card, L(x - 1 + i * 1, 0, z + 1.9)); }); colliders.push({ x: O.x + x - .8, z: O.z + z, r: 1.1 }, { x: O.x + x + .8, z: O.z + z, r: 1.1 }); return t; };
     table(-4, 0, [tee, pk("tee", 2), pk("hat", 0)]); table(4, 0, [hood1, pk("sweater", 0), pk("hat", 1)]);
-    [[-4, -4.2, "reaper", hood2], [4, -4.2, "lady", pk("skirt", 0, "tee")], [0, 5.5, "reaper", pk("jacket", 0, "hoodie")]].forEach(([x, z, kind, p]) => { const pl = box(1.2, .5, 1.2, black, x, .25, z, root); pl.castShadow = false; const m = buildReaper(kind, new THREE.MeshBasicMaterial({ color: 0xff2030 })); m.position.set(x, .5, z); m.rotation.y = Math.PI; root.add(m); const tag = new THREE.Mesh(new THREE.PlaneGeometry(.9, .9), new THREE.MeshBasicMaterial({ map: merchTex(p, 128) })); tag.position.set(x, .9, z + .62); root.add(tag); offer(p, m, L(x, 0, z + 1.8), "View what the mannequin wears: " + p.name); colliders.push({ x: O.x + x, z: O.z + z, r: .9 }); });
+    [[-4, -4.2, "reaper", hood2], [4, -4.2, "lady", pk("skirt", 0, "tee")]].forEach(([x, z, kind, p]) => { const pl = box(1.2, .5, 1.2, black, x, .25, z, root); pl.castShadow = false; const m = buildReaper(kind, new THREE.MeshBasicMaterial({ color: 0xff2030 })); m.position.set(x, .5, z); m.rotation.y = Math.PI; root.add(m); const tag = new THREE.Mesh(new THREE.PlaneGeometry(.9, .9), new THREE.MeshBasicMaterial({ map: merchTex(p, 128) })); tag.position.set(x, .9, z + .62); root.add(tag); offer(p, m, L(x, 0, z + 1.8), "View what the mannequin wears: " + p.name); colliders.push({ x: O.x + x, z: O.z + z, r: .9 }); });
     const cs = new THREE.Group(); cs.position.set(0, 0, -8.5); root.add(cs); box(2.6, .9, 1.2, black, 0, .45, 0, cs); box(2.6, .6, 1.2, glass, 0, 1.2, 0, cs).castShadow = false;
     const pin = pk("case", 0, "candle"); const pinPic = new THREE.Mesh(new THREE.PlaneGeometry(.5, .5), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(merchImage(pin, 128)), transparent: true })); pinPic.rotation.x = -Math.PI / 2; pinPic.position.set(0, .93, 0); cs.add(pinPic);
     offer(pin, cs, L(0, 0, -6.8), "View the " + pin.name); colliders.push({ x: O.x - .7, z: O.z - 8.5, r: .9 }, { x: O.x + .7, z: O.z - 8.5, r: .9 });
