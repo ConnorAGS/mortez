@@ -425,14 +425,16 @@ a.cl-card { text-decoration: none; }
 .mw-track { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; padding: 4px 2px 10px; outline: none; scrollbar-width: thin; scrollbar-color: #b3121c #1e1316; }
 .mw-item { flex: 0 0 230px; scroll-snap-align: start; background: #171013; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; text-align: left; color: inherit; font: inherit; padding: 0; }
 .mw-item:hover, .mw-item:focus-visible { border-color: #ff4a52; transform: translateY(-2px); }
-.mw-item canvas { width: 100%; aspect-ratio: 1; display: block; }
+.mw-item canvas, .mw-item img { width: 100%; aspect-ratio: 1; display: block; object-fit: contain; background: #f4f2ef; }
 .mw-item div { padding: 10px 12px 12px; } .mw-item b { display: block; font: 600 15px var(--body); } .mw-item span { color: #ff6a70; font: 600 14px var(--body); } .mw-item small { display: block; color: #a8958f; margin-top: 4px; font: 12px var(--mono, monospace); }
 .mw-empty { color: #c9b5b0; padding: 40px 0; }
 .mw-dots { display: flex; gap: 5px; justify-content: center; margin-top: 6px; } .mw-dots i { width: 7px; height: 7px; border-radius: 50%; background: #3a2a2e; } .mw-dots i.on { background: #ff4a52; }
 @media (max-width: 600px) { .mw-rail { grid-template-columns: 1fr; } .mw-arrow { display: none; } .mw-item { flex-basis: 72%; } .mw-head h2 { font-size: 28px; } }
 .shop, .cart { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: rgba(5,3,4,.7); }
 .sp-card { width: min(860px, 100%); max-height: calc(100vh - 32px); overflow: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); background: #100c0e; border: 1px solid rgba(224,50,60,.45); border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
-.sp-img canvas { width: 100%; height: auto; display: block; border-radius: 18px 0 0 18px; }
+.sp-img { background: #f4f2ef; border-radius: 18px 0 0 18px; overflow: hidden; display: grid; align-content: center; }
+.sp-img canvas, .sp-img > img { width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; display: block; }
+.sp-thumbs { display: flex; gap: 6px; padding: 8px; justify-content: center; flex-wrap: wrap; } .sp-thumbs button { width: 54px; height: 54px; padding: 0; border: 2px solid transparent; border-radius: 8px; overflow: hidden; background: #fff; cursor: pointer; } .sp-thumbs button.on { border-color: #e0323c; } .sp-thumbs img { width: 100%; height: 100%; object-fit: cover; }
 .sp-info { padding: 22px 24px; color: var(--ink); display: flex; flex-direction: column; gap: 10px; }
 .sp-info small { font: 600 11px var(--mono, monospace); letter-spacing: .14em; text-transform: uppercase; color: #e0323c; }
 .sp-info h2 { margin: 0; font: 400 40px/1 var(--display); }
@@ -448,11 +450,11 @@ a.cl-card { text-decoration: none; }
 .ct-card { width: min(520px, 100%); max-height: calc(100vh - 32px); overflow: auto; background: #100c0e; border: 1px solid rgba(224,50,60,.45); border-radius: 18px; padding: 20px 22px; color: var(--ink); }
 .ct-head { display: flex; justify-content: space-between; align-items: center; } .ct-head h2 { margin: 0; font: 400 34px/1 var(--display); }
 .ct-row { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.07); }
-.ct-row canvas { width: 64px; height: 64px; border-radius: 10px; } .ct-row b { display: block; } .ct-row small { color: var(--muted); }
+.ct-row canvas, .ct-row img { width: 64px; height: 64px; border-radius: 10px; object-fit: contain; background: #f4f2ef; } .ct-row b { display: block; } .ct-row small { color: var(--muted); }
 .ct-empty { color: var(--muted); }
 .ct-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.07); font: 600 15px var(--body); }
 .ct-foot button:disabled { opacity: .4; cursor: default; }
-@media (max-width: 680px) { .sp-card { grid-template-columns: 1fr; } .sp-img canvas { border-radius: 18px 18px 0 0; max-height: 46vh; object-fit: contain; } .sp-info h2 { font-size: 32px; } }
+@media (max-width: 680px) { .sp-card { grid-template-columns: 1fr; } .sp-img { border-radius: 18px 18px 0 0; } .sp-img canvas, .sp-img > img { max-height: 40vh; } .sp-info h2 { font-size: 32px; } }
 
 .depart-hud { position: fixed; top: 96px; left: 50%; transform: translateX(-50%); z-index: 12; display: flex; align-items: center; gap: 12px; background: rgba(10,6,8,.86); border: 1px solid rgba(224,50,60,.5); border-radius: 14px; padding: 8px 16px 8px 10px; color: #f3e9e6; font: 600 14px var(--body); max-width: calc(100vw - 24px); }
 .depart-hud[hidden] { display: none; } .depart-hud b { font: 400 34px/1 var(--display); color: #ff4a52; min-width: 34px; text-align: center; }
@@ -668,11 +670,11 @@ body.riding .relics { display: none; }
     <div class="sp-info">
       <small>Mortez · Merch</small><h2 id="spName"></h2><div class="sp-price" id="spPrice"></div>
       <p id="spDesc"></p>
-      <div class="sp-sizes" id="spSizes" aria-label="Size"></div>
+      <div class="sp-sizes" id="spColors" aria-label="Colour"></div><div class="sp-sizes" id="spSizes" aria-label="Size"></div>
       <div class="sp-qty"><button type="button" class="pill" id="spMinus" aria-label="Fewer">−</button><span id="spQty">1</span><button type="button" class="pill" id="spPlus" aria-label="More">+</button></div>
       <div class="sp-btns"><button type="button" class="pill pill-contact" id="spAdd">Add to cart</button><button type="button" class="pill" id="spCart">View cart</button><button type="button" class="pill" id="spClose">Keep browsing</button></div>
       <p class="sp-msg" id="spMsg" role="status"></p>
-      <p class="sp-note">Placeholder products and prices. The band's real store plugs in at checkout.</p>
+      <p class="sp-note">Printed to order and shipped to you.</p>
     </div>
   </div>
 </div>
@@ -843,6 +845,7 @@ body.riding .relics { display: none; }
 <div class="loading" id="loading">Opening the gate…</div>
 
 <script src="../data/releases.js"></script>
+<script src="../data/merch.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function () {
@@ -3137,8 +3140,12 @@ body.riding .relics { display: none; }
   }
 
   // ---------- The Merch shop: a retail floor of racks, tables and walls; every product opens a product page with add to cart ----------
-  // MERCH: placeholder products until the band's real store is connected. Prices are in USD; `kind` picks the drawing.
-  const MERCH = [
+  // MERCH: the band's real products, from /data/merch.js (written by scripts/printful_sync.py from their Printful store).
+  // The drawn placeholders below only show if that file is missing.
+  const SWATCH = { black: "#111014", white: "#ece8e2", red: "#9a1620", pink: "#e0609a", purple: "#4a2a6a", green: "#1f3a2a", navy: "#1a2340", grey: "#3a3a3e", gray: "#3a3a3e", cream: "#e6dcc6" };
+  const swatch = c => { const k = Object.keys(SWATCH).find(k => (c || "").toLowerCase().includes(k)); return k ? SWATCH[k] : "#18161a"; };
+  const REAL_MERCH = (window.MORTEZ_MERCH || []).map(p => ({ ...p, img: (p.images || []).map(u => /^https?:/.test(u) ? u : "../" + u), color: swatch(p.colors && p.colors[0]), ink: "#e9e4dc" }));
+  const MERCH = REAL_MERCH.length ? REAL_MERCH : [
     { id: "reaper-tee", name: "Reaper Tee", kind: "tee", color: "#0b0a0c", ink: "#e0323c", price: 30, sizes: ["S", "M", "L", "XL", "2XL"], d: "Heavyweight black tee. The Reaper on the front, \"No rest for the Reaper\" down the back." },
     { id: "lady-tee", name: "Lady Reaper Tee", kind: "tee", color: "#e9e4dc", ink: "#0b0a0c", price: 30, sizes: ["S", "M", "L", "XL"], d: "Bone-white tee with the Lady Reaper crest in black, red rose at the heart." },
     { id: "fortis-hoodie", name: "Sum Fortis Hoodie", kind: "hoodie", color: "#141215", ink: "#e9e4dc", price: 65, sizes: ["S", "M", "L", "XL", "2XL"], d: "Black pullover hoodie. SUM FORTIS across the chest, scythe on the sleeve." },
@@ -3150,9 +3157,18 @@ body.riding .relics { display: none; }
     { id: "tote", name: "Crypt Tote", kind: "tote", color: "#e9e4dc", ink: "#0b0a0c", price: 22, sizes: [], d: "Heavy canvas tote: THE CRYPT in black block type, a red skull below." }
   ];
   // a product picture drawn on a canvas (until there are real photos)
-  const merchArt = {};
+  const merchArt = {}, merchPics = {}, merchTexs = {};
+  // load a product photo once; every canvas and texture drawn from it refreshes when it arrives
+  function merchPic(p) {
+    if (!p.img || !p.img[0]) return null; if (merchPics[p.id]) return merchPics[p.id];
+    const im = new Image(); im.decoding = "async"; im.onload = () => { Object.keys(merchArt).forEach(k => { if (k.startsWith(p.id + ":")) { drawPhoto(merchArt[k], im); (merchTexs[k] || []).forEach(t => t.needsUpdate = true); } }); }; im.src = p.img[0];
+    return (merchPics[p.id] = im);
+  }
+  function drawPhoto(c, im) { const g = c.getContext("2d"), W = c.width; g.fillStyle = "#f4f2ef"; g.fillRect(0, 0, W, W); const s = Math.min(W / im.naturalWidth, W / im.naturalHeight); g.drawImage(im, (W - im.naturalWidth * s) / 2, (W - im.naturalHeight * s) / 2, im.naturalWidth * s, im.naturalHeight * s); }
+  function merchTex(p, w) { const c = merchImage(p, w), key = p.id + ":" + (w || 512), t = new THREE.CanvasTexture(c); (merchTexs[key] = merchTexs[key] || []).push(t); return t; }
   function merchImage(p, w) {
     const key = p.id + ":" + (w || 512); if (merchArt[key]) return merchArt[key];
+    if (p.img && p.img[0]) { const W = w || 512, [c, g] = cv(W, W); g.fillStyle = "#16141a"; g.fillRect(0, 0, W, W); g.fillStyle = "#e9e4dc"; g.font = `400 ${W / 9}px ${DISP}`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("MORTEZ", W / 2, W / 2); merchArt[key] = c; const im = merchPic(p); if (im && im.complete && im.naturalWidth) drawPhoto(c, im); return c; }
     const W = w || 512, [c, g] = cv(W, W), S = W / 512; g.fillStyle = "#16141a"; g.fillRect(0, 0, W, W);
     const gr = g.createRadialGradient(W / 2, W * .45, 20, W / 2, W / 2, W * .7); gr.addColorStop(0, "rgba(255,255,255,.10)"); gr.addColorStop(1, "rgba(0,0,0,.4)"); g.fillStyle = gr; g.fillRect(0, 0, W, W);
     g.save(); g.scale(S, S); g.fillStyle = p.color; g.strokeStyle = "rgba(255,255,255,.18)"; g.lineWidth = 3;
@@ -3189,13 +3205,22 @@ body.riding .relics { display: none; }
   let cart = []; try { cart = JSON.parse(localStorage.getItem("mortez.cart") || "[]") || []; } catch (e) {}
   const saveCart = () => { try { localStorage.setItem("mortez.cart", JSON.stringify(cart)); } catch (e) {} const n = cart.reduce((a, l) => a + l.qty, 0); cartN.textContent = n; cartBtn.hidden = !n && !(cur && cur.id === "merch"); };
   const money = n => "$" + n.toFixed(2).replace(/\.00$/, "");
-  let shopOpen = false, shopItem = null, shopSize = null, shopQty = 1;
+  let shopOpen = false, shopItem = null, shopSize = null, shopColor = null, shopQty = 1;
+  // the variant for a size and colour (Printful prices can differ by size, e.g. 2XL and up)
+  const variantOf = (p, size, color) => (p.variants || []).find(v => (!size || v.size === size) && (!color || !v.color || v.color === color)) || null;
+  const priceOf = (p, size, color) => { const v = variantOf(p, size, color); return v ? v.price : p.price; };
+  function spPrice() { const p = shopItem; document.getElementById("spPrice").textContent = money(priceOf(p, shopSize, shopColor)); }
   function openProduct(p) {
-    shopItem = p; shopSize = p.sizes[0] || null; shopQty = 1; shopOpen = true; for (const k in keys) keys[k] = false;
-    const img = document.getElementById("spImg"); img.innerHTML = ""; const big = merchImage(p, 512); const cl = document.createElement("canvas"); cl.width = cl.height = 512; cl.getContext("2d").drawImage(big, 0, 0); img.appendChild(cl);
-    document.getElementById("spName").textContent = p.name; document.getElementById("spPrice").textContent = money(p.price); document.getElementById("spDesc").textContent = p.d;
+    shopItem = p; shopSize = p.sizes[0] || null; shopColor = (p.colors || [])[0] || null; shopQty = 1; shopOpen = true; for (const k in keys) keys[k] = false;
+    const img = document.getElementById("spImg"); img.innerHTML = "";
+    if (p.img && p.img.length) { const main = document.createElement("img"); main.src = p.img[0]; main.alt = p.name; img.appendChild(main); if (p.img.length > 1) { const th = document.createElement("div"); th.className = "sp-thumbs"; p.img.forEach((u, i) => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-label", "Photo " + (i + 1)); b.className = i ? "" : "on"; b.innerHTML = `<img src="${u}" alt="">`; b.addEventListener("click", () => { main.src = u; th.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); }); th.appendChild(b); }); img.appendChild(th); } }
+    else { const big = merchImage(p, 512); const cl = document.createElement("canvas"); cl.width = cl.height = 512; cl.getContext("2d").drawImage(big, 0, 0); img.appendChild(cl); }
+    document.getElementById("spName").textContent = p.name; document.getElementById("spDesc").textContent = p.d;
+    const cs = document.getElementById("spColors"); cs.innerHTML = ""; cs.hidden = !(p.colors && p.colors.length > 1);
+    (p.colors || []).forEach(c => { const b = document.createElement("button"); b.type = "button"; b.textContent = c; b.className = c === shopColor ? "on" : ""; b.addEventListener("click", () => { shopColor = c; cs.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); spPrice(); }); cs.appendChild(b); });
+    spPrice();
     const sz = document.getElementById("spSizes"); sz.innerHTML = ""; sz.hidden = !p.sizes.length;
-    p.sizes.forEach(s => { const b = document.createElement("button"); b.type = "button"; b.textContent = s; b.className = s === shopSize ? "on" : ""; b.addEventListener("click", () => { shopSize = s; sz.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); }); sz.appendChild(b); });
+    p.sizes.forEach(s => { const b = document.createElement("button"); b.type = "button"; b.textContent = s; b.className = s === shopSize ? "on" : ""; b.addEventListener("click", () => { shopSize = s; sz.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); spPrice(); }); sz.appendChild(b); });
     document.getElementById("spQty").textContent = shopQty; document.getElementById("spMsg").textContent = "";
     shopEl.hidden = false; document.getElementById("spAdd").focus();
   }
@@ -3213,7 +3238,7 @@ body.riding .relics { display: none; }
     if (wallF.sort === "lo") list = list.slice().sort((a, b) => a.price - b.price); else if (wallF.sort === "hi") list = list.slice().sort((a, b) => b.price - a.price);
     document.getElementById("mwCount").textContent = list.length + (list.length === 1 ? " item" : " items");
     mwTrack.innerHTML = list.length ? "" : '<p class="mw-empty">Nothing matches that yet. Try another filter.</p>';
-    list.forEach(p => { const b = document.createElement("button"); b.type = "button"; b.className = "mw-item"; const c = document.createElement("canvas"); c.width = c.height = 256; c.getContext("2d").drawImage(merchImage(p, 256), 0, 0); b.appendChild(c); const d = document.createElement("div"); d.innerHTML = "<b></b><span></span><small></small>"; d.querySelector("b").textContent = p.name; d.querySelector("span").textContent = money(p.price); d.querySelector("small").textContent = p.sizes.length ? p.sizes.join(" · ") : "One size"; b.appendChild(d); b.addEventListener("click", () => { wallReturn = true; wallEl.hidden = true; openProduct(p); }); mwTrack.appendChild(b); });
+    list.forEach(p => { const b = document.createElement("button"); b.type = "button"; b.className = "mw-item"; if (p.img && p.img[0]) { const im = document.createElement("img"); im.src = p.img[0]; im.alt = ""; im.loading = "lazy"; b.appendChild(im); } else { const c = document.createElement("canvas"); c.width = c.height = 256; c.getContext("2d").drawImage(merchImage(p, 256), 0, 0); b.appendChild(c); } const d = document.createElement("div"); d.innerHTML = "<b></b><span></span><small></small>"; d.querySelector("b").textContent = p.name; d.querySelector("span").textContent = (p.priceMax > p.price ? "From " : "") + money(p.price); d.querySelector("small").textContent = p.sizes.length ? p.sizes.join(" · ") : "One size"; b.appendChild(d); b.addEventListener("click", () => { wallReturn = true; wallEl.hidden = true; openProduct(p); }); mwTrack.appendChild(b); });
     dots();
   }
   function dots() { const el = document.getElementById("mwDots"), n = mwTrack.children.length, w = mwTrack.firstElementChild ? mwTrack.firstElementChild.offsetWidth + 14 : 1, per = Math.max(1, Math.floor(mwTrack.clientWidth / w)), pages = Math.max(1, Math.ceil(n / per)), at = Math.round(mwTrack.scrollLeft / Math.max(1, w * per)); el.innerHTML = pages > 1 ? Array.from({ length: pages }, (_, i) => `<i class="${i === at ? "on" : ""}"></i>`).join("") : ""; }
@@ -3231,10 +3256,10 @@ body.riding .relics { display: none; }
   function renderCart() {
     const list = document.getElementById("ctList"); list.innerHTML = "";
     if (!cart.length) list.innerHTML = "<p class='ct-empty'>Your cart is empty. Walk the shop floor and pick something up.</p>";
-    cart.forEach((l, i) => { const p = MERCH.find(x => x.id === l.id); if (!p) return; const row = document.createElement("div"); row.className = "ct-row"; const th = merchImage(p, 128); const c2 = document.createElement("canvas"); c2.width = c2.height = 128; c2.getContext("2d").drawImage(th, 0, 0); row.appendChild(c2);
-      const info = document.createElement("div"); info.innerHTML = `<b></b><small></small>`; info.querySelector("b").textContent = p.name; info.querySelector("small").textContent = (l.size ? l.size + " · " : "") + "Qty " + l.qty + " · " + money(p.price * l.qty); row.appendChild(info);
+    cart.forEach((l, i) => { const p = MERCH.find(x => x.id === l.id); if (!p) return; const row = document.createElement("div"); row.className = "ct-row"; if (p.img && p.img[0]) { const im = document.createElement("img"); im.src = p.img[0]; im.alt = ""; row.appendChild(im); } else { const th = merchImage(p, 128); const c2 = document.createElement("canvas"); c2.width = c2.height = 128; c2.getContext("2d").drawImage(th, 0, 0); row.appendChild(c2); }
+      const info = document.createElement("div"); info.innerHTML = `<b></b><small></small>`; info.querySelector("b").textContent = p.name; info.querySelector("small").textContent = (l.color && p.colors && p.colors.length > 1 ? l.color + " · " : "") + (l.size ? l.size + " · " : "") + "Qty " + l.qty + " · " + money(priceOf(p, l.size, l.color) * l.qty); row.appendChild(info);
       const rm = document.createElement("button"); rm.type = "button"; rm.className = "pill"; rm.textContent = "Remove"; rm.addEventListener("click", () => { cart.splice(i, 1); saveCart(); renderCart(); }); row.appendChild(rm); list.appendChild(row); });
-    const total = cart.reduce((a, l) => { const p = MERCH.find(x => x.id === l.id); return a + (p ? p.price * l.qty : 0); }, 0);
+    const total = cart.reduce((a, l) => { const p = MERCH.find(x => x.id === l.id); return a + (p ? priceOf(p, l.size, l.color) * l.qty : 0); }, 0);
     document.getElementById("ctTotal").textContent = money(total); document.getElementById("ctGo").disabled = !cart.length;
   }
   function openCart() { renderCart(); cartEl.hidden = false; shopOpen = true; for (const k in keys) keys[k] = false; document.getElementById("ctClose").focus(); }
@@ -3243,12 +3268,12 @@ body.riding .relics { display: none; }
   shopEl.addEventListener("click", e => { if (e.target === shopEl) closeProduct(); });
   document.getElementById("spMinus").addEventListener("click", () => { shopQty = Math.max(1, shopQty - 1); document.getElementById("spQty").textContent = shopQty; });
   document.getElementById("spPlus").addEventListener("click", () => { shopQty = Math.min(9, shopQty + 1); document.getElementById("spQty").textContent = shopQty; });
-  document.getElementById("spAdd").addEventListener("click", () => { const p = shopItem; if (!p) return; const ex = cart.find(l => l.id === p.id && l.size === shopSize); if (ex) ex.qty = Math.min(9, ex.qty + shopQty); else cart.push({ id: p.id, size: shopSize, qty: shopQty }); saveCart(); SFX.init(); SFX.page && SFX.page(); document.getElementById("spMsg").textContent = "Added to your cart."; });
+  document.getElementById("spAdd").addEventListener("click", () => { const p = shopItem; if (!p) return; const ex = cart.find(l => l.id === p.id && l.size === shopSize && l.color === shopColor); if (ex) ex.qty = Math.min(9, ex.qty + shopQty); else { const v = variantOf(p, shopSize, shopColor); cart.push({ id: p.id, size: shopSize, color: shopColor, variant: v && v.id, qty: shopQty }); } saveCart(); SFX.init(); SFX.page && SFX.page(); document.getElementById("spMsg").textContent = "Added to your cart."; });
   document.getElementById("spCart").addEventListener("click", () => { wallReturn = false; closeProduct(); openCart(); });
   cartBtn.addEventListener("click", openCart);
   document.getElementById("ctClose").addEventListener("click", closeCart);
   cartEl.addEventListener("click", e => { if (e.target === cartEl) closeCart(); });
-  document.getElementById("ctGo").addEventListener("click", () => { document.getElementById("ctMsg").textContent = "Checkout opens with the first drop. (This is where the band's store, such as Shopify or Stripe, will plug in.)"; });
+  document.getElementById("ctGo").addEventListener("click", () => { document.getElementById("ctMsg").textContent = "Checkout is being set up. Your cart is saved, so come back soon to finish your order."; });
   addEventListener("keydown", e => { if (!shopOpen) return; if (e.code === "Escape") { e.stopPropagation(); if (!shopEl.hidden) { wallReturn = false; closeProduct(); } else if (!wallEl.hidden) closeWall(); else closeCart(); } }, true);
 
   function buildShop(room, index) {
@@ -3272,39 +3297,42 @@ body.riding .relics { display: none; }
     const neonL = new THREE.PointLight(0xff3040, 1.2, 14, 1.8); neonL.position.set(0, 4.4, ZB + 2); root.add(neonL);
 
     // product helpers: a picture of the product facing out, and a spot to stand to open its page
-    const prodPlane = (p, w, x, y, z, ry) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(merchImage(p, 256)) })); m.position.set(x, y, z); m.rotation.y = ry || 0; root.add(m); return m; };
+    const prodPlane = (p, w, x, y, z, ry) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w), new THREE.MeshBasicMaterial({ map: merchTex(p, 256) })); m.position.set(x, y, z); m.rotation.y = ry || 0; root.add(m); return m; };
     const offer = (p, obj, spot, label) => inter.push({ spot, obj, label: label || ("View the " + p.name), lvl: 0, act: () => openProduct(p) });
     const byId = id => MERCH.find(p => p.id === id);
+    const byKind = k => MERCH.filter(p => p.kind === k);
+    const pk = (k, i, alt) => byKind(k)[i || 0] || (alt && byKind(alt)[0]) || MERCH[(i || 0) % MERCH.length];
 
     // the back wall: the counter, the register, and the vinyl wall behind
     box(8, 1.1, 1.2, black, 0, .55, ZB + 3.2, root); box(8.2, .08, 1.3, ivory, 0, 1.12, ZB + 3.2, root).castShadow = false; box(7.8, .5, .05, glass, 0, 1.45, ZB + 2.6, root).castShadow = false;
     const reg = new THREE.Group(); reg.position.set(2.5, 1.16, ZB + 3.2); root.add(reg); box(.6, .3, .45, black, 0, .15, 0, reg); const scr = box(.5, .32, .04, black, 0, .5, -.12, reg); scr.rotation.x = -.3; const scrG = new THREE.Mesh(new THREE.PlaneGeometry(.44, .26), new THREE.MeshBasicMaterial({ color: 0xff3a3a })); scrG.position.set(0, .5, -.09); scrG.rotation.x = -.3; reg.add(scrG);
     colliders.push({ x: O.x - 2.6, z: O.z + ZB + 3.2, r: 1.4 }, { x: O.x + 1.4, z: O.z + ZB + 3.2, r: 1.4 }, { x: O.x + 3.4, z: O.z + ZB + 3.2, r: 1 });
     const keeper = buildReaper("lady", new THREE.MeshBasicMaterial({ color: 0xff3a5a })); keeper.position.set(-1.2, 0, ZB + 1.8); root.add(keeper);
-    const vinyl = byId("reaper-vinyl");
-    for (let r = 0; r < 3; r++) for (let k = 0; k < 7; k++) { const x = -6 + k * 2 + (k > 2 ? 0 : 0); if (Math.abs(x) < 3.6 && r === 0) continue; const m = prodPlane(vinyl, 1.2, x, 1.6 + r * 1.4, ZB + .04); if (r === 1 && k === 3) offer(vinyl, m, L(0, 0, ZB + 4.6), "View the REAPER vinyl"); }
-    offer(vinyl, reg, L(2.5, 0, ZB + 4.6), "Buy the REAPER vinyl at the counter");
+    // behind the counter: the Coven candles and the hats, repeated across the back wall
+    const backs = byKind("candle").concat(byKind("hat")); if (!backs.length) backs.push(MERCH[0]);
+    let bi = 0; for (let r = 0; r < 3; r++) for (let k = 0; k < 7; k++) { const x = -6 + k * 2; if (Math.abs(x) < 3.6 && r === 0) continue; const p = backs[bi++ % backs.length]; const m = prodPlane(p, 1.2, x, 1.6 + r * 1.4, ZB + .04); if (r === 1) offer(p, m, L(x, 0, ZB + 4.6), "View the " + p.name); }
+    const counterP = pk("candle", 0); offer(counterP, reg, L(2.5, 0, ZB + 4.6), "At the counter: " + counterP.name);
 
     // left wall: shelving of folded tees; right wall: a hanging rail of hoodies
-    const tee = byId("reaper-tee"), lady = byId("lady-tee");
+    const tee = pk("tee", 0), lady = pk("tee", 1, "tank");
     for (let z = ZB + 6; z < ZF - 3; z += 4.2) {
       box(.6, 3.8, 3.6, wood, -XW + .35, 1.9, z, root); [0.6, 1.5, 2.4, 3.3].forEach(y => box(.7, .06, 3.6, wood, -XW + .55, y, z, root).castShadow = false);
       const p = (z / 4.2 | 0) % 2 ? tee : lady; [0.6, 1.5, 2.4].forEach(y => [-1.1, 0, 1.1].forEach(dz => { const st = box(.55, .22, .8, std(new THREE.Color(p.color).getHex()), -XW + .7, y + .14, z + dz, root); st.castShadow = false; }));
       const pic = prodPlane(p, 1.5, -XW + .52, 4.6, z, Math.PI / 2); offer(p, pic, L(-XW + 2.2, 0, z), "View the " + p.name);
       colliders.push({ x: O.x - XW + .6, z: O.z + z, r: 1.2 });
     }
-    const hood1 = byId("fortis-hoodie"), hood2 = byId("chateau-hoodie");
+    const hood1 = pk("hoodie", 0), hood2 = pk("hoodie", 1);
     // right wall: THE MERCH WALL, every item lit in its own frame, two rows, laid out from the product list
     {
-      const items = MERCH, cols = Math.ceil(items.length / 2), z0 = ZB + 4.5, z1 = ZF - 4.5, step = (z1 - z0) / Math.max(1, cols - 1), wx = XW - .02;
+      const items = MERCH, cols = Math.ceil(items.length / 2), z0 = ZB + 4.5, z1 = ZF - 4.5, step = (z1 - z0) / Math.max(1, cols - 1), wx = XW - .02, fw = Math.min(1.75, step * .88);
       box(.08, 5.2, z1 - z0 + 3, black, XW - .06, 3.05, (z0 + z1) / 2, root).castShadow = false;
       const headT = (() => { const [c, g] = cv(1024, 160); g.textAlign = "center"; g.textBaseline = "middle"; g.font = `400 120px ${DISP}`; g.shadowColor = "#ff1e2a"; g.shadowBlur = 30; g.fillStyle = "#ff4a4a"; g.fillText("THE MERCH WALL", 512, 84); return tex(c); })();
       const head = new THREE.Mesh(new THREE.PlaneGeometry(7, 1.1), new THREE.MeshBasicMaterial({ map: headT, transparent: true, depthWrite: false })); head.position.set(wx - .14, 5.85, (z0 + z1) / 2); head.rotation.y = -Math.PI / 2; root.add(head);
       items.forEach((p, i) => {
         const col = i % cols, row = Math.floor(i / cols), z = z0 + col * step, y = row ? 1.75 : 4.05;
-        box(.04, 1.95, 1.95, gold, wx - .12, y, z, root).castShadow = false;
-        const pic = prodPlane(p, 1.75, wx - .16, y, z, -Math.PI / 2);
-        const strip = new THREE.Mesh(new THREE.PlaneGeometry(1.75, .05), new THREE.MeshBasicMaterial({ color: 0xff2a36 })); strip.position.set(wx - .17, y - 1.02, z); strip.rotation.y = -Math.PI / 2; root.add(strip);
+        box(.04, fw + .2, fw + .2, gold, wx - .12, y, z, root).castShadow = false;
+        const pic = prodPlane(p, fw, wx - .16, y, z, -Math.PI / 2);
+        const strip = new THREE.Mesh(new THREE.PlaneGeometry(fw, .05), new THREE.MeshBasicMaterial({ color: 0xff2a36 })); strip.position.set(wx - .17, y - 1.02, z); strip.rotation.y = -Math.PI / 2; root.add(strip);
         offer(p, pic, L(XW - 2.3, 0, z + (row ? .35 : -.35)), "View the " + p.name);
       });
       const kiosk = new THREE.Group(); kiosk.position.set(XW - 3.4, 0, (z0 + z1) / 2); kiosk.rotation.y = -Math.PI / 2; root.add(kiosk);
@@ -3315,14 +3343,15 @@ body.riding .relics { display: none; }
       colliders.push({ x: O.x + XW - 3.4, z: O.z + (z0 + z1) / 2, r: .5 });
     }
     // centre floor: two display tables with mannequins wearing the merch, and a glass case of small things
-    const table = (x, z, ps) => { const t = new THREE.Group(); t.position.set(x, 0, z); root.add(t); box(3.2, .9, 1.8, black, 0, .45, 0, t); box(3.3, .06, 1.9, ivory, 0, .92, 0, t).castShadow = false; ps.forEach((p, i) => { const fold = box(.8, .16, .7, std(new THREE.Color(p.color).getHex()), -1 + i * 1, 1.03, 0, t); fold.castShadow = false; const card = new THREE.Mesh(new THREE.PlaneGeometry(.6, .6), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(merchImage(p, 128)) })); card.position.set(-1 + i * 1, 1.4, .45); card.rotation.x = -.35; t.add(card); offer(p, card, L(x - 1 + i * 1, 0, z + 1.9)); }); colliders.push({ x: O.x + x - .8, z: O.z + z, r: 1.1 }, { x: O.x + x + .8, z: O.z + z, r: 1.1 }); return t; };
-    table(-4, 0, [tee, lady, byId("beanie")]); table(4, 0, [hood1, byId("tote"), byId("poster")]);
-    [[-4, -4.2, "reaper", tee], [4, -4.2, "lady", lady], [0, 5.5, "reaper", hood1]].forEach(([x, z, kind, p]) => { const pl = box(1.2, .5, 1.2, black, x, .25, z, root); pl.castShadow = false; const m = buildReaper(kind, new THREE.MeshBasicMaterial({ color: 0xff2030 })); m.position.set(x, .5, z); m.rotation.y = Math.PI; root.add(m); const tag = new THREE.Mesh(new THREE.PlaneGeometry(.9, .9), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(merchImage(p, 128)) })); tag.position.set(x, .9, z + .62); root.add(tag); offer(p, m, L(x, 0, z + 1.8), "View what the mannequin wears: " + p.name); colliders.push({ x: O.x + x, z: O.z + z, r: .9 }); });
+    const table = (x, z, ps) => { const t = new THREE.Group(); t.position.set(x, 0, z); root.add(t); box(3.2, .9, 1.8, black, 0, .45, 0, t); box(3.3, .06, 1.9, ivory, 0, .92, 0, t).castShadow = false; ps.forEach((p, i) => { const fold = box(.8, .16, .7, std(new THREE.Color(p.color).getHex()), -1 + i * 1, 1.03, 0, t); fold.castShadow = false; const card = new THREE.Mesh(new THREE.PlaneGeometry(.6, .6), new THREE.MeshBasicMaterial({ map: merchTex(p, 128) })); card.position.set(-1 + i * 1, 1.4, .45); card.rotation.x = -.35; t.add(card); offer(p, card, L(x - 1 + i * 1, 0, z + 1.9)); }); colliders.push({ x: O.x + x - .8, z: O.z + z, r: 1.1 }, { x: O.x + x + .8, z: O.z + z, r: 1.1 }); return t; };
+    table(-4, 0, [tee, pk("tee", 2), pk("hat", 0)]); table(4, 0, [hood1, pk("sweater", 0), pk("hat", 1)]);
+    [[-4, -4.2, "reaper", hood2], [4, -4.2, "lady", pk("skirt", 0, "tee")], [0, 5.5, "reaper", pk("jacket", 0, "hoodie")]].forEach(([x, z, kind, p]) => { const pl = box(1.2, .5, 1.2, black, x, .25, z, root); pl.castShadow = false; const m = buildReaper(kind, new THREE.MeshBasicMaterial({ color: 0xff2030 })); m.position.set(x, .5, z); m.rotation.y = Math.PI; root.add(m); const tag = new THREE.Mesh(new THREE.PlaneGeometry(.9, .9), new THREE.MeshBasicMaterial({ map: merchTex(p, 128) })); tag.position.set(x, .9, z + .62); root.add(tag); offer(p, m, L(x, 0, z + 1.8), "View what the mannequin wears: " + p.name); colliders.push({ x: O.x + x, z: O.z + z, r: .9 }); });
     const cs = new THREE.Group(); cs.position.set(0, 0, -8.5); root.add(cs); box(2.6, .9, 1.2, black, 0, .45, 0, cs); box(2.6, .6, 1.2, glass, 0, 1.2, 0, cs).castShadow = false;
-    const pin = byId("scythe-pin"); const pinPic = new THREE.Mesh(new THREE.PlaneGeometry(.5, .5), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(merchImage(pin, 128)), transparent: true })); pinPic.rotation.x = -Math.PI / 2; pinPic.position.set(0, .93, 0); cs.add(pinPic);
-    offer(pin, cs, L(0, 0, -6.8), "View the Scythe Enamel Pin"); colliders.push({ x: O.x - .7, z: O.z - 8.5, r: .9 }, { x: O.x + .7, z: O.z - 8.5, r: .9 });
+    const pin = pk("case", 0, "candle"); const pinPic = new THREE.Mesh(new THREE.PlaneGeometry(.5, .5), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(merchImage(pin, 128)), transparent: true })); pinPic.rotation.x = -Math.PI / 2; pinPic.position.set(0, .93, 0); cs.add(pinPic);
+    offer(pin, cs, L(0, 0, -6.8), "View the " + pin.name); colliders.push({ x: O.x - .7, z: O.z - 8.5, r: .9 }, { x: O.x + .7, z: O.z - 8.5, r: .9 });
     // posters on the front wall either side of the door
-    const poster = byId("poster"); [-7, 7].forEach(x => { const m = prodPlane(poster, 2.4, x, 3, ZF - .02, Math.PI); offer(poster, m, L(x, 0, ZF - 2), "View the Chateau Poster"); });
+    // two big framed features on the front wall either side of the door
+    [[-7, byId("p472556709") || pk("tee", 0)], [7, byId("p482382709") || pk("hoodie", 2)]].forEach(([x, p]) => { box(2.6, 2.6, .06, gold, x, 3, ZF - .05, root).castShadow = false; const m = prodPlane(p, 2.4, x, 3, ZF - .1, Math.PI); offer(p, m, L(x, 0, ZF - 2), "View the " + p.name); });
 
     // the ways out: the shop door to the grounds, and a back door through to the west wing
     placeDoor(root, O, doors, inter, { to: "plaza", sign: "OUTSIDE", color: "#b02a30", x: 0, z: ZF - .35, ry: Math.PI, scale: 1.2, label: "Back outside" });

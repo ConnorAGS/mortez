@@ -132,7 +132,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* the catalogue rail */
 .rail-wrap { position: relative; }
-.rail { display: grid; grid-auto-flow: column; grid-auto-columns: clamp(240px, 26vw, 330px); gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px var(--gutter-r) 22px var(--gutter); scrollbar-width: thin; scrollbar-color: var(--stone) transparent; cursor: grab; }
+.rail { --edge: max(var(--gutter), calc((100vw - 1360px) / 2 + var(--gutter))); scroll-padding-inline: var(--edge); display: grid; grid-auto-flow: column; grid-auto-columns: clamp(240px, 26vw, 330px); gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px var(--edge) 22px; scrollbar-width: thin; scrollbar-color: var(--stone) transparent; cursor: grab; }
 .rail.drag { cursor: grabbing; scroll-snap-type: none; }
 .rel { scroll-snap-align: start; text-align: left; background: none; border: 0; padding: 0; color: inherit; cursor: pointer; font: inherit; }
 .rel .art { position: relative; aspect-ratio: 1; border-radius: 4px; overflow: hidden; border: 1px solid var(--stone); display: grid; place-items: center; padding: 18px; transition: transform .35s, box-shadow .35s, border-color .35s; }
@@ -171,30 +171,64 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .cbtn:hover .moon, .portal:hover .moon { transform: translateY(-2px); opacity: 1; }
 .cbtn-lg { padding: 8px 26px 8px 10px; font-size: 17px; } .cbtn-lg .castle { width: 72px; height: 44px; }
 @media (max-width: 900px) { .top .cbtn { padding: 4px 8px; order: 2; } .top .cbtn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .menu-btn { order: 3; margin-left: 0; } .top .mark { margin-right: auto; } }
-/* the one doorway into the 3D world */
-.portal { position: relative; display: flex; align-items: flex-end; min-height: 440px; border-radius: 4px; overflow: hidden; border: 1px solid var(--stone); text-decoration: none; isolation: isolate; }
-.portal img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform 1.2s cubic-bezier(.2,.7,.2,1); }
-.portal::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(10,8,9,.92) 0%, rgba(10,8,9,.55) 50%, rgba(10,8,9,.1) 100%); }
-.portal:hover img { transform: scale(1.04); }
-.portal .in { padding: clamp(24px, 4vw, 56px); display: grid; gap: 16px; justify-items: start; max-width: 600px; }
+/* WATCH: a little cinema. Velvet curtains either side, the screen in the middle with its own glow */
+.cinema { position: relative; overflow: hidden; isolation: isolate; background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(224,50,60,.16), transparent 70%), var(--night); }
+.cinema::before, .cinema::after { content: ""; position: absolute; top: 0; bottom: 0; width: min(16vw, 220px); z-index: -1; pointer-events: none;
+  background: repeating-linear-gradient(90deg, #3a070c 0 14px, #5a0d14 14px 22px, #2a0508 22px 34px), #3a070c; box-shadow: inset 0 -120px 120px rgba(10,8,9,.9), inset 0 60px 60px rgba(10,8,9,.6); opacity: .85; }
+.cinema::before { left: 0; border-bottom-right-radius: 60% 18%; -webkit-mask-image: linear-gradient(90deg, #000 40%, transparent); mask-image: linear-gradient(90deg, #000 40%, transparent); }
+.cinema::after { right: 0; border-bottom-left-radius: 60% 18%; -webkit-mask-image: linear-gradient(270deg, #000 40%, transparent); mask-image: linear-gradient(270deg, #000 40%, transparent); }
+.cinema .sec-head { justify-content: center; text-align: center; }
+.cinema .sec-head > div { display: grid; justify-items: center; }
+.screen-wrap { position: relative; max-width: 1080px; margin: 0 auto; }
+.screen-glow { position: absolute; inset: 6% 4% -4%; z-index: -1; background: center / cover; filter: blur(60px) saturate(1.4); opacity: .55; }
+.screen { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 6px; overflow: hidden; background: #000 center / cover; border: 1px solid rgba(224,50,60,.45); box-shadow: 0 0 0 6px #050304, 0 0 0 7px rgba(224,50,60,.25), 0 40px 120px rgba(0,0,0,.7); cursor: pointer; padding: 0; color: inherit; font: inherit; text-align: left; }
+.screen::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,8,9,.1) 40%, rgba(10,8,9,.85)); transition: background .4s; }
+.screen:hover::before { background: linear-gradient(180deg, rgba(10,8,9,0) 40%, rgba(10,8,9,.75)); }
+.screen .play { position: absolute; left: 50%; top: 50%; width: clamp(64px, 9vw, 104px); aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); display: grid; place-items: center; background: var(--blood); box-shadow: 0 0 0 10px rgba(224,50,60,.22), 0 0 60px rgba(224,50,60,.6); transition: transform .3s, box-shadow .3s; }
+.screen .play::after { content: ""; margin-left: 8%; border-style: solid; border-width: 14px 0 14px 24px; border-color: transparent transparent transparent #fff; }
+.screen:hover .play { transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 0 0 16px rgba(224,50,60,.18), 0 0 90px rgba(224,50,60,.8); }
+.screen .cap { position: absolute; left: clamp(16px, 3vw, 32px); right: clamp(16px, 3vw, 32px); bottom: clamp(14px, 2.4vw, 28px); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.screen .cap h3 { font-size: clamp(30px, 4.4vw, 60px); }
+.screen iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.screen.playing::before, .screen.playing .play, .screen.playing .cap { display: none; }
+.marks { position: absolute; inset: -14px; pointer-events: none; }
+.marks i { position: absolute; width: 22px; height: 22px; border: 0 solid var(--blood); }
+.marks i:nth-child(1) { left: 0; top: 0; border-width: 2px 0 0 2px; } .marks i:nth-child(2) { right: 0; top: 0; border-width: 2px 2px 0 0; } .marks i:nth-child(3) { left: 0; bottom: 0; border-width: 0 0 2px 2px; } .marks i:nth-child(4) { right: 0; bottom: 0; border-width: 0 2px 2px 0; }
+.reel { display: flex; gap: 14px; overflow-x: auto; margin-top: 28px; padding-bottom: 6px; }
+.reel a { flex: 0 0 220px; text-decoration: none; display: grid; gap: 8px; }
+.reel .th { aspect-ratio: 16 / 9; max-width: 100%; border-radius: 4px; border: 1px solid var(--stone); background: var(--crypt) center / cover; }
+.watch-acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 34px; }
 
-/* the shop */
-.shop { position: relative; border-radius: 4px; overflow: hidden; border: 1px solid var(--stone); min-height: 340px; background: radial-gradient(ellipse 70% 90% at 100% 100%, rgba(224,50,60,.22), transparent 60%), var(--crypt); display: flex; align-items: flex-end; isolation: isolate; }
-.shop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; filter: brightness(.7); }
+/* THE CHATEAU: a full-bleed night scene with fog, lightning and the gate drifting closer */
+.night { position: relative; min-height: min(92svh, 860px); display: grid; place-items: center; overflow: hidden; isolation: isolate; text-decoration: none; color: var(--bone); padding-block: 90px; }
+.night .bg { position: absolute; inset: -6%; z-index: -4; background: #050304 url("media/classic/gate.jpg") center 40% / cover no-repeat; transform: translate3d(var(--px, 0), var(--py, 0), 0) scale(1.08); animation: nightzoom 30s ease-in-out infinite alternate; transition: transform .6s ease-out; }
+@keyframes nightzoom { to { scale: 1.12 } }
+.night::before { content: ""; position: absolute; inset: 0; z-index: -3; background: radial-gradient(ellipse 55% 60% at 50% 45%, rgba(10,8,9,.15), rgba(10,8,9,.88) 75%), linear-gradient(180deg, var(--night) 0%, transparent 18%, transparent 80%, var(--night) 100%); }
+.night .fog { z-index: -2; opacity: .5; } .night .flash { z-index: -2; }
+.night .ghost { position: absolute; z-index: -2; left: 50%; top: 50%; transform: translate(-50%, -54%); font: 400 clamp(110px, 24vw, 380px)/.8 var(--display); color: transparent; -webkit-text-stroke: 1px rgba(239,232,232,.12); white-space: nowrap; pointer-events: none; letter-spacing: .02em; }
+.night .in { display: grid; justify-items: center; text-align: center; gap: 20px; max-width: 720px; padding-inline: 16px; }
+.night h2 { font-size: clamp(60px, 9vw, 132px); text-shadow: 0 0 50px rgba(0,0,0,.8); }
+.night h2 .r { color: var(--blood); text-shadow: 0 0 40px rgba(224,50,60,.55); }
+.night .lede { color: var(--bone); text-shadow: 0 2px 12px #000; }
+.night .label { padding: 6px 12px; border-radius: 999px; background: rgba(10,8,9,.7); }
+.night .feats { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; font: 500 12px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ash); }
+.night .feats span::before { content: "✦ "; color: var(--blood); }
+.night:hover .cbtn { transform: translateY(-2px); border-color: #ff5a62; box-shadow: 0 0 0 1px rgba(0,0,0,.6) inset, 0 12px 44px rgba(224,50,60,.5); }
+.night:hover .gate { transform: scaleY(.08); } .night:hover .glow { opacity: .9; }
 
-.shop .in { padding: clamp(24px, 4vw, 56px); display: grid; gap: 18px; max-width: 620px; }
-.products { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; margin-top: 28px; }
-.products:empty { display: none; }
-
-/* videos */
-.vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
-.vid { display: grid; gap: 10px; text-decoration: none; }
-.vids .vid:first-child { grid-column: 1 / -1; max-width: 980px; } .vids .vid:first-child b { font: 400 clamp(30px, 4vw, 48px)/1 var(--display); }
-.vid .th { aspect-ratio: 16 / 9; max-width: 100%; border-radius: 4px; overflow: hidden; border: 1px solid var(--stone); background: var(--crypt) center / cover; position: relative; }
-.vid .th::after { content: "▶"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 34px; color: #fff; background: rgba(10,8,9,.35); transition: background .3s; }
-.vid:hover .th::after { background: rgba(224,50,60,.45); }
-.empty { border: 1px dashed var(--stone); border-radius: 4px; padding: clamp(24px, 4vw, 44px); display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; }
-.empty p { margin: 0; max-width: 54ch; color: var(--ash); }
+/* THE SHOP: a big title, then a sideways rail of real products on paper-white cards */
+.shop-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 22px; margin-bottom: clamp(26px, 4vw, 44px); }
+.shop-rail { --edge: max(var(--gutter), calc((100vw - 1360px) / 2 + var(--gutter))); scroll-padding-inline: var(--edge); display: grid; grid-auto-flow: column; grid-auto-columns: clamp(220px, 22vw, 290px); gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px var(--edge) 22px; scrollbar-width: thin; scrollbar-color: var(--stone) transparent; }
+.prod { scroll-snap-align: start; display: grid; gap: 12px; text-decoration: none; color: inherit; }
+.prod .ph { position: relative; aspect-ratio: 1; max-width: 100%; border-radius: 4px; overflow: hidden; background: #fff; }
+.prod .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .5s, transform .8s cubic-bezier(.2,.7,.2,1); }
+.prod .ph img + img { opacity: 0; background: #fff; object-fit: contain; }
+.prod:hover .ph img:first-child { transform: scale(1.05); } .prod:hover .ph img + img { opacity: 1; }
+.prod .tag { position: absolute; left: 10px; top: 10px; z-index: 1; padding: 5px 9px; border-radius: 999px; background: var(--night); color: var(--bone); font: 500 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+.prod .row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.prod b { font: 600 15px var(--body); } .prod .pr { font: 500 13px var(--mono); color: var(--blood); white-space: nowrap; }
+.prod small { font: 500 11px var(--mono); letter-spacing: .1em; color: var(--ash); text-transform: uppercase; }
+.prod.more .ph { background: var(--blood); display: grid; place-items: center; } .prod.more .ph span { font: 400 clamp(40px, 4vw, 56px)/.9 var(--display); color: #fff; text-align: center; }
 
 /* the coven */
 .coven { text-align: center; display: grid; justify-items: center; gap: 22px; }
@@ -295,35 +329,34 @@ Lay me down in your chains</blockquote>
     <div class="wrap" style="margin-top:22px"><p class="lede">Open any release to read the lyrics.</p></div>
   </section>
 
-  <section class="band raised" id="videos">
+  <section class="band cinema" id="videos">
     <div class="wrap">
-      <div class="sec-head"><div><span class="label"><b>Videos</b> · official</span><h2 class="stack" style="margin-top:14px">Watch</h2></div></div>
-      <div class="vids" id="vids"></div>
-    </div>
-  </section>
-
-  <section class="band" id="chateau">
-    <div class="wrap">
-      <a class="portal reveal enter" href="chateau/">
-        <img src="media/classic/gate.jpg" alt="The black iron gate of the Chateau under a full moon" loading="lazy">
-        <div class="in"><span class="label"><b>Something else</b> · explore online</span><h2 class="stack">The <span class="r">Chateau</span></h2><p class="lede">A haunted estate built for Mortez that you can walk through in your browser.</p><span class="cbtn cbtn-lg"><svg class="castle" viewBox="0 0 64 40" aria-hidden="true"><circle class="moon" cx="44" cy="12" r="8"/><path class="keep" d="M0 40V30h4v-3h3v3h4V18l4-9 4 9v6h4V14l9-14 9 14v10h4v-6l4-9 4 9v12h4v-3h3v3h4v10z"/><g class="win"><rect x="30.5" y="16" width="3" height="5" rx="1.5"/><rect x="13.5" y="22" width="3" height="4" rx="1.5"/><rect x="47.5" y="22" width="3" height="4" rx="1.5"/></g><path class="gate" d="M27 40V33a5 5 0 0 1 10 0v7z"/><path class="glow" d="M27 40V33a5 5 0 0 1 10 0v7z"/></svg><span>Enter the Chateau</span></span></div>
-      </a>
+      <div class="sec-head"><div><span class="label"><b>Now showing</b> · official videos</span><h2 class="stack" style="margin-top:14px">Watch</h2></div></div>
+      <div class="screen-wrap reveal" id="screenWrap"></div>
+      <div class="reel" id="reel" hidden></div>
+      <div class="watch-acts"><a class="btn btn-ghost" id="ytAll" target="_blank" rel="noopener">More on YouTube</a></div>
     </div>
   </section>
 
   <section class="band" id="shop">
-    <div class="wrap">
-      <div class="shop reveal">
-                <div class="in">
-          <span class="label"><b>Merch</b> · wares · relics</span>
-          <h2 class="stack">The shop</h2>
-          <p class="lede" style="color:var(--bone)">Shirts, hoodies and more, printed to order and shipped to you.</p>
-          <div class="links"><a class="btn btn-blood" href="shop/" id="shopOnline">Shop all merch</a></div>
-        </div>
-      </div>
-      <div class="products" id="products"></div>
+    <div class="wrap shop-head">
+      <div><span class="label"><b>Merch</b> · printed to order · shipped to you</span><h2 class="stack" style="margin-top:14px">The <em>shop</em></h2></div>
+      <div class="links" style="margin:0"><a class="btn btn-blood" href="shop/" id="shopOnline">Shop all merch</a></div>
     </div>
+    <div class="shop-rail" id="products" aria-label="Featured merch"></div>
   </section>
+
+  <a class="night enter" id="chateau" href="chateau/" aria-label="Enter the Chateau, an online world">
+    <div class="bg" aria-hidden="true"></div><div class="fog"></div><div class="fog b"></div><div class="flash"></div>
+    <div class="ghost" aria-hidden="true">Chateau</div>
+    <div class="in reveal">
+      <span class="label"><b>Something else</b> · explore online</span>
+      <h2>Step through<br>the <span class="r">gate</span></h2>
+      <p class="lede">A haunted estate built for Mortez. Choose your reaper and walk it, right in your browser.</p>
+      <div class="feats"><span>A bookcase for every song</span><span>The Chapel screen</span><span>The Reaper Ride</span></div>
+      <span class="cbtn cbtn-lg"><svg class="castle" viewBox="0 0 64 40" aria-hidden="true"><circle class="moon" cx="44" cy="12" r="8"/><path class="keep" d="M0 40V30h4v-3h3v3h4V18l4-9 4 9v6h4V14l9-14 9 14v10h4v-6l4-9 4 9v12h4v-3h3v3h4v10z"/><g class="win"><rect x="30.5" y="16" width="3" height="5" rx="1.5"/><rect x="13.5" y="22" width="3" height="4" rx="1.5"/><rect x="47.5" y="22" width="3" height="4" rx="1.5"/></g><path class="gate" d="M27 40V33a5 5 0 0 1 10 0v7z"/><path class="glow" d="M27 40V33a5 5 0 0 1 10 0v7z"/></svg><span>Enter the Chateau</span></span>
+    </div>
+  </a>
 
   <section class="band raised" id="coven">
     <div class="wrap coven">
@@ -378,6 +411,7 @@ Lay me down in your chains</blockquote>
 <div class="curtain" id="curtain" aria-hidden="true"><span>Opening the gate…</span></div>
 
 <script src="data/releases.js"></script>
+<script src="data/merch.js"></script>
 <script>
 (function () {
   // ---------- Site content. Edit here. ----------
@@ -451,16 +485,36 @@ Lay me down in your chains</blockquote>
   $("dClose").addEventListener("click", closeRel); drawer.addEventListener("click", e => { if (e.target === drawer) closeRel(); });
 
 
-  // ---------- videos ----------
-  $("vids").innerHTML = VIDEOS.length ? VIDEOS.map(v => `<a class="vid" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener"><div class="th" style="background-image:url('https://i.ytimg.com/vi/${esc(v.id)}/maxresdefault.jpg'), url('https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg'), url('${esc(v.poster || "media/hero.jpg")}')"></div><b>${esc(v.title)}</b></a>`).join("") + `<div><a class="btn btn-ghost" href="${LINKS.youtube}" target="_blank" rel="noopener">${icon.youtube}More on YouTube</a></div>`
-    : `<div class="empty"><p>Watch every Mortez music video on the official YouTube channel.</p><div class="links" style="margin:0"><a class="btn btn-blood" href="${LINKS.youtube}" target="_blank" rel="noopener">${icon.youtube}Watch on YouTube</a></div></div>`;
+  // ---------- videos: the newest on the big screen, plays right here; any others in a reel below ----------
+  const isPreview = location.protocol === "file:" || /claude|anthropic|usercontent/i.test(location.hostname);
+  const thumb = (v, q) => `url('https://i.ytimg.com/vi/${esc(v.id)}/${q || "maxresdefault"}.jpg'), url('https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg'), url('${esc(v.poster || "media/hero.jpg")}')`;
+  $("ytAll").href = LINKS.youtube; $("ytAll").insertAdjacentHTML("afterbegin", icon.youtube);
+  function showVideo(v) {
+    $("screenWrap").innerHTML = `<div class="screen-glow" style="background-image:${thumb(v, "hqdefault")}"></div><div class="marks" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      ${isPreview ? `<a class="screen" id="screen" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener"` : `<button class="screen" type="button" id="screen"`} style="background-image:${thumb(v)}" aria-label="Play ${esc(v.title)}"><span class="play" aria-hidden="true"></span><span class="cap"><span><span class="label"><b>Mortez</b> · ${esc(v.kicker || "Latest video")}</span><h3>${esc(v.title)}</h3></span></span>${isPreview ? "</a>" : "</button>"}`;
+    $("screen").addEventListener("click", () => {
+      if (isPreview) return;
+      const sc = $("screen"); sc.classList.add("playing"); sc.insertAdjacentHTML("beforeend", `<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.id)}?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="${esc(v.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`);
+    });
+  }
+  if (VIDEOS.length) {
+    showVideo(VIDEOS[0]);
+    if (VIDEOS.length > 1) { const r = $("reel"); r.hidden = false; r.innerHTML = VIDEOS.map((v, i) => `<a href="https://www.youtube.com/watch?v=${esc(v.id)}" data-v="${i}"><div class="th" style="background-image:${thumb(v, "mqdefault")}"></div><b>${esc(v.title)}</b></a>`).join(""); r.addEventListener("click", e => { const a = e.target.closest("[data-v]"); if (!a) return; e.preventDefault(); showVideo(VIDEOS[+a.dataset.v]); $("screenWrap").scrollIntoView({ behavior: "smooth", block: "center" }); }); }
+  } else $("screenWrap").innerHTML = `<div class="empty"><p>Watch every Mortez music video on the official YouTube channel.</p></div>`;
 
-  // ---------- products (filled by the Printful sync later; empty until then) ----------
-  const PRODUCTS = window.MORTEZ_PRODUCTS || [];
-  $("products").innerHTML = PRODUCTS.map(p => `<a class="vid" href="shop/#${esc(p.id)}"><div class="th" style="background-image:url('${esc(p.image)}');aspect-ratio:1"></div><b>${esc(p.name)}</b><span class="label">${esc(p.price)}</span></a>`).join("");
+  // ---------- the shop rail: featured pieces from the band's Printful store (data/merch.js) ----------
+  const MERCH = window.MORTEZ_MERCH || [];
+  const FEATURED = ["p472556709", "p482382709", "p482391708", "p485984334", "p482403731", "p471945636", "p413675755", "p482404059", "p482392836", "p413683605"];
+  const feat = FEATURED.map(id => MERCH.find(p => p.id === id)).filter(Boolean).concat(MERCH.filter(p => !FEATURED.includes(p.id))).slice(0, 10);
+  const usd = n => "$" + (+n).toFixed(2).replace(/\.00$/, "");
+  $("products").innerHTML = feat.map((p, i) => `<a class="prod" href="shop/#${esc(p.id)}"><div class="ph"><img src="${esc(p.images[0])}" alt="${esc(p.name)}" loading="lazy">${p.images[1] ? `<img src="${esc(p.images[1])}" alt="" loading="lazy">` : ""}</div><div class="row"><b>${esc(p.name)}</b><span class="pr">${p.priceMax > p.price ? "from " : ""}${usd(p.price)}</span></div><small>${esc(p.colors.length > 1 ? p.colors.length + " colours" : (p.colors[0] || ""))}${p.sizes.length ? " · " + esc(p.sizes[0]) + "–" + esc(p.sizes[p.sizes.length - 1]) : ""}</small></a>`).join("")
+    + (MERCH.length ? `<a class="prod more" href="shop/"><div class="ph"><span>Shop all<br>${MERCH.length} pieces →</span></div></a>` : "");
+  if (!MERCH.length) $("shop").querySelector(".shop-rail").hidden = true;
+
+  // the Chateau scene leans with the pointer
+  const night = $("chateau"); night.addEventListener("pointermove", e => { const r = night.getBoundingClientRect(); night.style.setProperty("--px", ((e.clientX - r.left) / r.width - .5) * -18 + "px"); night.style.setProperty("--py", ((e.clientY - r.top) / r.height - .5) * -12 + "px"); });
 
   // ---------- forms: the coven and booking (PHP on the hosting; in a preview nothing is sent) ----------
-  const isPreview = location.protocol === "file:" || /claude|anthropic|usercontent/i.test(location.hostname);
   async function post(url, form) { if (isPreview) return { ok: true, preview: true }; const r = await fetch(url, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } }); const j = await r.json().catch(() => ({})); return { ok: r.ok && j.ok, j }; }
   $("covenForm").addEventListener("submit", async e => { e.preventDefault(); const f = e.target, m = $("covenMsg"), em = $("covenEmail"); if (!em.checkValidity()) { m.textContent = "That email doesn't look right. Check it and try again."; em.focus(); return; } m.textContent = "Summoning…"; try { const r = await post("coven.php", f); m.textContent = r.preview ? "Preview only: on the live site this adds you to the list." : r.ok ? "You're in. Welcome to the coven." : "That didn't go through. Try again in a moment."; if (r.ok && !r.preview) f.reset(); } catch (err) { m.textContent = "That didn't go through. Try again in a moment."; } });
   const book = $("book");
