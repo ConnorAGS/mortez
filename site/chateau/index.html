@@ -1964,10 +1964,12 @@ body.riding .relics { display: none; }
     [-1, 1].forEach(sx => box(.9, 4.6, .9, trim, sx * 2.4, 2.3, CF + .15, chapel));
     [0, 1, 2].forEach(k => box(7 - k * 1.2, .18, 1, std(0x3a363c), 0, .09 + k * .18, CF + 2.6 - k * .8, chapel).castShadow = false);
     chapelDoor = frontDoor(chapel, "#ff4646", "CHAPEL", 1.5, 0, CF + .02, "film", "Enter the Chapel Theater");
-    const marq = glowSign([["NOW SHOWING", 74, .3, "#ffd9a8"], ["REAPER · MORTEZ", 96, .7, "#ff4646"]], 6.4, 1.7, "#ff2a2a"); marq.position.set(0, 7.6, CF + .3); chapel.add(marq);
+    // one marquee does the job of the door's own sign: hide that sign and its iron backing so nothing overlaps
+    { const sg = chapelDoor.sign, par = sg.parent, back = par.children[par.children.indexOf(sg) + 1]; sg.visible = false; if (back) back.visible = false; }
+    const marq = glowSign([["THE CHAPEL", 104, .38, "#ff4646"], ["NOW SHOWING · MORTEZ", 58, .8, "#ffd9a8"]], 6.4, 1.7, "#ff2a2a"); marq.position.set(0, 8.8, CF + .3); chapel.add(marq);
     const bulbs = []; const bulbM = new THREE.MeshBasicMaterial({ color: 0xffd08a });
-    for (let k = 0; k < 26; k++) { const t = k / 26, per = 2 * (6.6 + 1.9), d = t * per; let x, y; if (d < 6.6) { x = -3.3 + d; y = 8.5; } else if (d < 8.5) { x = 3.3; y = 8.5 - (d - 6.6); } else if (d < 15.1) { x = 3.3 - (d - 8.5); y = 6.6; } else { x = -3.3; y = 6.6 + (d - 15.1); } const b = new THREE.Mesh(new THREE.SphereGeometry(.07, 6, 4), bulbM.clone()); b.position.set(x, y, CF + .35); chapel.add(b); bulbs.push(b); }
-    box(6.8, 2.1, .2, std(0x14100e), 0, 7.55, CF + .18, chapel).castShadow = false;
+    for (let k = 0; k < 26; k++) { const t = k / 26, per = 2 * (6.6 + 1.9), d = t * per; let x, y; if (d < 6.6) { x = -3.3 + d; y = 9.7; } else if (d < 8.5) { x = 3.3; y = 9.7 - (d - 6.6); } else if (d < 15.1) { x = 3.3 - (d - 8.5); y = 7.8; } else { x = -3.3; y = 7.8 + (d - 15.1); } const b = new THREE.Mesh(new THREE.SphereGeometry(.07, 6, 4), bulbM.clone()); b.position.set(x, y, CF + .35); chapel.add(b); bulbs.push(b); }
+    box(6.8, 2.1, .2, std(0x14100e), 0, 8.75, CF + .18, chapel).castShadow = false;
     // the bell tower at the front corner, with a red light in the belfry
     const tw = new THREE.Group(); tw.position.set(-CW / 2 - .6, 0, CF - 2.2); chapel.add(tw);
     box(4.6, 21, 4.6, wallM, 0, 10.5, 0, tw);
