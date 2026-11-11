@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mortez</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Official site of Mortez: gothic opera, darkwave and metal. Stream CHAINZ, read every lyric, shop merch, join the coven, and walk through the gate into the Chateau.">
+<meta name="description" content="Official site of Mortez: gothic opera, darkwave and metal. Stream the new single CHAINZ, read every lyric, watch the videos, shop merch and join the coven.">
 <link rel="canonical" href="https://mortezmusic.com/">
 <link rel="icon" href="media/favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mortezmusic.com/">
 <meta property="og:title" content="Mortez">
-<meta property="og:description" content="Gothic opera, darkwave and metal. Stream CHAINZ, read the lyrics, shop merch and walk through the gate into the Chateau.">
+<meta property="og:description" content="Gothic opera, darkwave and metal. Stream CHAINZ, read the lyrics, watch the videos, shop merch and join the coven.">
 <meta property="og:image" content="https://mortezmusic.com/media/share.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0a0809">
@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 /* Layout: a full-bleed gate hero, then alternating bands: the new single, a sideways catalogue rail,
-   a sticky "Inside the Chateau" column beside room photographs, the shop, the coven, the footer. One accent: blood red. */
+   one Chateau banner, videos, the shop, the coven, the footer. One accent: blood red. */
 :root {
   --night: #0a0809;          /* page ground */
   --crypt: #141012;          /* raised bands */
@@ -79,7 +79,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* ---------- hero: the gate ---------- */
 .hero { position: relative; height: min(100svh, 980px); min-height: 620px; overflow: hidden; isolation: isolate; display: flex; align-items: flex-end; }
-.hero-img { position: absolute; inset: -4%; background: #0a0809 url("media/classic/gate.jpg") center 30% / cover no-repeat; animation: drift 38s ease-in-out infinite alternate; z-index: -3; }
+.hero-img { position: absolute; inset: -4%; background: url("media/hero.jpg") center 30% / cover no-repeat, #0a0809 url("media/classic/gate.jpg") center 30% / cover no-repeat; animation: drift 38s ease-in-out infinite alternate; z-index: -3; }
 @keyframes drift { from { transform: scale(1.04) translate(0, 0) } to { transform: scale(1.14) translate(-1.5%, 1%) } }
 .hero::before { content: ""; position: absolute; inset: 0; z-index: -2; background: radial-gradient(ellipse 60% 50% at var(--mx, 50%) var(--my, 40%), rgba(255,210,170,.10), transparent 70%), linear-gradient(180deg, rgba(10,8,9,.55) 0%, rgba(10,8,9,0) 22%, rgba(10,8,9,0) 52%, rgba(10,8,9,.92) 88%, var(--night) 100%); }
 .fog { position: absolute; left: -20%; right: -20%; height: 46%; bottom: 8%; z-index: -1; pointer-events: none; opacity: .55; background: radial-gradient(ellipse 30% 40% at 20% 60%, rgba(200,195,205,.35), transparent 70%), radial-gradient(ellipse 35% 45% at 60% 55%, rgba(200,195,205,.28), transparent 70%), radial-gradient(ellipse 28% 38% at 92% 65%, rgba(200,195,205,.3), transparent 70%); filter: blur(18px); animation: fog 26s linear infinite alternate; }
@@ -149,25 +149,17 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .rail-ctl button { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--stone); background: none; color: var(--bone); font-size: 18px; cursor: pointer; }
 .rail-ctl button:hover { border-color: var(--blood); color: var(--blood); }
 
-/* inside the Chateau: sticky title beside the room photographs */
-.chateau { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.4fr); gap: clamp(28px, 5vw, 80px); align-items: start; }
-.chateau .sticky { position: sticky; top: 110px; display: grid; gap: 22px; }
-.rooms { display: grid; gap: 22px; }
-.room { position: relative; display: block; text-decoration: none; border-radius: 4px; overflow: hidden; aspect-ratio: 16 / 9; max-width: 100%; border: 1px solid var(--stone); background: var(--crypt); }
-.room img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s cubic-bezier(.2,.7,.2,1), filter .6s; filter: saturate(.85) brightness(.82); }
-.room::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(10,8,9,.92)); }
-.room:hover img, .room:focus-visible img { transform: scale(1.06); filter: saturate(1) brightness(1); }
-.room .cap { position: absolute; left: 22px; right: 22px; bottom: 18px; z-index: 1; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
-.room h3 { font-size: clamp(34px, 4vw, 54px); }
-.room p { margin: 6px 0 0; color: var(--ash); font-size: 15px; max-width: 40ch; }
-.room .go { flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: var(--blood); color: #fff; font-size: 20px; transform: translateX(-6px); opacity: .9; transition: transform .3s, opacity .3s; }
-.room:hover .go { transform: none; opacity: 1; }
-@media (max-width: 900px) { .chateau { grid-template-columns: 1fr; } .chateau .sticky { position: static; } .room p { display: none; } }
+/* the one doorway into the 3D world */
+.portal { position: relative; display: flex; align-items: flex-end; min-height: 440px; border-radius: 4px; overflow: hidden; border: 1px solid var(--stone); text-decoration: none; isolation: isolate; }
+.portal img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform 1.2s cubic-bezier(.2,.7,.2,1); }
+.portal::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(10,8,9,.92) 0%, rgba(10,8,9,.55) 50%, rgba(10,8,9,.1) 100%); }
+.portal:hover img { transform: scale(1.04); }
+.portal .in { padding: clamp(24px, 4vw, 56px); display: grid; gap: 16px; justify-items: start; max-width: 600px; }
 
 /* the shop */
-.shop { position: relative; border-radius: 4px; overflow: hidden; border: 1px solid var(--stone); min-height: 460px; display: flex; align-items: flex-end; isolation: isolate; }
+.shop { position: relative; border-radius: 4px; overflow: hidden; border: 1px solid var(--stone); min-height: 340px; background: radial-gradient(ellipse 70% 90% at 100% 100%, rgba(224,50,60,.22), transparent 60%), var(--crypt); display: flex; align-items: flex-end; isolation: isolate; }
 .shop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; filter: brightness(.7); }
-.shop::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(10,8,9,.95) 0%, rgba(10,8,9,.7) 45%, rgba(10,8,9,.1) 100%); }
+
 .shop .in { padding: clamp(24px, 4vw, 56px); display: grid; gap: 18px; max-width: 620px; }
 .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; margin-top: 28px; }
 .products:empty { display: none; }
@@ -234,7 +226,7 @@ footer { border-top: 1px solid var(--stone); padding-block: 48px 34px; }
   <div class="wrap">
     <a class="mark" href="#home" aria-label="Mortez, home">Morte<span>z</span></a>
     <nav class="nav" id="nav" aria-label="Main">
-      <a href="#music">Music</a><a href="#lyrics">Lyrics</a><a href="#chateau">The Chateau</a><a href="#videos">Videos</a><a href="#shop">Merch</a><a href="#coven">Join the Coven</a>
+      <a href="#music">Music</a><a href="#lyrics">Lyrics</a><a href="#videos">Videos</a><a href="shop/">Merch</a><a href="#coven">Join the Coven</a><a href="?contact" data-book>Contact</a>
     </nav>
     <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
     <a class="btn btn-blood enter" href="chateau/">Enter the Chateau</a>
@@ -243,14 +235,14 @@ footer { border-top: 1px solid var(--stone); padding-block: 48px 34px; }
 
 <main id="home">
   <section class="hero" id="hero" aria-label="Mortez">
-    <div class="hero-img" role="img" aria-label="The black iron gate of the Chateau under a full moon"></div>
+    <div class="hero-img" role="img" aria-label="Mortez"></div>
     <div class="fog"></div><div class="fog b"></div><div class="flash"></div>
     <a class="callout" href="#music"><span class="label"><b>New single</b> · out now</span><strong>CHAINZ</strong><span class="label">Listen and read the lyrics ↓</span></a>
     <div class="wrap hero-inner">
       <h1 class="hero-word">Mortez</h1>
       <div class="hero-row">
-        <div><span class="label">Gothic opera · darkwave · metal</span><p>Walk through the black gate into the Chateau, or stay out here with the music.</p></div>
-        <div class="hero-ctas"><a class="btn btn-blood enter" href="chateau/">Enter the Chateau <span aria-hidden="true">→</span></a><a class="btn btn-ghost" href="#music">Listen to CHAINZ</a></div>
+        <div><span class="label">Gothic opera · darkwave · metal</span><p>The new single CHAINZ is out now everywhere you listen.</p></div>
+        <div class="hero-ctas"><a class="btn btn-blood" href="#music">Listen to CHAINZ</a><a class="btn btn-ghost" href="#lyrics">Read the lyrics</a></div>
       </div>
     </div>
     <div class="scroll-cue" aria-hidden="true"></div>
@@ -278,37 +270,33 @@ Lay me down in your chains</blockquote>
       <div class="rail-ctl"><button type="button" id="railPrev" aria-label="Scroll back">←</button><button type="button" id="railNext" aria-label="Scroll on">→</button></div>
     </div>
     <div class="rail-wrap"><div class="rail" id="rail" aria-label="Releases, newest first"></div></div>
-    <div class="wrap" style="margin-top:22px"><p class="lede">Open any release for the lyrics. In the Chateau, each one has its own bookcase in the haunted library. <a href="chateau/?room=library" class="enter">Read them there →</a></p></div>
-  </section>
-
-  <section class="band" id="chateau">
-    <div class="wrap chateau">
-      <div class="sticky">
-        <span class="label"><b>An online world</b> · in your browser</span>
-        <h2 class="stack">Inside<br>the <span class="r">Chateau</span></h2>
-        <p class="lede">A haunted estate built for Mortez. Pick your reaper, pass the black gate, and explore. Every room below has its own door, so you can go straight in.</p>
-        <div><a class="btn btn-blood enter" href="chateau/">Start at the gate <span aria-hidden="true">→</span></a></div>
-      </div>
-      <div class="rooms" id="rooms"></div>
-    </div>
+    <div class="wrap" style="margin-top:22px"><p class="lede">Open any release to read the lyrics.</p></div>
   </section>
 
   <section class="band raised" id="videos">
     <div class="wrap">
-      <div class="sec-head"><div><span class="label"><b>Videos</b> · the chapel screen</span><h2 class="stack" style="margin-top:14px">Watch</h2></div></div>
+      <div class="sec-head"><div><span class="label"><b>Videos</b> · official</span><h2 class="stack" style="margin-top:14px">Watch</h2></div></div>
       <div class="vids" id="vids"></div>
+    </div>
+  </section>
+
+  <section class="band" id="chateau">
+    <div class="wrap">
+      <a class="portal reveal enter" href="chateau/">
+        <img src="media/classic/gate.jpg" alt="The black iron gate of the Chateau under a full moon" loading="lazy">
+        <div class="in"><span class="label"><b>Something else</b> · explore online</span><h2 class="stack">The <span class="r">Chateau</span></h2><p class="lede">A haunted estate built for Mortez that you can walk through in your browser.</p><span class="btn btn-blood">Enter the Chateau <span aria-hidden="true">→</span></span></div>
+      </a>
     </div>
   </section>
 
   <section class="band" id="shop">
     <div class="wrap">
       <div class="shop reveal">
-        <img src="media/classic/merch.jpg" alt="The haunted Merch shop inside the Chateau, black and white tiles under red neon" loading="lazy">
-        <div class="in">
+                <div class="in">
           <span class="label"><b>Merch</b> · wares · relics</span>
           <h2 class="stack">The shop</h2>
-          <p class="lede" style="color:var(--bone)">Shirts, hoodies and relics. Browse online, or walk into the haunted store inside the Chateau.</p>
-          <div class="links"><a class="btn btn-blood" href="shop/" id="shopOnline">Shop online</a><a class="btn btn-ghost enter" href="chateau/?room=merch">Shop in the Chateau</a></div>
+          <p class="lede" style="color:var(--bone)">Shirts, hoodies and more, printed to order and shipped to you.</p>
+          <div class="links"><a class="btn btn-blood" href="shop/" id="shopOnline">Shop all merch</a></div>
         </div>
       </div>
       <div class="products" id="products"></div>
@@ -338,7 +326,7 @@ Lay me down in your chains</blockquote>
       <div><h4>Listen</h4><ul id="footListen"></ul></div>
       <div><h4>Follow</h4><ul id="footSocial"></ul></div>
     </div>
-    <div class="legal"><span>© <span id="yr">2026</span> Mortez. All rights reserved.</span><a href="chateau/" class="enter" style="text-decoration:none">Enter the Chateau →</a></div>
+    <div class="legal"><span>© <span id="yr">2026</span> Mortez. All rights reserved.</span></div>
   </div>
 </footer>
 
@@ -382,13 +370,6 @@ Lay me down in your chains</blockquote>
   };
   // Music videos: add { title, id } with the YouTube video id (the part after watch?v=)
   const VIDEOS = [];
-  const ROOMS = [
-    { id: "foyer", name: "The Foyer", img: "foyer.jpg", d: "Checkered marble, a spiral turning in the ceiling and a grand piano that plays itself." },
-    { id: "library", name: "The Library", img: "library.jpg", d: "A bookcase for every release. Open one and read the lyrics." },
-    { id: "film", name: "The Chapel", img: "chapel.jpg", d: "An old church turned opera house, with the band's videos on the great screen." },
-    { id: "merch", name: "The Merch Shop", img: "merch.jpg", d: "Wares and relics under red neon. Try things on your reaper." },
-    { id: "station", name: "The Reaper Ride", img: "reaper.jpg", d: "Down the crypt elevator to a lyric-video coaster through the single." }
-  ];
   const REL = (window.MORTEZ_RELEASES || []).slice();
   const COL = { castle: ["#8fb0ff", "#f4f6fb", "linear-gradient(170deg,#dfe5f1,#9fb0cf 60%,#3a4660)"], sirens: ["#e0b860", "#f6e7c4", "linear-gradient(170deg,#3a1a10,#140806)"], devil: ["#ff5a2a", "#ffd9c0", "radial-gradient(circle at 50% 110%,#ff5a2a,#3a0806 55%,#0d0303)"], coven: ["#a57aff", "#eadfff", "radial-gradient(circle at 50% 90%,#3a1a6a,#0e0716 70%)"], river: ["#6ab8ff", "#e0f0ff", "linear-gradient(180deg,#2a2622,#14202e 60%,#0a2a4a)"], veil: ["#e8e8f2", "#ffffff", "linear-gradient(170deg,#2a2a34,#0d0c10)"], crossing: ["#ffd27a", "#fff3d6", "radial-gradient(circle at 50% 70%,#ffe2a0,#3a2a14 45%,#100c08)"], purgatory: ["#b8c6d4", "#f0f3f7", "linear-gradient(180deg,#5a5e66,#22252a)"], reaper: ["#ff4646", "#efe8e8", "radial-gradient(circle at 50% 100%,#6a0a10,#0c0809 65%)"], chainz: ["#ff3a2a", "#ffe8e0", "radial-gradient(circle at 50% 115%,#ff4a20,#2a0806 50%,#0a0606)"] };
   const ORN = { castle: "☁ ♛ ☁", sirens: "✠ ✦ ✠", devil: "✶ ♆ ✶", coven: "☾ ✶ ☽", river: "≈ ✝ ≈", veil: "◇ ◆ ◇", crossing: "☽ ✦ ☾", purgatory: "✧ ⧖ ✧", reaper: "✦ ☠ ✦", chainz: "⛓ ♛ ⛓" };
@@ -410,7 +391,7 @@ Lay me down in your chains</blockquote>
   document.addEventListener("click", e => { const a = e.target.closest("a.enter"); if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); const c = $("curtain"); c.classList.add("on"); setTimeout(() => { location.href = a.getAttribute("href"); }, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 900); });
   addEventListener("pageshow", () => $("curtain").classList.remove("on"));
   // a returning explorer gets "Return to the Chateau"
-  try { if (localStorage.getItem("mortez.char")) document.querySelectorAll(".top .enter, .hero-ctas .enter").forEach(a => { a.firstChild.textContent = "Return to the Chateau "; }); } catch (e) {}
+  try { if (localStorage.getItem("mortez.char")) document.querySelectorAll(".top .enter, .hero-ctas .none").forEach(a => { a.firstChild.textContent = "Return to the Chateau "; }); } catch (e) {}
 
   // ---------- marquee of release titles ----------
   const titles = REL.flatMap(r => r.songs.map(s => s.title)).reverse();
@@ -448,7 +429,7 @@ Lay me down in your chains</blockquote>
   function openRel(i, k) { const r = REL[i]; if (!r) return; k = k || 0; const s = r.songs[k], [c] = COL[r.theme] || COL.reaper;
     drawer.style.setProperty("--c", c); $("dKicker").innerHTML = `<b>${esc(r.kind)}</b> · ${esc(r.date)}${r.songs.length > 1 ? " · " + esc(r.title) : ""}`; $("dTitle").textContent = s.title;
     $("dTabs").innerHTML = r.songs.length > 1 ? r.songs.map((x, j) => `<button type="button" role="tab" aria-selected="${j === k}" data-tab="${j}">${esc(x.title)}</button>`).join("") : "";
-    const url = s.url || r.url; $("dActs").innerHTML = (url ? `<a class="btn btn-blood" href="${esc(url)}" target="_blank" rel="noopener">Listen</a>` : `<a class="btn btn-blood" href="${LINKS.spotify}" target="_blank" rel="noopener">${icon.spotify}Listen on Spotify</a>`) + `<a class="btn btn-ghost enter" href="chateau/?room=library">Read it in the library</a>`;
+    const url = s.url || r.url; $("dActs").innerHTML = (url ? `<a class="btn btn-blood" href="${esc(url)}" target="_blank" rel="noopener">Listen</a>` : `<a class="btn btn-blood" href="${LINKS.spotify}" target="_blank" rel="noopener">${icon.spotify}Listen on Spotify</a>`);
     $("dText").textContent = s.lyrics; drawer.dataset.rel = i;
     if (drawer.hidden) { lastFocus = document.activeElement; drawer.hidden = false; document.body.style.overflow = "hidden"; $("dClose").focus(); }
     drawer.querySelector(".panel").scrollTop = 0; }
@@ -456,12 +437,10 @@ Lay me down in your chains</blockquote>
   document.addEventListener("click", e => { const o = e.target.closest("[data-open]"); if (o) openRel(+o.dataset.open); const t = e.target.closest("[data-tab]"); if (t) openRel(+drawer.dataset.rel, +t.dataset.tab); });
   $("dClose").addEventListener("click", closeRel); drawer.addEventListener("click", e => { if (e.target === drawer) closeRel(); });
 
-  // ---------- the Chateau's rooms ----------
-  $("rooms").innerHTML = ROOMS.map(r => `<a class="room reveal enter" href="chateau/?room=${r.id}"><img src="media/classic/${r.img}" alt="${esc(r.name)}, inside the Chateau" loading="lazy"><div class="cap"><div><h3>${esc(r.name)}</h3><p>${esc(r.d)}</p></div><span class="go" aria-hidden="true">→</span></div></a>`).join("");
 
   // ---------- videos ----------
   $("vids").innerHTML = VIDEOS.length ? VIDEOS.map(v => `<a class="vid" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener"><div class="th" style="background-image:url('https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg')"></div><b>${esc(v.title)}</b></a>`).join("")
-    : `<div class="empty"><p>Music videos from Mortez play here and on the great screen in the Chapel. Until they're added, catch them all on YouTube.</p><div class="links" style="margin:0"><a class="btn btn-blood" href="${LINKS.youtube}" target="_blank" rel="noopener">${icon.youtube}Watch on YouTube</a><a class="btn btn-ghost enter" href="chateau/?room=film">Visit the Chapel</a></div></div>`;
+    : `<div class="empty"><p>Watch every Mortez music video on the official YouTube channel.</p><div class="links" style="margin:0"><a class="btn btn-blood" href="${LINKS.youtube}" target="_blank" rel="noopener">${icon.youtube}Watch on YouTube</a></div></div>`;
 
   // ---------- products (filled by the Printful sync later; empty until then) ----------
   const PRODUCTS = window.MORTEZ_PRODUCTS || [];
@@ -473,7 +452,7 @@ Lay me down in your chains</blockquote>
   $("covenForm").addEventListener("submit", async e => { e.preventDefault(); const f = e.target, m = $("covenMsg"), em = $("covenEmail"); if (!em.checkValidity()) { m.textContent = "That email doesn't look right. Check it and try again."; em.focus(); return; } m.textContent = "Summoning…"; try { const r = await post("coven.php", f); m.textContent = r.preview ? "Preview only: on the live site this adds you to the list." : r.ok ? "You're in. Welcome to the coven." : "That didn't go through. Try again in a moment."; if (r.ok && !r.preview) f.reset(); } catch (err) { m.textContent = "That didn't go through. Try again in a moment."; } });
   const book = $("book");
   const openBook = () => { book.hidden = false; $("bName").focus(); }, closeBook = () => { book.hidden = true; };
-  $("bookBtn").addEventListener("click", openBook); $("bClose").addEventListener("click", closeBook); book.addEventListener("click", e => { if (e.target === book) closeBook(); });
+  $("bookBtn").addEventListener("click", openBook); document.querySelectorAll("[data-book]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); openBook(); })); $("bClose").addEventListener("click", closeBook); book.addEventListener("click", e => { if (e.target === book) closeBook(); });
   $("bookForm").addEventListener("submit", async e => { e.preventDefault(); const f = e.target, n = $("bNote"); if (!f.checkValidity()) { n.textContent = "Fill in your name, a valid email and a message."; return; } n.textContent = "Sending…"; try { const r = await post("contact.php", f); n.textContent = r.preview ? "Preview only: on the live site this goes to the band." : r.ok ? "Sent. The band will get back to you." : "That didn't send. Email booking@mortezmusic.com instead."; if (r.ok && !r.preview) f.reset(); } catch (err) { n.textContent = "That didn't send. Email booking@mortezmusic.com instead."; } });
   if (new URLSearchParams(location.search).has("contact")) openBook();
   addEventListener("keydown", e => { if (e.key !== "Escape") return; if (!drawer.hidden) closeRel(); else if (!book.hidden) closeBook(); });
