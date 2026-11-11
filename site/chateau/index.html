@@ -3087,10 +3087,29 @@ body.riding .relics { display: none; }
       colliders.push({ x: O.x + ux + sx * .9, z: O.z + uz - .4, r: .5, y: 0 });
       inter.push({ spot: L(ux, 0, uz + 1.1), lvl: 0, label: "Box seats: let the usher seat you", obj: post, act: () => pickBox(sideBoxes.filter(b3 => b3.sx === sx).sort((a3, b3) => a3.num - b3.num).map(b3 => ({ name: "Box " + b3.num, go: () => sitDown(Object.assign(sideSeat(b3, 1), { stand: L(ux, 0, uz + 1.3) })) })).concat(boxChoices(sx).map(c => ({ name: "Stage " + c.name.toLowerCase(), go: () => sitDown(boxSeat(c.b2, L(ux, 0, uz + 1.3))) })))) });
     });
+    // The resting screen: a living MORTEZ title card. Sitting down hands the screen to YouTube; standing up brings this back.
+    const [idleC, idleG] = cv(1600, 900), idleTex = tex(idleC); let idleOn = false, idleT = 0;
+    function drawIdle(t) {
+      const g = idleG, W = 1600, H = 900, pulse = .5 + .5 * Math.sin(t / 900), flick = Math.random() < .03 ? .55 : 1;
+      const bg = g.createRadialGradient(W / 2, H * .46, 40, W / 2, H / 2, W * .62); bg.addColorStop(0, "#2c0609"); bg.addColorStop(.55, "#120304"); bg.addColorStop(1, "#040203"); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+      g.save(); g.globalAlpha = .07; g.fillStyle = "#ffd9c0"; for (let i = -6; i <= 6; i++) { g.beginPath(); g.moveTo(W / 2, -60); g.lineTo(W / 2 + i * 150 - 24, H); g.lineTo(W / 2 + i * 150 + 24, H); g.closePath(); g.fill(); } g.restore(); // rays from the projector
+      const sx = ((t / 6000) % 1.6 - .3) * W, sw = g.createLinearGradient(sx - 220, 0, sx + 220, 0); sw.addColorStop(0, "rgba(255,220,200,0)"); sw.addColorStop(.5, "rgba(255,220,200,.06)"); sw.addColorStop(1, "rgba(255,220,200,0)"); g.fillStyle = sw; g.fillRect(0, 0, W, H);
+      g.strokeStyle = "rgba(201,161,74,.55)"; g.lineWidth = 3; g.strokeRect(40, 40, W - 80, H - 80); g.lineWidth = 1.2; g.strokeRect(58, 58, W - 116, H - 116);
+      [[58, 58], [W - 58, 58], [58, H - 58], [W - 58, H - 58]].forEach(([x, y]) => { g.fillStyle = "#c9a14a"; g.save(); g.translate(x, y); g.rotate(Math.PI / 4); g.fillRect(-9, -9, 18, 18); g.restore(); });
+      g.textAlign = "center"; g.textBaseline = "middle";
+      g.font = `500 30px ${MONO}`; g.fillStyle = "rgba(239,232,232,.62)"; g.fillText("T H E   C H A P E L   T H E A T E R", W / 2, 170);
+      g.font = `400 330px 'Pirata One', ${DISP}`; g.shadowColor = "#ff1e2a"; g.shadowBlur = (40 + pulse * 40) * flick; g.fillStyle = flick < 1 ? "#a8242c" : "#ff3a44"; g.fillText("MORTEZ", W / 2, H / 2 - 10); g.shadowBlur = 0;
+      g.strokeStyle = "rgba(201,161,74,.8)"; g.lineWidth = 2; [[-1], [1]].forEach(([d]) => { g.beginPath(); g.moveTo(W / 2 + d * 70, 650); g.lineTo(W / 2 + d * 330, 650); g.stroke(); });
+      g.fillStyle = "#c9a14a"; g.font = `400 46px 'Pirata One', ${DISP}`; g.fillText("✠", W / 2, 650);
+      g.font = `600 34px ${BODY}`; g.fillStyle = `rgba(239,232,232,${.45 + .4 * pulse})`; g.fillText("T A K E   A   S E A T   T O   W A T C H", W / 2, 740);
+      g.fillStyle = "rgba(255,255,255,.05)"; for (let i = 0; i < 60; i++) g.fillRect(Math.random() * W, Math.random() * H, 2, 2); // film grain
+      idleTex.needsUpdate = true;
+    }
+    function idleScreen() { screenFor = null; idleOn = true; const old = screen.material.map; drawIdle(performance.now()); screen.material.map = idleTex; screen.material.needsUpdate = true; screenGlow.color.set(0xff7a72); if (old && old !== idleTex) old.dispose(); }
     let screenFor = null;
     function setScreen(it) {
-      if (!it || screenFor === it) return; screenFor = it;
-      const old = screen.material.map; screen.material.map = drawDisplay("screen", { t: it.t || "", sub: it.sub || "", client: it.client || "", stat: it.stat || "" }, room.color); screen.material.needsUpdate = true; if (old) old.dispose();
+      if (!it || screenFor === it) return; screenFor = it; idleOn = false; screenGlow.color.set(0xc8d4ff);
+      const old = screen.material.map; screen.material.map = drawDisplay("screen", { t: it.t || "", sub: it.sub || "", client: it.client || "", stat: it.stat || "" }, room.color); screen.material.needsUpdate = true; if (old && old !== idleTex) old.dispose();
       const src = imageFor(it);
       if (src) loadImage(src).then(im => { if (screenFor !== it) return; const o2 = screen.material.map; screen.material.map = photoPanel("screen", it, room.color, im); screen.material.needsUpdate = true; o2.dispose(); }).catch(() => {});
     }
@@ -3123,8 +3142,8 @@ body.riding .relics { display: none; }
       surface, walkable(p) { return surface(p, sp.footY) !== null; }, clamp() {},
       colliders, doors: doors.list, arrive: doors.arrive,
       hud: { loc: room.eyebrow, title: "THE CHAPEL THEATER", sub: "Take a pew in the stalls, climb to the balcony, or sit in a box by the stage. Videos play on the great screen.", color: room.color },
-      interactables: inter, setScreen, seatOccluders: () => crowd.map(c => c.m),
-      init() { setScreen(room.items.find(it => it.feature) || room.items[0]); },
+      interactables: inter, setScreen, idleScreen, seatOccluders: () => crowd.map(c => c.m),
+      init() { idleScreen(); },
       update(t, dt, near, enteringId) {
         sideDoors.forEach(d => { const dd = Math.hypot(avatar.position.x - d.x, avatar.position.z - d.z), want = dd < 2.2 && Math.abs((sp.footY || 0) - BY) < 1 ? 1 : 0; d.open += (want - d.open) * Math.min(1, dt * 5); d.pivot.rotation.y = -d.sx * 1.45 * d.open; });
         doors.update(near, enteringId, dt);
@@ -3132,6 +3151,7 @@ body.riding .relics { display: none; }
         flames.forEach((f, i) => f.scale.y = 1.5 + Math.sin(t / 45 + i) * .3);
         chands.forEach((c, i) => { c.c.rotation.y = t / 20000 + i; c.l.intensity = 1.35 + Math.sin(t / 80 + i) * .05; });
         screenGlow.intensity = 1.55 + Math.sin(t / 70) * .06 + Math.sin(t / 23) * .04;
+        if (idleOn && t - idleT > 120) { idleT = t; drawIdle(t); }
         pools.forEach(p => p.pool.material.opacity = .11 + Math.sin(t / 2500 + p.ph) * .04);
         crowd.forEach(c => { c.m.visible = FLAGS.chapelCrowd; c.m.rotation.z = Math.sin(t / 1900 + c.ph) * .025; });
       }
@@ -5590,7 +5610,7 @@ body.riding .relics { display: none; }
   }
   function standUp() {
     if (!seated) return;
-    seated = false; stopScreen(); cinemaEl.hidden = true; document.body.classList.remove("seated");
+    seated = false; stopScreen(); cinemaEl.hidden = true; document.body.classList.remove("seated"); if (cur && cur.idleScreen) cur.idleScreen();
     avatar.visible = shadowDisc.visible = true;
     if (seatState) { const fy = seatState.stand.y || 0; avatar.position.set(seatState.stand.x, .18 + fy, seatState.stand.z); avatar.rotation.y = Math.PI; if (cur) cur.footY = fy; }
     seatState = null;
