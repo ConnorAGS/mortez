@@ -146,7 +146,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .rel .art:has(img) .yr, .rel .art:has(img) .n { color: var(--bone); }
 .rel .meta { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; }
 .rel .meta b { font: 600 15px var(--body); }
-.rel .meta span { font: 500 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--blood); white-space: nowrap; }
+.rel .meta .t { display: grid; } .rel .meta small { font: 500 11px var(--mono); letter-spacing: .1em; color: var(--ash); }
+.rel .meta > span:not(.t) { font: 500 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--blood); white-space: nowrap; }
 .rail-ctl { display: flex; gap: 8px; }
 .rail-ctl button { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--stone); background: none; color: var(--bone); font-size: 18px; cursor: pointer; }
 .rail-ctl button:hover { border-color: var(--blood); color: var(--blood); }
@@ -407,7 +408,7 @@ Lay me down in your chains</blockquote>
 
   // ---------- the catalogue rail (newest first) ----------
   const order = REL.map((r, i) => i).reverse();
-  $("rail").innerHTML = order.map(i => { const r = REL[i], [c, ink, bg] = COL[r.theme] || COL.reaper; return `<button class="rel" type="button" data-open="${i}" style="--c:${c};--ink:${ink}"><div class="art" style="background:${bg}">${r.cover ? `<img src="${esc(r.cover)}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">` : ""}<span class="orn" ${r.cover ? "hidden" : ""}>${ORN[r.theme] || "✦"}</span>${r.cover ? "" : `<h3>${esc(r.title)}</h3>`}<span class="yr">${esc(r.date)}</span><span class="n">${r.songs.length > 1 ? r.songs.length + " songs" : "Single"}</span></div><div class="meta"><b>${esc(r.title)}</b><span>Lyrics →</span></div></button>`; }).join("");
+  $("rail").innerHTML = order.map(i => { const r = REL[i], [c, ink, bg] = COL[r.theme] || COL.reaper; return `<button class="rel" type="button" data-open="${i}" style="--c:${c};--ink:${ink}"><div class="art" style="background:${bg}">${r.cover ? `<img src="${esc(r.cover)}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">` : ""}<span class="orn" ${r.cover ? "hidden" : ""}>${ORN[r.theme] || "✦"}</span>${r.cover ? "" : `<h3>${esc(r.title)}</h3>`}${r.cover ? "" : `<span class="yr">${esc(r.date)}</span><span class="n">${r.songs.length > 1 ? r.songs.length + " songs" : "Single"}</span>`}</div><div class="meta"><span class="t"><b>${esc(r.title)}</b><small>${esc(r.date)}${r.songs.length > 1 ? " · " + r.songs.length + " songs" : ""}</small></span><span>Lyrics →</span></div></button>`; }).join("");
   const rail = $("rail");
   $("railPrev").addEventListener("click", () => rail.scrollBy({ left: -rail.clientWidth * .8, behavior: "smooth" }));
   $("railNext").addEventListener("click", () => rail.scrollBy({ left: rail.clientWidth * .8, behavior: "smooth" }));

@@ -1,7 +1,7 @@
 // Mortez releases: the single source for the library (Chateau) and the Lyrics section (classic site).
 // theme picks the bookcase design and the book style. url on a release or song adds a Listen button.
 window.MORTEZ_RELEASES = [
-  { title: "Castle", kind: "Single", date: "Nov 28, 2024", theme: "castle", url: "", songs: [
+  { title: "Castle", kind: "Single", date: "Nov 28, 2024", theme: "castle", cover: "media/covers/castle-sm.jpg", url: "", songs: [
     { title: "Castle", lyrics: `Staircase
 White dress
 Empty silhouette
@@ -55,7 +55,7 @@ When I sleep
 Come with me
 Meet me in my castle on the clouds`, url: "" }
   ] },
-  { title: "Sirens", kind: "Single", date: "Dec 25, 2024", theme: "sirens", url: "", songs: [
+  { title: "Sirens", kind: "Single", date: "Dec 25, 2024", theme: "sirens", cover: "media/covers/sirens-sm.jpg", url: "", songs: [
     { title: "Sirens", lyrics: `Holy doors they won’t let me in
 Hear me knocking and banging
 Again and again
@@ -101,7 +101,7 @@ One by one
 Watch them burn
 Uh huh`, url: "" }
   ] },
-  { title: "Down With The Devil", kind: "Single", date: "Feb 14, 2025", theme: "devil", url: "", songs: [
+  { title: "Down With The Devil", kind: "Single", date: "Feb 14, 2025", theme: "devil", cover: "media/covers/devil-sm.jpg", url: "", songs: [
     { title: "Down With The Devil", lyrics: `Hell fire Witches burning
 Head down hear me praying
 Know that they been waiting
@@ -148,7 +148,7 @@ Walk on Holy ground
 Cause I ain’t Going down
 With the devil`, url: "" }
   ] },
-  { title: "COVEN", kind: "Single", date: "May 11, 2025", theme: "coven", url: "", songs: [
+  { title: "COVEN", kind: "Single", date: "May 11, 2025", theme: "coven", cover: "media/covers/coven-sm.jpg", url: "", songs: [
     { title: "COVEN", lyrics: `Dada yada da-daya zata-dida-doomda mm daya
 Dada yada da-daya zata-dida-doomda mm daya
 Down down, Feel it now now yea
@@ -191,7 +191,7 @@ Down down feel it now now yea
 Keep my feet on the ground
 Keeping my feet on the ground`, url: "" }
   ] },
-  { title: "River Runnin", kind: "Single", date: "Sep 8, 2025", theme: "river", url: "", songs: [
+  { title: "River Runnin", kind: "Single", date: "Sep 8, 2025", theme: "river", cover: "media/covers/river-sm.jpg", url: "", songs: [
     { title: "River Runnin", lyrics: `I am river running
 Oh Gotta find my way
 Through these holy mountains
@@ -229,7 +229,7 @@ Blood in the water done built these bones
 I am river runnin
 Take me home`, url: "" }
   ] },
-  { title: "The Veil", kind: "3-track release", date: "Oct 31, 2025", theme: "veil", url: "", songs: [
+  { title: "The Veil", kind: "3-track release", date: "Oct 31, 2025", theme: "veil", cover: "media/covers/veil-sm.jpg", url: "", songs: [
     { title: "PRAY", lyrics: `Can you hear me
 Can you see me
 Baby can you pray for me
@@ -305,7 +305,7 @@ Hanging on to me
 Falling from my Religion
 Bleed just to feel`, url: "" }
   ] },
-  { title: "The Crossing", kind: "Single", date: "Nov 27, 2025", theme: "crossing", url: "", songs: [
+  { title: "The Crossing", kind: "Single", date: "Nov 27, 2025", theme: "crossing", cover: "media/covers/crossing-sm.jpg", url: "", songs: [
     { title: "The Crossing", lyrics: `Always needed a reason
 To keep up this old charade
 Never had nobody
@@ -335,7 +335,7 @@ To get to the other side
 Oh and When I go
 I guess I'll finally let go`, url: "" }
   ] },
-  { title: "Purgatory", kind: "Single", date: "Mar 12, 2026", theme: "purgatory", url: "", songs: [
+  { title: "Purgatory", kind: "Single", date: "Mar 12, 2026", theme: "purgatory", cover: "media/covers/purgatory-sm.jpg", url: "", songs: [
     { title: "Purgatory", lyrics: `Never been one to walk in the daylight
 Never had faith in my dreams
 Hide away all in the darkness
