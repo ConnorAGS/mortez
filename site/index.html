@@ -170,6 +170,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* videos */
 .vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
 .vid { display: grid; gap: 10px; text-decoration: none; }
+.vids .vid:first-child { grid-column: 1 / -1; max-width: 980px; } .vids .vid:first-child b { font: 400 clamp(30px, 4vw, 48px)/1 var(--display); }
 .vid .th { aspect-ratio: 16 / 9; max-width: 100%; border-radius: 4px; overflow: hidden; border: 1px solid var(--stone); background: var(--crypt) center / cover; position: relative; }
 .vid .th::after { content: "▶"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 34px; color: #fff; background: rgba(10,8,9,.35); transition: background .3s; }
 .vid:hover .th::after { background: rgba(224,50,60,.45); }
@@ -371,7 +372,9 @@ Lay me down in your chains</blockquote>
     x: "https://x.com/mortezmusicinc"
   };
   // Music videos: add { title, id } with the YouTube video id (the part after watch?v=)
-  const VIDEOS = [];
+  const VIDEOS = [
+    { title: "Official music video", id: "FnxnFHyG-P4" }
+  ];
   const REL = (window.MORTEZ_RELEASES || []).slice();
   const COL = { castle: ["#8fb0ff", "#f4f6fb", "linear-gradient(170deg,#dfe5f1,#9fb0cf 60%,#3a4660)"], sirens: ["#e0b860", "#f6e7c4", "linear-gradient(170deg,#3a1a10,#140806)"], devil: ["#ff5a2a", "#ffd9c0", "radial-gradient(circle at 50% 110%,#ff5a2a,#3a0806 55%,#0d0303)"], coven: ["#a57aff", "#eadfff", "radial-gradient(circle at 50% 90%,#3a1a6a,#0e0716 70%)"], river: ["#6ab8ff", "#e0f0ff", "linear-gradient(180deg,#2a2622,#14202e 60%,#0a2a4a)"], veil: ["#e8e8f2", "#ffffff", "linear-gradient(170deg,#2a2a34,#0d0c10)"], crossing: ["#ffd27a", "#fff3d6", "radial-gradient(circle at 50% 70%,#ffe2a0,#3a2a14 45%,#100c08)"], purgatory: ["#b8c6d4", "#f0f3f7", "linear-gradient(180deg,#5a5e66,#22252a)"], reaper: ["#ff4646", "#efe8e8", "radial-gradient(circle at 50% 100%,#6a0a10,#0c0809 65%)"], chainz: ["#ff3a2a", "#ffe8e0", "radial-gradient(circle at 50% 115%,#ff4a20,#2a0806 50%,#0a0606)"] };
   const ORN = { castle: "☁ ♛ ☁", sirens: "✠ ✦ ✠", devil: "✶ ♆ ✶", coven: "☾ ✶ ☽", river: "≈ ✝ ≈", veil: "◇ ◆ ◇", crossing: "☽ ✦ ☾", purgatory: "✧ ⧖ ✧", reaper: "✦ ☠ ✦", chainz: "⛓ ♛ ⛓" };
@@ -432,7 +435,7 @@ Lay me down in your chains</blockquote>
 
 
   // ---------- videos ----------
-  $("vids").innerHTML = VIDEOS.length ? VIDEOS.map(v => `<a class="vid" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener"><div class="th" style="background-image:url('https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg')"></div><b>${esc(v.title)}</b></a>`).join("")
+  $("vids").innerHTML = VIDEOS.length ? VIDEOS.map(v => `<a class="vid" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener"><div class="th" style="background-image:url('https://i.ytimg.com/vi/${esc(v.id)}/maxresdefault.jpg'), url('https://i.ytimg.com/vi/${esc(v.id)}/hqdefault.jpg'), url('${esc(v.poster || "media/hero.jpg")}')"></div><b>${esc(v.title)}</b></a>`).join("") + `<div><a class="btn btn-ghost" href="${LINKS.youtube}" target="_blank" rel="noopener">${icon.youtube}More on YouTube</a></div>`
     : `<div class="empty"><p>Watch every Mortez music video on the official YouTube channel.</p><div class="links" style="margin:0"><a class="btn btn-blood" href="${LINKS.youtube}" target="_blank" rel="noopener">${icon.youtube}Watch on YouTube</a></div></div>`;
 
   // ---------- products (filled by the Printful sync later; empty until then) ----------
