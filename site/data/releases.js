@@ -369,7 +369,7 @@ Won't let myself die
 No way I can't stay here
 Let go break free of all these fears`, url: "" }
   ] },
-  { title: "Reaper", kind: "Single", date: "Jul 10, 2026", theme: "reaper", url: "", songs: [
+  { title: "Reaper", kind: "Single", date: "Jul 10, 2026", theme: "reaper", cover: "media/covers/reaper-sm.jpg", url: "", songs: [
     { title: "Reaper", lyrics: `— Verse 1 —
 You keep on comin like a shadow
 You put your mark on me

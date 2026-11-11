@@ -141,6 +141,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .rel .art .orn { position: absolute; top: 14px; left: 0; right: 0; text-align: center; font: 16px var(--body); letter-spacing: .4em; color: var(--c); }
 .rel .art .yr { position: absolute; bottom: 12px; left: 14px; font: 500 11px var(--mono); letter-spacing: .14em; color: var(--ink, var(--ash)); opacity: .8; }
 .rel .art .n { position: absolute; bottom: 12px; right: 14px; font: 500 11px var(--mono); letter-spacing: .14em; color: var(--ink, var(--ash)); opacity: .8; }
+.rel .art:has(img)::after { content: ""; position: absolute; inset: auto 0 0; height: 30%; background: linear-gradient(transparent, rgba(10,8,9,.8)); }
+.rel .art .yr, .rel .art .n { z-index: 1; }
+.rel .art:has(img) .yr, .rel .art:has(img) .n { color: var(--bone); }
 .rel .meta { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; }
 .rel .meta b { font: 600 15px var(--body); }
 .rel .meta span { font: 500 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--blood); white-space: nowrap; }
