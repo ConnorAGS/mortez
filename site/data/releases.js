@@ -423,7 +423,7 @@ So Run while you can Cause as you know
 No rest for the reaper x2
 There’s no rest for the reaper`, url: "" }
   ] },
-  { title: "CHAINZ", kind: "Single", date: "Oct 13, 2026", theme: "chainz", url: "", songs: [
+  { title: "CHAINZ", kind: "Single", date: "Oct 13, 2026", theme: "chainz", cover: "media/covers/chainz-sm.jpg", url: "", songs: [
     { title: "CHAINZ", lyrics: `Lay me in fire
 Lay me down in your chains
 I'm your desire

@@ -125,9 +125,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* the new single */
 .single { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
 .cover { position: relative; aspect-ratio: 1; max-width: 100%; border-radius: 4px; overflow: hidden; background: radial-gradient(circle at 50% 120%, rgba(255,80,40,.55), transparent 55%), linear-gradient(160deg, #1a1012, #070506); border: 1px solid var(--stone); display: grid; place-items: center; }
-.cover canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.cover b { position: relative; font: 400 clamp(60px, 10vw, 150px)/1 var(--display); max-width: 92%; text-align: center; color: var(--bone); text-shadow: 0 0 40px rgba(224,50,60,.6); }
-.cover small { position: absolute; left: 18px; bottom: 16px; font: 500 11px var(--mono); letter-spacing: .16em; color: var(--ash); }
+.cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .single blockquote { margin: 24px 0; padding-left: 18px; border-left: 2px solid var(--blood); font: 400 clamp(26px, 3vw, 38px)/1.1 var(--display); color: var(--bone); white-space: pre-line; }
 .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
 @media (max-width: 860px) { .single { grid-template-columns: 1fr; } }
@@ -252,7 +250,7 @@ footer { border-top: 1px solid var(--stone); padding-block: 48px 34px; }
 
   <section class="band" id="music">
     <div class="wrap single">
-      <div class="cover reveal" id="cover"><canvas id="chainCanvas" aria-hidden="true"></canvas><b>CHAINZ</b><small>MORTEZ · SINGLE · OCT 13, 2026</small></div>
+      <div class="cover reveal" id="cover"><img src="media/covers/chainz.jpg" alt="CHAINZ cover art: hands with long nails gripping silver chains against a black and white striped dress" width="1200" height="1171"></div>
       <div class="reveal">
         <span class="label"><b>The new single</b> · Oct 13, 2026</span>
         <h2 class="stack" style="margin-top:14px">Break <span class="r">these</span><br><em>chains</em></h2>
@@ -404,18 +402,9 @@ Lay me down in your chains</blockquote>
   $("footSocial").innerHTML = [["instagram", "Instagram"], ["tiktok", "TikTok"], ["youtube", "YouTube"], ["facebook", "Facebook"], ["x", "X"]].map(([k, n]) => `<li><a href="${LINKS[k]}" target="_blank" rel="noopener">${n}</a></li>`).join("");
   $("yr").textContent = new Date().getFullYear();
 
-  // ---------- the CHAINZ cover: chains drawn on a canvas, swaying ----------
-  const cvs = $("chainCanvas"), cx = cvs.getContext("2d");
-  function drawChains(t) { const w = cvs.clientWidth, h = cvs.clientHeight, d = Math.min(2, devicePixelRatio || 1); if (cvs.width !== w * d) { cvs.width = w * d; cvs.height = h * d; } cx.setTransform(d, 0, 0, d, 0, 0); cx.clearRect(0, 0, w, h);
-    [[-.05, .18, .55, 1.1], [1.05, .1, .6, -1], [-.05, .75, .5, .8]].forEach(([x0, y0, sag, dir], k) => { const n = 26; for (let i = 0; i < n; i++) { const u = i / (n - 1), x = (x0 + (dir > 0 ? u : -u) * 1.1) * w, y = (y0 + Math.sin(u * Math.PI) * sag * .45 + Math.sin(t / 1400 + k + u * 3) * .01) * h; cx.save(); cx.translate(x, y); cx.rotate(Math.atan2(Math.cos(u * Math.PI) * sag, dir) + (i % 2 ? Math.PI / 2 : 0)); cx.strokeStyle = i % 2 ? "rgba(140,140,150,.75)" : "rgba(200,200,210,.85)"; cx.lineWidth = 3; cx.beginPath(); cx.ellipse(0, 0, 9, 5, 0, 0, Math.PI * 2); cx.stroke(); cx.restore(); } });
-  }
-  let chainOn = true; const loop = t => { drawChains(t); if (chainOn) requestAnimationFrame(loop); };
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) drawChains(0); else requestAnimationFrame(loop);
-  new IntersectionObserver(es => es.forEach(e => { const was = chainOn; chainOn = e.isIntersecting; if (chainOn && !was) requestAnimationFrame(loop); })).observe(cvs);
-
   // ---------- the catalogue rail (newest first) ----------
   const order = REL.map((r, i) => i).reverse();
-  $("rail").innerHTML = order.map(i => { const r = REL[i], [c, ink, bg] = COL[r.theme] || COL.reaper; return `<button class="rel" type="button" data-open="${i}" style="--c:${c};--ink:${ink}"><div class="art" style="background:${bg}"><span class="orn">${ORN[r.theme] || "✦"}</span><h3>${esc(r.title)}</h3><span class="yr">${esc(r.date)}</span><span class="n">${r.songs.length > 1 ? r.songs.length + " songs" : "Single"}</span></div><div class="meta"><b>${esc(r.title)}</b><span>Lyrics →</span></div></button>`; }).join("");
+  $("rail").innerHTML = order.map(i => { const r = REL[i], [c, ink, bg] = COL[r.theme] || COL.reaper; return `<button class="rel" type="button" data-open="${i}" style="--c:${c};--ink:${ink}"><div class="art" style="background:${bg}">${r.cover ? `<img src="${esc(r.cover)}" alt="" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">` : ""}<span class="orn" ${r.cover ? "hidden" : ""}>${ORN[r.theme] || "✦"}</span>${r.cover ? "" : `<h3>${esc(r.title)}</h3>`}<span class="yr">${esc(r.date)}</span><span class="n">${r.songs.length > 1 ? r.songs.length + " songs" : "Single"}</span></div><div class="meta"><b>${esc(r.title)}</b><span>Lyrics →</span></div></button>`; }).join("");
   const rail = $("rail");
   $("railPrev").addEventListener("click", () => rail.scrollBy({ left: -rail.clientWidth * .8, behavior: "smooth" }));
   $("railNext").addEventListener("click", () => rail.scrollBy({ left: rail.clientWidth * .8, behavior: "smooth" }));
