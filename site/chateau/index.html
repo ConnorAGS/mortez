@@ -3258,7 +3258,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
 
     // ---- the ways out: the great doors to the grounds, a side door through to the east wing
     placeDoor(root, O, doors, inter, { to: "plaza", sign: "OUTSIDE", color: "#b02a30", x: 0, z: ZE - .35, ry: Math.PI, scale: 1.7, label: "Out to the grounds" });
-    placeDoor(root, O, doors, inter, { to: "easthall", sign: "EAST WING", color: "#c9a96a", x: -NW + .35, z: 27, ry: Math.PI / 2, scale: 1.1, label: "Through to the east wing" });
+    placeDoor(root, O, doors, inter, { to: "easthall", sign: "EAST WING", color: "#c9a96a", x: -NW + .35, z: 25, ry: Math.PI / 2, scale: .95, label: "Through to the east wing" });   // clear of the stair's foot, and short enough to fit under the balcony
 
     // ---- where you can stand
     const inPew = (x, z, y) => { for (const r of rows) { if (Math.abs(r.y - y) > .3 || z < r.z - .4 || z > r.z + .5) continue; if (r.tier == null) { if (BLOCKS.some(([a, b2]) => x > a - .25 && x < b2 + .25)) return true; } else if (Math.abs(x) > 1.05 && Math.abs(x) < BI - .9) return true; } return false; };
