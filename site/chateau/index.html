@@ -4013,6 +4013,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
   // ---------- The Reaper's Study: the private room behind the KEEP OUT door upstairs. Only the Reaper's Key opens it. ----------
   // The reward for finishing the hunt: the six relics on display, every cover framed on the wall (each opens its lyrics), the Reaper's throne and a letter.
   // The letter is the band's to write: edit STUDY_LETTER.
+  // TEMPORARY: the Keep Out door opens without the key while we test. Set back to false before launch.
+  const STUDY_UNLOCKED_FOR_TESTING = true;
   const STUDY_LETTER = "You found every relic and the key to this room. Not many make it this far. Thank you for walking the Chateau with us. Sum fortis. — Mortez";
   function buildSanctum() {
     const O = new THREE.Vector3(-3200, 0, 0), W = 16, D = 18, WH = 8;
@@ -6702,7 +6704,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     return {
       init() { placeRelics(); updatePill(); if (sixDone()) setAura(true); },
       welcome: () => openWelcome(),
-      hasKey: () => relics.some(r => r.final && r.got), relicCount: () => relics.filter(r => !r.final && r.got).length, relicMesh,
+      hasKey: () => STUDY_UNLOCKED_FOR_TESTING || relics.some(r => r.final && r.got), relicCount: () => relics.filter(r => !r.final && r.got).length, relicMesh,
       tick(now, dt) { tickHaunt(now, dt); intro(now); if (now - mapT > 90) { mapT = now; drawMini(); } },
       click, swing, haunt: () => start(true), ledger, get haunting() { return H.state !== "idle"; }, _relics: relics, _H: H, _SW: SW
     };

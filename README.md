@@ -56,3 +56,7 @@ Search for these names:
 - Redeploy: `CF_TOKEN_FILE=~/.mortez/cloudflare-token CF_ACCOUNT=<account id> python3 scripts/deploy_live.py` (or `npx wrangler deploy` in `live/`). The token is never stored in this repo.
 - Allowed sites: mortezmusic.com and its subdomains, localhost and *.netlify.app. Add others with the `EXTRA_ORIGINS` variable.
 - Turn it off without a deploy: the "Live world" switch in admin.
+
+## Before launch
+- Set `STUDY_UNLOCKED_FOR_TESTING` back to `false` in `site/chateau/index.html` (the Keep Out door is open for testing).
+- Switch `site/robots.txt` from `Disallow: /` to allow search engines.
