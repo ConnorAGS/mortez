@@ -959,7 +959,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       wall: 0x1a0e10, floor: 0x24100f, bg: 0x0a0405,
       items: [
         { t: "Official music video", sub: "Mortez", stat: "Latest", client: "Mortez", d: "The newest Mortez music video, on the big screen.", url: "https://www.youtube.com/watch?v=FnxnFHyG-P4", feature: true },
-        { t: "Live session", sub: "Mortez", stat: "Coming soon", client: "Mortez", d: "Placeholder." }] },
+      ] },
     { id: "tour", off: true, sign: "TOUR DATES", color: "#c9c6cf", style: "doc", side: "house", eyebrow: "The Chateau · Tour", lede: "Where to see Mortez live. Dates go up here as they're confirmed.",
       wall: 0x18161a, floor: 0x1f1c21, bg: 0x09080a,
       items: [{ t: "Dates TBA", sub: "Tour", stat: "Soon", client: "Mortez live", d: "Placeholder. Tour dates and ticket links go here." }] },
@@ -5678,7 +5678,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     else { cnIframe.hidden = true; cnVideo.hidden = false; cnVideo.src = it.video; cnVideo.play().catch(() => {}); }
     frameEl.hidden = false; cnPlaying = true;
   }
-  function stopScreen() { if (cnPlaying) { cnIframe.src = "about:blank"; cnVideo.pause(); cnVideo.removeAttribute("src"); cnVideo.load(); frameEl.hidden = true; cnPlaying = false; } }
+  function stopScreen() { frameEl._r = null; if (cnPlaying) { cnIframe.src = "about:blank"; cnVideo.pause(); cnVideo.removeAttribute("src"); cnVideo.load(); frameEl.hidden = true; cnPlaying = false; } }
   let seatState = null;
   // the box-seat chooser
   const bpEl = document.getElementById("boxPick"), bpList = document.getElementById("bpList");
@@ -5909,8 +5909,12 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
         const px = (seatTmp.x + 1) / 2 * innerWidth, py = (1 - seatTmp.y) / 2 * innerHeight;
         x0 = Math.min(x0, px); x1 = Math.max(x1, px); y0 = Math.min(y0, py); y1 = Math.max(y1, py);
       });
-      frameEl.style.visibility = behind ? "hidden" : "";
-      Object.assign(frameEl.style, { left: x0 + "px", top: y0 + "px", width: (x1 - x0) + "px", height: (y1 - y0) + "px" });
+      // only move the player when the screen has really moved: resizing a YouTube player every frame stalls its playback
+      const vis = behind ? "hidden" : "", r = [Math.round(x0), Math.round(y0), Math.round(x1 - x0), Math.round(y1 - y0)], last = frameEl._r;
+      if (frameEl.style.visibility !== vis) frameEl.style.visibility = vis;
+      if (!last || Math.abs(r[0] - last[0]) > 2 || Math.abs(r[1] - last[1]) > 2 || Math.abs(r[2] - last[2]) > 3 || Math.abs(r[3] - last[3]) > 3) {
+        frameEl._r = r; Object.assign(frameEl.style, { left: r[0] + "px", top: r[1] + "px", width: r[2] + "px", height: r[3] + "px" });
+      }
     }
   }
   document.getElementById("cnCam").addEventListener("click", () => setSeatView(seatV.mode + 1));
