@@ -302,6 +302,30 @@ a.cl-card { text-decoration: none; }
 .cl-note { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; color: var(--muted); font-size: 14px; }
 .cl-btns button:focus-visible, .cl-sec > header button:focus-visible, .cl-card:focus-visible, .cl-hero .split a:focus-visible { outline: 2px solid var(--neon); outline-offset: 2px; }
 
+/* the welcome: what the Chateau is and how the Reaper's game works, the first time you arrive */
+.welcome { position: fixed; inset: 0; z-index: 24; display: grid; place-items: center; padding: calc(env(safe-area-inset-top, 0px) + 16px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 16px) max(16px, env(safe-area-inset-left, 0px)); background: radial-gradient(ellipse at 50% 40%, rgba(40,8,12,.55), rgba(5,4,6,.82) 70%); backdrop-filter: blur(3px); overflow-y: auto; }
+.welcome[hidden] { display: none; }
+.wc-card { position: relative; width: min(720px, 100%); padding: clamp(22px, 4vw, 40px); border-radius: 22px; background: linear-gradient(180deg, rgba(26,16,19,.97), rgba(12,9,11,.97)); border: 1px solid rgba(201,161,74,.45); box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 30px 80px rgba(0,0,0,.65), inset 0 0 60px rgba(224,50,60,.08); text-align: center; display: grid; gap: 14px; justify-items: center; animation: fwIn .9s cubic-bezier(.2,.8,.2,1); }
+.wc-card::before, .wc-card::after { content: "✠"; position: absolute; top: 16px; font-size: 18px; color: #c9a14a; opacity: .7; }
+.wc-card::before { left: 20px; } .wc-card::after { right: 20px; }
+.wc-k { font: 600 12px var(--mono); letter-spacing: .2em; text-transform: uppercase; color: #ff5a5a; }
+.welcome h2 { margin: -4px 0 0; font: 400 clamp(48px, 8vw, 84px)/.9 "Pirata One", var(--display); color: var(--ink); text-shadow: 0 0 40px rgba(224,50,60,.45); }
+.wc-lede { margin: 0; max-width: 50ch; color: var(--muted); font-size: 16px; line-height: 1.5; }
+.wc-steps { list-style: none; margin: 6px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; counter-reset: wc; text-align: left; width: 100%; }
+.wc-steps li { counter-increment: wc; position: relative; padding: 14px 14px 14px 56px; border-radius: 14px; background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.08); display: grid; gap: 4px; min-width: 0; }
+.wc-steps li::before { content: counter(wc); position: absolute; left: 14px; top: 14px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #e0323c; color: #fff; font: 700 14px var(--body); box-shadow: 0 0 16px rgba(224,50,60,.5); }
+.wc-steps b { font: 700 15px var(--body); color: var(--ink); }
+.wc-steps span { font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+.wc-steps em, .wc-more em { font-style: normal; }
+.welcome kbd { display: inline-block; min-width: 20px; padding: 1px 5px; margin: 0 1px; border-radius: 5px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.06); font: 600 11px var(--mono); color: var(--ink); text-align: center; }
+.wc-more { margin: 2px 0 0; font-size: 14px; color: var(--muted); max-width: 56ch; }
+.wc-more span { color: var(--ink); font-weight: 700; }
+.wc-touch { display: none; }
+@media (pointer: coarse) { .wc-touch { display: inline; } .wc-keys { display: none; } }
+.wc-go { margin-top: 4px; padding: 14px 40px; border-radius: 999px; border: 0; background: #e0323c; color: #fff; font: 700 16px var(--body); letter-spacing: .02em; cursor: pointer; box-shadow: 0 10px 34px rgba(224,50,60,.45); transition: transform .2s, background .2s; }
+.wc-go:hover { transform: translateY(-2px); background: #f0414b; }
+.wc-again { color: var(--muted); font-size: 12px; opacity: .8; }
+@media (max-width: 620px) { .wc-steps { grid-template-columns: 1fr; } .wc-card { border-radius: 18px; gap: 12px; } .wc-lede { font-size: 15px; } .wc-card::before, .wc-card::after { display: none; } }
 .farewell { position: fixed; inset: 0; z-index: 25; display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(ellipse at 50% 120%, #3a0c10 0%, #0c0a0d 55%, #050409 100%); overflow-y: auto; }
 .fw-inner { width: min(640px, 100%); display: flex; flex-direction: column; gap: 18px; text-align: center; align-items: center; animation: fwIn 1.2s cubic-bezier(.2,.8,.2,1); }
 @keyframes fwIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
@@ -858,6 +882,22 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
   <div class="cl-wrap" id="classicBody"></div>
 </div>
 
+<div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="wcTitle">
+  <div class="wc-card">
+    <span class="wc-k">Welcome to</span>
+    <h2 id="wcTitle">The Chateau</h2>
+    <p class="wc-lede">A haunted estate built for Mortez. Explore every room, and play the Reaper's game while you're here.</p>
+    <ol class="wc-steps">
+      <li><b>Explore</b><span>The grounds, the foyer, the haunted library, the Chapel, the merch shop, the Reaper Ride and more. <em class="wc-keys">Walk with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>, drag to look, and press <kbd>E</kbd> to use things.</em><em class="wc-touch">Walk with the joystick, drag to look, and tap things to use them.</em></span></li>
+      <li><b>Find the six relics</b><span>The Black Rose, the Scythe Blade, the Raven's Feather, the First Pressing, the Sum Fortis Ring and the Lost Lyric Page are hidden around the Chateau. Walk up to one to take it. Your count is at the top right.</span></li>
+      <li><b>Take the Reaper's Key</b><span>Find all six and the Reaper leaves his key beside his Ledger in the library. It opens the locked door upstairs in the foyer, marked <i>Keep Out</i>: the Reaper's Study.</span></li>
+      <li><b>Stuck? Read the Ledger</b><span>The Reaper's Ledger, at the far end of the library, gives you a hint each time you read it, and marks that relic on your map.</span></li>
+    </ol>
+    <p class="wc-more"><span>You're not alone in here.</span> Other visitors walk the Chateau with you. <em class="wc-keys">Press <kbd>T</kbd> for emotes and <kbd>Enter</kbd> to chat.</em><em class="wc-touch">Tap 😈 for emotes.</em></p>
+    <button type="button" class="wc-go" id="wcGo">Begin</button>
+    <small class="wc-again">Read this again any time: Classic view → How to play.</small>
+  </div>
+</div>
 <div class="farewell" id="farewell" hidden role="dialog" aria-modal="true" aria-labelledby="fwTitle">
   <div class="fw-inner">
     <span class="fw-k">You took the leap</span>
@@ -6108,6 +6148,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     [["westhall", "West wing", "Portrait gallery to the Merch shop and the courtyard"], ["easthall", "East wing", "Portrait gallery to the Chapel and the dining hall"], ["courtyard", "The courtyard", "Open to the moon, with a raven and a well"], ["dining", "The dining hall", "The long table and the host's chair"], ["library", "The haunted library", "A bookcase for every release: open one to read the lyrics"]].forEach(([id, n, d]) => add(n, d, () => cur.id !== id && enterRoom(id)));
     add("The haunted hall", "The walk-through. Jump scares inside", () => openHauntWarning());
     add("Summon the spirits", "Start a haunting now: fight off the ghosts", () => EXTRAS.haunt());
+    add("How to play", "The Chateau, the relics and the Reaper's Key", () => EXTRAS.welcome());
     add("The Reaper's Relics", "The treasure hunt: your progress and a hint", () => EXTRAS.ledger());
     add("Your reaper", "Change your character or name", () => openChars());
     add("Admin switches", "Turn parts of the world on and off", () => openAdmin());
@@ -6549,7 +6590,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const relics = RELICS.map(r => Object.assign({ got: false }, r));
     // the hunt is on from the moment you arrive; the Ledger is where you go for hints (each read reveals one, and marks it on the mini map)
     const hunt = { on: true };
-    let hints = store.get("mortez.hints", []), introDone = !!store.get("mortez.huntIntro", false), arrivedAt = 0, arrivedIn = null, introAt = 0;
+    let hints = store.get("mortez.hints", []), introDone = !!store.get("mortez.huntIntro", false), arrivedAt = 0, arrivedIn = null;
     const saved = store.get("mortez.relics", []); relics.forEach(r => r.got = saved.includes(r.id));
     const pill = document.getElementById("relicPill"), relicN = document.getElementById("relicN");
     const sixDone = () => relics.filter(r => !r.final && r.got).length >= SIX;
@@ -6609,16 +6650,22 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       showToast("The Reaper's Ledger", pick.final ? "The last relic" : "A hint, written in red", pick.hint + "\n\nIt's marked on your map when you're in the right room." + (found ? "\n\n" + found : ""), n + " / " + relics.length, true);
     }
     // the welcome: the hunt starts the moment you're in the world
+    // the welcome: a clear card in the middle of the screen the first time you're settled in the world
+    const wcEl = document.getElementById("welcome");
+    function openWelcome() { wcEl.hidden = false; menuOpen = true; for (const k in keys) keys[k] = false; document.getElementById("wcGo").focus({ preventScroll: true }); wcEl.scrollTop = 0; }
+    function closeWelcome() { if (wcEl.hidden) return; wcEl.hidden = true; menuOpen = false; introDone = true; store.set("mortez.huntIntro", true); SFX.init(); SFX.page && SFX.page(); canvas.focus(); }
+    document.getElementById("wcGo").addEventListener("click", closeWelcome);
+    wcEl.addEventListener("keydown", e => { e.stopPropagation(); if (e.code === "Escape" || e.code === "Enter") { e.preventDefault(); closeWelcome(); } });
     function intro(now) {
-      if (introDone || !FLAGS.relics || !cur || cur.ride || charOpen) { arrivedAt = 0; return; }
-      if (!arrivedAt || cur.id !== arrivedIn) { arrivedAt = now; arrivedIn = cur.id; introAt = 0; return; }   // wait until you've settled in one place
-      if (now - arrivedAt < 2500) return;
-      if (!introAt) { introAt = now; SFX.init(); SFX.page && SFX.page(); showToast("The Reaper's Relics", "The hunt has begun", "Six relics of Mortez are hidden around the Chateau. Find all six and the Reaper leaves you his key, the only way into the locked room upstairs. Stuck? Read the Reaper's Ledger in the library for hints.", "0 / " + relics.length, true); return; }
-      if (now - introAt > 3000) { introDone = true; store.set("mortez.huntIntro", true); }   // it stayed up: done. (Moving rooms right away hides it, so it shows again.)
+      if (introDone || !FLAGS.relics || !cur || cur.ride || charOpen || !wcEl.hidden) { if (wcEl.hidden) arrivedAt = 0; return; }
+      if (!arrivedAt || cur.id !== arrivedIn) { arrivedAt = now; arrivedIn = cur.id; return; }   // wait until you've settled in one place
+      if (now - arrivedAt < 1200) return;
+      openWelcome();
     }
 
     return {
       init() { placeRelics(); updatePill(); if (sixDone()) setAura(true); },
+      welcome: () => openWelcome(),
       hasKey: () => relics.some(r => r.final && r.got), relicCount: () => relics.filter(r => !r.final && r.got).length, relicMesh,
       tick(now, dt) { tickHaunt(now, dt); intro(now); if (now - mapT > 90) { mapT = now; drawMini(); } },
       click, swing, haunt: () => start(true), ledger, get haunting() { return H.state !== "idle"; }, _relics: relics, _H: H, _SW: SW
