@@ -4269,7 +4269,7 @@ body.riding .relics { display: none; }
       spawn: new THREE.Vector3(O.x, 0, O.z - 3), spawnRot: Math.PI,
       surface, walkable(p) { return surface(p, sp.footY) !== null; }, clamp() {},
       colliders, interactables: inter, doors: doors.list, arrive: doors.arrive,
-      hud: { loc: "Up the foyer stairs", title: "THE HAUNTED LIBRARY", sub: "Two floors of stacks. Keep your voice down. The Reaper's Ledger at the far end starts the hunt for his six relics and his key.", color: "#e0323c" },
+      hud: { loc: "Up the foyer stairs", title: "THE HAUNTED LIBRARY", sub: "Two floors of stacks. Keep your voice down. The Reaper's Ledger at the far end gives hints for his relics.", color: "#e0323c" },
       update(t, dt, near, enteringId) {
         doors.update(near, enteringId, dt);
         if (reduce) return;
@@ -6024,7 +6024,7 @@ body.riding .relics { display: none; }
     [["westhall", "West wing", "Portrait gallery to the Merch shop and the courtyard"], ["easthall", "East wing", "Portrait gallery to the Chapel and the dining hall"], ["courtyard", "The courtyard", "Open to the moon, with a raven and a well"], ["dining", "The dining hall", "The long table and the host's chair"], ["library", "The haunted library", "A bookcase for every release: open one to read the lyrics"]].forEach(([id, n, d]) => add(n, d, () => cur.id !== id && enterRoom(id)));
     add("The haunted hall", "The walk-through. Jump scares inside", () => openHauntWarning());
     add("Summon the spirits", "Start a haunting now: fight off the ghosts", () => EXTRAS.haunt());
-    add("The Reaper's Relics", "The treasure hunt: see the clues", () => EXTRAS.ledger());
+    add("The Reaper's Relics", "The treasure hunt: your progress and a hint", () => EXTRAS.ledger());
     add("Your reaper", "Change your character or name", () => openChars());
     add("Admin switches", "Turn parts of the world on and off", () => openAdmin());
     head("Inside the Chateau"); ROOMS.filter(r => r.side !== "center" && !r.off).forEach(room);
@@ -6253,7 +6253,7 @@ body.riding .relics { display: none; }
       if (mapFor !== cur.id) { mapFor = cur.id; if (!(cur.id in baked)) baked[cur.id] = bake(cur); miniName.textContent = PLACE_NAMES[cur.id] || (cur.hud && cur.hud.title ? cur.hud.title.replace(/<[^>]+>/g, "") : ""); }
       const b = baked[cur.id]; mini.hidden = !b; if (!b) return;
       mx.clearRect(0, 0, 300, 300); mx.drawImage(b.cv, 0, 0);
-      relics.forEach(r => { if (r.space !== cur.id || r.got || !r.mesh || !hunt.on) return; const [u, v] = b.toMap(r.world.x, r.world.z); mx.fillStyle = "rgba(255,190,80," + (.4 + Math.sin(performance.now() / 300) * .3) + ")"; mx.beginPath(); mx.arc(u, v, 6, 0, 7); mx.fill(); });
+      relics.forEach(r => { if (r.space !== cur.id || r.got || !r.mesh || !hints.includes(r.id) || (r.final && !sixDone())) return; const [u, v] = b.toMap(r.world.x, r.world.z); mx.fillStyle = "rgba(255,190,80," + (.4 + Math.sin(performance.now() / 300) * .3) + ")"; mx.beginPath(); mx.arc(u, v, 6, 0, 7); mx.fill(); });
       ghosts.forEach(gh => { if (!gh.alive) return; const [u, v] = b.toMap(gh.g.position.x, gh.g.position.z); mx.fillStyle = "#bfe8ff"; mx.beginPath(); mx.arc(u, v, 4, 0, 7); mx.fill(); });
       // the people you're playing with: a coloured marker with their initial, and their name
       const PCOL = ["#4ade80", "#60a5fa", "#facc15", "#f472b6", "#a78bfa", "#fb923c", "#2dd4bf"];
@@ -6404,11 +6404,13 @@ body.riding .relics { display: none; }
     ];
     const SIX = 6;
     const relics = RELICS.map(r => Object.assign({ got: false }, r));
-    const hunt = { on: !!store.get("mortez.hunt", false) };
+    // the hunt is on from the moment you arrive; the Ledger is where you go for hints (each read reveals one, and marks it on the mini map)
+    const hunt = { on: true };
+    let hints = store.get("mortez.hints", []), introDone = !!store.get("mortez.huntIntro", false), arrivedAt = 0, arrivedIn = null, introAt = 0;
     const saved = store.get("mortez.relics", []); relics.forEach(r => r.got = saved.includes(r.id));
     const pill = document.getElementById("relicPill"), relicN = document.getElementById("relicN");
     const sixDone = () => relics.filter(r => !r.final && r.got).length >= SIX;
-    function updatePill() { const n = relics.filter(r => r.got).length; relicN.textContent = n; pill.hidden = !FLAGS.relics || (!hunt.on && !n); if (n === relics.length) pill.classList.add("done"); }
+    function updatePill() { const n = relics.filter(r => r.got).length; relicN.textContent = n; pill.hidden = !FLAGS.relics; if (n === relics.length) pill.classList.add("done"); }
     function relicMesh(id) {
       const g = new THREE.Group(), red = new THREE.MeshBasicMaterial({ color: 0xc8102a }), gold = new THREE.MeshStandardMaterial({ color: 0xc9a14a, metalness: .7, roughness: .3, emissive: 0x3a2a08 });
       if (id === "rose") { const b = new THREE.Mesh(new THREE.ConeGeometry(.16, .26, 8), new THREE.MeshBasicMaterial({ color: 0x14060a })); b.rotation.x = Math.PI; b.position.y = .12; g.add(b); const s = new THREE.Mesh(new THREE.CylinderGeometry(.015, .015, .5, 4), new THREE.MeshBasicMaterial({ color: 0x1a2a14 })); s.position.y = -.2; g.add(s); }
@@ -6438,13 +6440,13 @@ body.riding .relics { display: none; }
       });
     }
     function collect(r) {
-      if (r.got) return; r.got = true; if (r.mesh) r.mesh.visible = false; hunt.on = true; store.set("mortez.hunt", true);
+      if (r.got) return; r.got = true; if (r.mesh) r.mesh.visible = false;
       store.set("mortez.relics", relics.filter(x => x.got).map(x => x.id)); updatePill();
       const n = relics.filter(x => x.got).length;
       SFX.init(); SFX.page && SFX.page();
       if (r.final) { SFX.musicbox && SFX.musicbox(); showToast("The Reaper's Key", "The study is open", "Go back to the foyer and up the stairs. The door marked KEEP OUT will open for you now.", n + " / " + relics.length, true); }
       else if (sixDone() && !relics.find(x => x.final).got) { SFX.musicbox && SFX.musicbox(); setAura(true); showToast("The Reaper's Relics", "All six found. Sum fortis.", "The Reaper marks you as one of his own; look at the red glow you carry now. One relic is left: his key, waiting at the Ledger in the library.", n + " / " + relics.length, true); }
-      else { const nextOne = relics.find(x => !x.got && !x.final) || relics.find(x => !x.got); showToast("Relic found", r.name, "Next: " + nextOne.hint, n + " / " + relics.length); }
+      else showToast("Relic found", r.name, (SIX - relics.filter(x => !x.final && x.got).length) + " still hidden in the Chateau. Stuck? The Reaper's Ledger in the library gives hints.", n + " / " + relics.length);
     }
     let aura = null;
     function setAura(on) {
@@ -6453,17 +6455,29 @@ body.riding .relics { display: none; }
     }
     function ledger() {
       if (!FLAGS.relics) { showToast("The Reaper's Ledger", "The hunt is closed", "The pages are blank for now. Come back soon.", ""); return; }
-      hunt.on = true; store.set("mortez.hunt", true); updatePill(); SFX.init(); SFX.page && SFX.page();
+      SFX.init(); SFX.page && SFX.page();
       const n = relics.filter(r => r.got).length;
-      const list = relics.map(r => (r.got ? "✓ " + r.name : r.final && !sixDone() ? "☐ The seventh relic stays hidden until the six are found." : "☐ " + r.hint)).join("\n");
-      const title = n === relics.length ? "Every relic found. The study is yours." : sixDone() ? "Take the Reaper's Key from beside the Ledger" : "Find the six relics of Mortez, then his key";
-      showToast("The Reaper's Ledger", title, list, n + " / " + relics.length, true);
+      if (n === relics.length) { showToast("The Reaper's Ledger", "Every relic found", "The study upstairs is yours. Sum fortis.", n + " / " + relics.length, true); return; }
+      // one hint per read: the next relic you haven't found (in turn), and it lights up on the mini map
+      const open = relics.filter(r => !r.got && (!r.final || sixDone()));
+      const pick = open.find(r => !hints.includes(r.id)) || open[(n + hints.length) % open.length];
+      if (!hints.includes(pick.id)) { hints.push(pick.id); store.set("mortez.hints", hints); }
+      const found = relics.filter(r => r.got).map(r => "✓ " + r.name).join("\n");
+      showToast("The Reaper's Ledger", pick.final ? "The last relic" : "A hint, written in red", pick.hint + "\n\nIt's marked on your map when you're in the right room." + (found ? "\n\n" + found : ""), n + " / " + relics.length, true);
+    }
+    // the welcome: the hunt starts the moment you're in the world
+    function intro(now) {
+      if (introDone || !FLAGS.relics || !cur || cur.ride || charOpen) { arrivedAt = 0; return; }
+      if (!arrivedAt || cur.id !== arrivedIn) { arrivedAt = now; arrivedIn = cur.id; introAt = 0; return; }   // wait until you've settled in one place
+      if (now - arrivedAt < 2500) return;
+      if (!introAt) { introAt = now; SFX.init(); SFX.page && SFX.page(); showToast("The Reaper's Relics", "The hunt has begun", "Six relics of Mortez are hidden around the Chateau. Find all six and the Reaper leaves you his key, the only way into the locked room upstairs. Stuck? Read the Reaper's Ledger in the library for hints.", "0 / " + relics.length, true); return; }
+      if (now - introAt > 3000) { introDone = true; store.set("mortez.huntIntro", true); }   // it stayed up: done. (Moving rooms right away hides it, so it shows again.)
     }
 
     return {
       init() { placeRelics(); updatePill(); if (sixDone()) setAura(true); },
       hasKey: () => relics.some(r => r.final && r.got), relicCount: () => relics.filter(r => !r.final && r.got).length, relicMesh,
-      tick(now, dt) { tickHaunt(now, dt); if (now - mapT > 90) { mapT = now; drawMini(); } },
+      tick(now, dt) { tickHaunt(now, dt); intro(now); if (now - mapT > 90) { mapT = now; drawMini(); } },
       click, swing, haunt: () => start(true), ledger, get haunting() { return H.state !== "idle"; }, _relics: relics, _H: H, _SW: SW
     };
   })();
