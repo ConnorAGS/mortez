@@ -1,6 +1,5 @@
 // Mortez live: the always-on world. One Durable Object ("the Chateau") holds everyone's WebSocket and passes
-// positions, emotes and preset phrases between reapers in the same room. Free text chat is never relayed here
-// (that stays in private Play together sessions). Uses the WebSocket Hibernation API so idle time is not billed.
+// positions, emotes, preset phrases and room chat (filtered, rate limited) between reapers in the same room. Uses the WebSocket Hibernation API so idle time is not billed.
 import { DurableObject } from "cloudflare:workers";
 
 const MAX = 120;                                   // reapers per Chateau shard; the client opens shard 2, 3… when one is full
@@ -34,6 +33,11 @@ export default {
 
 const num = (v, lo, hi) => { v = +v; return Number.isFinite(v) ? Math.min(hi, Math.max(lo, Math.round(v * 100) / 100)) : 0; };
 const clean = t => String(t || "").replace(/[\u0000-\u001f\u007f<>]/g, "").trim().slice(0, 18);
+// room chat: short, no links, the worst words masked. Players can also mute each other on their side.
+const BAD = /\b(f+u+c+k+\w*|sh[i1]t+\w*|c+u+n+t+\w*|b[i1]tch\w*|n[i1]gg\w*|f[a@]gg?\w*|retard\w*|wh[o0]re\w*|slut\w*|d[i1]ck(s|head\w*)?|puss(y|ies)|c[o0]ck(s|sucker\w*)?|kys|kill\s+your\s*self)\b/gi;
+const say = t => String(t || "").replace(/[\u0000-\u001f\u007f<>]/g, "").replace(/\s+/g, " ").trim().slice(0, 120)
+  .replace(/(https?:\/\/|www\.)\S+|\b\S+\.(com|net|org|io|gg|ly|co|xyz|app|me)\b\S*/gi, "[link]")
+  .replace(BAD, w => w[0] + "*".repeat(Math.max(2, w.length - 1)));
 
 export class World extends DurableObject {
   async fetch(req) {
@@ -92,8 +96,12 @@ export class World extends DurableObject {
         const last = (await this.ctx.storage.get("cin")) || { at: 0 }; if (t - last.at < 4000) return;   // no rapid flipping
         const cin = { i, at: t }; await this.ctx.storage.put("cin", cin); this.send(Object.assign({ k: "cin", id: a.id }, cin)); return;
       }
+      case "chat": {   // room chat: only people in the same room see it; one message every 1.5 s
+        if (t - (a.c || 0) < 1500 || !a.name) return; a.c = t; ws.serializeAttachment(a);
+        const txt = say(m.t); if (!txt) return; this.send({ k: "chat", id: a.id, t: txt }, here, ws); return;
+      }
       case "ping": ws.send(JSON.stringify({ k: "pong", now: t })); return;
-      default: return;   // anything else, including free text chat, is dropped
+      default: return;   // anything else is dropped
     }
   }
 

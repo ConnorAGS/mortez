@@ -492,6 +492,10 @@ body.piano-on .hud .bottom, body.piano-on .prompt, body.piano-on .mini, body.pia
 @media (max-width: 600px) { .pk-keys { height: 128px; } .pk-bar b { font-size: 18px; } }
 .mp { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: rgba(5,3,4,.72); padding: 16px; }
 .mp[hidden], .mpchat[hidden] { display: none; }
+.mpchat.min .mplog, .mpchat.min #mpForm { display: none !important; }
+.mpchat.pub #mpBarOpen { display: none; }
+.mplog b[data-id] { cursor: pointer; } .mplog b[data-id]:hover { text-decoration: underline; }
+.mplog p.muted-note { opacity: .7; font-style: italic; }
 .mp-card { width: min(440px, 100%); background: #120c0e; border: 1px solid rgba(224,50,60,.45); border-radius: 18px; padding: 20px 22px; color: var(--ink); box-shadow: 0 20px 60px rgba(0,0,0,.6); }
 .mp-card .btn { margin-top: 8px; }
 .mp-note { color: #c9b5b0; margin: 12px 0 4px; }
@@ -691,7 +695,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
   </div>
 </div>
 <div class="mpchat" id="mpChat" hidden>
-  <div class="mpbar"><b id="mpBarTxt"></b><span><button type="button" id="mpChatBtn" aria-label="Chat">Chat</button> <button type="button" id="mpBarOpen">Session</button></span></div>
+  <div class="mpbar"><b id="mpBarTxt"></b><span><button type="button" id="mpChatBtn" aria-label="Chat">Chat</button> <button type="button" id="mpMin" aria-label="Hide chat" title="Hide chat">–</button> <button type="button" id="mpBarOpen">Session</button></span></div>
   <div class="mplog" id="mpLog" aria-live="polite"></div>
   <form id="mpForm" autocomplete="off"><input id="mpIn" maxlength="140" placeholder="Press Enter to chat" aria-label="Chat message"><button type="submit">Send</button></form>
 </div>
@@ -969,6 +973,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     ["lyricBox", "Ride lyric box", "A caption box with the words lighting up (off: lyrics fly in the air only)", false],
     ["lyrics3D", "Ride flying lyrics", "The words floating over the track that burst as you hit them", true],
     ["liveWorld", "Live world", "Everyone in the Chateau sees each other: reapers, emotes and the Chapel's shared screening (via Cloudflare)", true],
+    ["liveChat", "Live chat", "Room chat in the live world: speech bubbles and a chat log, filtered and rate limited; players can mute each other", true],
     ["playTogether", "Play together", "The button that lets you host a private session and invite friends to walk the Chateau with you", true],
     ["lyricTimer", "Ride lyric timer", "A song clock on the ride for marking where each verse and line starts (also: press L on the ride)", false],
     ["bridgeStrobe", "Ride bridge strobes", "Flickering black and white lights around the giant Reaper (turn off for photosensitive visitors)", true],
@@ -6127,6 +6132,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     // the live world: one WebSocket to Cloudflare (live/worker.js). Private sessions take over while they run.
     const LIVE = qs.get("live") || "wss://mortez-live.connor-832.workers.dev/world";
     const EMOTES = ["🔥", "🖤", "💀", "🦇", "👏", "🤘"], PHRASES = ["Love this song", "Sum fortis", "Join the coven", "Where's the key?", "Found a relic!", "This way"];
+    let mineBubble = () => {}, chatMin = false;
+    try { chatMin = localStorage.getItem("mortez.chatMin") === "1"; } catch (e) {}
     let pub = null, pubOn = false, pubTries = 0, pubShard = 1, pubTimer = 0, skew = 0, cinState = null;
     const on = () => state === "live" || pubOn;
     const me = () => { const pl = window.SITE.player || {}; return { name: (pl.name || CHARACTERS[avatarKind].name).slice(0, 18), kind: avatarKind }; };
@@ -6153,7 +6160,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     function dropRemote(id) { const o = others.get(id); if (!o) return; scene.remove(o.g); others.delete(id); }
 
     // --- chat log
-    function say(html, sys) { const p = document.createElement("p"); if (sys) { p.className = "sys"; p.textContent = html; } else { const b = document.createElement("b"); b.textContent = html[0] + ": "; p.append(b, document.createTextNode(html[1])); } log.appendChild(p); while (log.children.length > 30) log.firstChild.remove(); setTimeout(() => p.classList.add("old"), 9000); }
+    const muted = new Set();
+    function say(html, sys) { const p = document.createElement("p"); if (sys) { p.className = "sys"; p.textContent = html; } else { const b = document.createElement("b"); b.textContent = html[0] + ": "; if (html[2]) { b.dataset.id = html[2]; b.title = "Tap to mute " + html[0]; } p.append(b, document.createTextNode(html[1])); } log.appendChild(p); while (log.children.length > 30) log.firstChild.remove(); setTimeout(() => p.classList.add("old"), 9000); }
     function roster() { const n = others.size + 1, list = [...others.values()].map(o => o.name + " " + placeName(o.sp)); $("mpBarTxt").innerHTML = `<span class="mp-lg">Session ${code} · </span>${n} here`; $("mpWho").textContent = list.length ? list.join(" · ") : (isHost ? "Waiting for your friends to join…" : ""); }
 
     // --- signalling (PeerJS server protocol: OPEN / OFFER / ANSWER / CANDIDATE / EXPIRE / LEAVE)
@@ -6194,7 +6202,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const toAll = (m, except) => { if (state !== "live") { if (pubOn && pub && pub.readyState === 1) try { pub.send(JSON.stringify(m)); } catch (e) {} return; } peers.forEach(p => { if (p.id !== except) send(p, m); }); };
 
     // --- the live world connection
-    function online() { const n = others.size + 1, el = $("onlinePill"); el.hidden = !pubOn || state === "live"; const rp = $("relicPill"), mm = $("mini"); const ref = rp && !rp.hidden ? rp : mm; if (ref && !el.hidden) { const b = ref.getBoundingClientRect().bottom; if (b) el.style.top = Math.round(b + 8) + "px"; } $("onlineN").textContent = n; $("onlineTxt").textContent = n === 1 ? "online · just you" : "online"; }
+    function pubChat() { if (state === "live") return; const show = pubOn && FLAGS.liveChat; chat.hidden = !show; chat.classList.toggle("pub", show); chat.classList.toggle("min", show && chatMin); $("mpMin").textContent = chatMin ? "+" : "–"; if (show) $("mpBarTxt").innerHTML = '<span class="mp-lg">Room chat · </span>' + (others.size + 1) + ' online'; }
+    function online() { pubChat(); const n = others.size + 1, el = $("onlinePill"); el.hidden = !pubOn || state === "live"; const rp = $("relicPill"), mm = $("mini"); const ref = rp && !rp.hidden ? rp : mm; if (ref && !el.hidden) { const b = ref.getBoundingClientRect().bottom; if (b) el.style.top = Math.round(b + 8) + "px"; } $("onlineN").textContent = n; $("onlineTxt").textContent = n === 1 ? "online · just you" : "online"; }
     function pubConnect() {
       clearTimeout(pubTimer);
       if (pub || state !== "off" || !FLAGS.liveWorld || !window.WebSocket) return;
@@ -6208,7 +6217,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
         if (m.k === "pong") return;
         gotData(null, m); online();
       };
-      sock.onclose = () => { if (pub !== sock) return; pub = null; const was = pubOn; pubOn = false; if (state === "off") { others.forEach((o, id) => dropRemote(id)); } online(); if (state === "off" && FLAGS.liveWorld) pubTimer = setTimeout(pubConnect, Math.min(60000, 2000 * Math.pow(2, pubTries++)) * (was ? .5 : 1)); };
+      sock.onclose = () => { if (pub !== sock) return; pub = null; const was = pubOn; pubOn = false; if (state === "off") chat.hidden = true; if (state === "off") { others.forEach((o, id) => dropRemote(id)); } online(); if (state === "off" && FLAGS.liveWorld) pubTimer = setTimeout(pubConnect, Math.min(60000, 2000 * Math.pow(2, pubTries++)) * (was ? .5 : 1)); };
       sock.onerror = () => {};
     }
     function pubStop() { clearTimeout(pubTimer); const s2 = pub; pub = null; pubOn = false; if (s2) try { s2.close(1000); } catch (e) {} others.forEach((o, id) => dropRemote(id)); online(); }
@@ -6232,7 +6241,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       if (!m.id || m.id === myId) return;
       if (m.k === "hi") { const fresh = !others.has(m.id); const o = remote(m.id); setLook(o, clean(m.name).slice(0, 18) || "Reaper", CHARACTERS[m.kind] ? m.kind : "reaper"); if (fresh) { say(o.name + " joined.", true); showToast("Play together", o.name + " joined", "They're in the Chateau with you. Press Enter to chat.", ""); } roster(); }
       else if (m.k === "st") { const o = remote(m.id); if (o.sp !== m.sp) { o.snap = true; o.sp = String(m.sp || ""); roster(); } o.tp.set(+m.x || 0, +m.y || 0, +m.z || 0); o.tr = +m.r || 0; o.vis = !!m.v; o.bat = !!m.b; o.rt = +m.rt || 0; o.seat = Math.max(0, Math.min(TRAIN_CARS - 1, m.seat | 0)); o.seen = performance.now(); }
-      else if (m.k === "chat") { const o = others.get(m.id); const t = clean(m.t); if (!o || !t) return; say([o.name, t]); o.bubM.map && o.bubM.map.dispose(); o.bubM.map = bubbleTex(t); o.bubM.needsUpdate = true; o.bubUntil = performance.now() + 6000; }
+      else if (m.k === "chat") { const o = others.get(m.id); const t = clean(m.t); if (!o || !t || muted.has(m.id) || (!FLAGS.liveChat && state !== "live")) return; say([o.name, t, m.id]); o.bubM.map && o.bubM.map.dispose(); o.bubM.map = bubbleTex(t); o.bubM.needsUpdate = true; o.bubUntil = performance.now() + 6000; }
       else if (m.k === "sw") { const o = others.get(m.id); if (o) o.swing = 1; }
       else if (m.k === "em") { if (EMOTES.includes(m.e)) bubble(others.get(m.id), m.e, true); }
       else if (m.k === "ph") { const t = PHRASES[m.n | 0]; if (t) bubble(others.get(m.id), t, false); }
@@ -6266,7 +6275,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     function leave(quiet) { if (!quiet) toAll({ k: "bye", id: myId }); setTimeout(() => { reset(); pubConnect(); }, quiet ? 0 : 150); state = "off"; isHost = false; code = ""; chat.hidden = true; $("mpStart").hidden = false; $("mpLive").hidden = true; msg.textContent = quiet ? "" : "You left the session."; btn.innerHTML = 'Play<span class="mp-lg"> together</span>'; document.body.classList.remove("mp-live"); }
     function fail(t) { reset(); state = "off"; setTimeout(pubConnect, 1000); document.body.classList.remove("mp-live"); btn.innerHTML = 'Play<span class="mp-lg"> together</span>'; msg.textContent = t; $("mpStart").hidden = false; $("mpLive").hidden = true; chat.hidden = true; if (panel.hidden) showToast("Play together", "Couldn't connect", t, ""); }
     const inviteLink = () => { const u = new URL(location.href); u.search = ""; u.hash = ""; u.searchParams.set("join", code); if (sq) u.searchParams.set("peer", sq); return u.toString(); };
-    function showLive() { msg.textContent = ""; $("mpStart").hidden = true; $("mpLive").hidden = false; $("mpCodeShow").textContent = code; chat.hidden = false; btn.innerHTML = 'Session<span class="mp-lg"> ' + code + '</span>'; document.body.classList.add("mp-live"); roster(); }
+    function showLive() { chat.classList.remove("pub", "min"); msg.textContent = ""; $("mpStart").hidden = true; $("mpLive").hidden = false; $("mpCodeShow").textContent = code; chat.hidden = false; btn.innerHTML = 'Session<span class="mp-lg"> ' + code + '</span>'; document.body.classList.add("mp-live"); roster(); }
     const openPanel = () => { panel.hidden = false; menuOpen = true; ($("mpLive").hidden ? $("mpHost") : $("mpCopyLink")).focus(); };
     const closePanel = () => { panel.hidden = true; menuOpen = false; canvas.focus(); };
     const copy = async (t, ok) => { try { await navigator.clipboard.writeText(t); msg.textContent = ok; } catch (e) { msg.textContent = t; } };
@@ -6276,13 +6285,16 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     $("mpCopyLink").addEventListener("click", () => copy(inviteLink(), "Invite link copied. Send it to your friend."));
     $("mpCopyCode").addEventListener("click", () => copy(code, "Code copied."));
     $("mpLeave").addEventListener("click", () => leave(false));
+    // tap a name in the chat to mute (or unmute) them; the – button tucks the chat away
+    log.addEventListener("click", e => { const b = e.target.closest("b[data-id]"); if (!b) return; const id = b.dataset.id, nm = b.textContent.replace(/:\s*$/, ""); if (muted.has(id)) { muted.delete(id); say(nm + " unmuted.", true); } else { muted.add(id); const o = others.get(id); if (o) o.bubUntil = 0; say(nm + " muted. You won't see their messages. Tap their name again to unmute.", true); } });
+    $("mpMin").addEventListener("click", () => { chatMin = !chatMin; try { localStorage.setItem("mortez.chatMin", chatMin ? "1" : "0"); } catch (e) {} chat.classList.toggle("min", chatMin); $("mpMin").textContent = chatMin ? "+" : "–"; $("mpMin").setAttribute("aria-label", chatMin ? "Show chat" : "Hide chat"); });
     $("mpChatBtn").addEventListener("click", () => { chat.classList.add("open"); input.focus(); });
     input.addEventListener("blur", () => setTimeout(() => chat.classList.remove("open"), 150));
     input.addEventListener("keydown", e => { e.stopPropagation(); if (e.code === "Escape") { input.value = ""; input.blur(); canvas.focus(); } });
     $("mpForm").addEventListener("submit", e => {
       e.preventDefault(); const t = clean(input.value); input.value = ""; input.blur(); canvas.focus();
-      if (!t || state !== "live") return; const now = performance.now(); if (now - lastChat < 700) return; lastChat = now;
-      say([me().name, t]); toAll({ k: "chat", id: myId, t });
+      if (!t || !on()) return; const now = performance.now(); if (now - lastChat < (state === "live" ? 700 : 1500)) return; lastChat = now;
+      say([me().name, t]); mineBubble(t, false); toAll({ k: "chat", id: myId, t });
     });
     addEventListener("pagehide", () => { if (state === "live") toAll({ k: "bye", id: myId }); });
 
@@ -6296,7 +6308,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       remotes() { const a = []; others.forEach(o => a.push(o.g)); return a; },
       // other players for the mini map: where they are in the room you're in
       players() { if (!on()) return []; const out = []; others.forEach(o => { if (!cur || o.sp !== cur.id || !o.name) return; out.push({ id: o.id, name: o.name, x: o.g.visible ? o.g.position.x : o.tp.x, z: o.g.visible ? o.g.position.z : o.tp.z, r: o.g.rotation.y, bat: !!o.bat }); }); return out; },
-      focusChat() { if (state === "live") { chat.hidden = false; input.focus(); } },
+      focusChat() { if (state === "live" || (pubOn && FLAGS.liveChat)) { chat.hidden = false; if (chatMin) $("mpMin").click(); input.focus(); } },
       swung() { if (on()) toAll({ k: "sw", id: myId }); },
       note(n) { if (on()) toAll({ k: "pn", id: myId, n }); },
       fx(n, d) { if (on()) toAll({ k: "fx", id: myId, n, sp: cur ? cur.id : "", d }); },
@@ -6311,7 +6323,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
         const ebtn = $("emoteBtn"), wheel = $("emotes");
         const myBubM = new THREE.SpriteMaterial({ transparent: true, depthWrite: false, depthTest: false }), myBub = new THREE.Sprite(myBubM); myBub.position.y = 3.25; myBub.visible = false; myBub.renderOrder = 980; avatar.add(myBub);
         let myBubT = 0;
-        const mine = (text, big) => { myBubM.map && myBubM.map.dispose(); myBubM.map = bubbleTex(text, big ? 256 : 512); myBubM.needsUpdate = true; myBub.scale.set(big ? 1.3 : 2.6, .81, 1); myBub.visible = true; clearTimeout(myBubT); myBubT = setTimeout(() => { myBub.visible = false; }, big ? 3500 : 5000); };
+        const mine = mineBubble = (text, big) => { myBubM.map && myBubM.map.dispose(); myBubM.map = bubbleTex(text, big ? 256 : 512); myBubM.needsUpdate = true; myBub.scale.set(big ? 1.3 : 2.6, .81, 1); myBub.visible = true; clearTimeout(myBubT); myBubT = setTimeout(() => { myBub.visible = false; }, big ? 3500 : 5000); };
         const setW = o => { wheel.hidden = !o; ebtn.setAttribute("aria-expanded", o); };
         $("emRow").innerHTML = EMOTES.map(e => `<button type="button" role="menuitem" data-e="${e}" aria-label="Emote ${e}">${e}</button>`).join("");
         $("phRow").innerHTML = PHRASES.map((t, i) => `<button type="button" role="menuitem" data-n="${i}">${t}</button>`).join("");

@@ -1,0 +1,8 @@
+# Netlify test copies only (the real hosting uses site/.htaccess)
+/chateau/store    /chateau/?room=merch    302
+/chateau/library  /chateau/?room=library  302
+/chateau/theater  /chateau/?room=film     302
+/chateau/chapel   /chateau/?room=film     302
+/chateau/reaper   /chateau/?room=station  302
+/chateau/foyer    /chateau/?room=foyer    302
+/merch            /shop/                  301

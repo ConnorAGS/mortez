@@ -78,9 +78,13 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 }
 
 /* ---------- hero: the gate ---------- */
-.hero { position: relative; height: min(100svh, 980px); min-height: 620px; overflow: hidden; isolation: isolate; display: flex; align-items: flex-end; }
-.hero-img { position: absolute; inset: -4%; background: #0a0809 url("media/hero.jpg") center 4% / cover no-repeat; filter: brightness(.82) contrast(1.05); inset: 0 !important; animation: none !important; animation: drift 38s ease-in-out infinite alternate; z-index: -3; }
-@media (max-aspect-ratio: 1/1) { .hero-img { inset: 0 0 auto; height: calc(100vw * .845 + env(safe-area-inset-top, 0px)); background-size: cover; background-position: center bottom; animation: none; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); } }
+/* The hero is locked to one composition: the photo is always scaled to the hero's HEIGHT the way it looks on a laptop
+   (image height = 1.356 × hero height), so Rachele's and Brett's faces sit in the same place on every screen and the
+   MORTEZ title (sized by height too) stays below them. Wider screens show studio grey either side instead of zooming in. */
+.hero { position: relative; height: 100svh; min-height: 620px; background: radial-gradient(ellipse 60% 85% at 50% 22%, #5f6165, #34353a 55%, #121114); --photo-w: 160svh; overflow: hidden; isolation: isolate; display: flex; align-items: flex-end; }
+.hero-img { position: absolute; top: 0; bottom: 0; left: 50%; width: max(100%, var(--photo-w)); transform: translateX(-50%); background: url("media/hero.jpg") center 4% / cover no-repeat; filter: brightness(.82) contrast(1.05); z-index: -3; }
+@media (min-aspect-ratio: 8/5) { .hero-img { width: var(--photo-w); -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); } }
+@media (max-aspect-ratio: 1/1) { .hero-img { left: 0; width: 100%; transform: none; bottom: auto; height: calc(100vw * .845 + env(safe-area-inset-top, 0px)); background-size: cover; background-position: center bottom; animation: none; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); } }
 @keyframes drift { from { transform: scale(1.04) translate(0, 0) } to { transform: scale(1.14) translate(-1.5%, 1%) } }
 .hero::before { content: ""; position: absolute; inset: 0; z-index: -2; background: radial-gradient(ellipse 60% 50% at var(--mx, 50%) var(--my, 40%), rgba(255,210,170,.10), transparent 70%), linear-gradient(180deg, rgba(10,8,9,.55) 0%, rgba(10,8,9,0) 22%, rgba(10,8,9,0) 52%, rgba(10,8,9,.92) 88%, var(--night) 100%); }
 .fog { position: absolute; left: -20%; right: -20%; height: 46%; bottom: 8%; z-index: -1; pointer-events: none; opacity: .55; background: radial-gradient(ellipse 30% 40% at 20% 60%, rgba(200,195,205,.35), transparent 70%), radial-gradient(ellipse 35% 45% at 60% 55%, rgba(200,195,205,.28), transparent 70%), radial-gradient(ellipse 28% 38% at 92% 65%, rgba(200,195,205,.3), transparent 70%); filter: blur(18px); animation: fog 26s linear infinite alternate; }
@@ -89,15 +93,17 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .flash { position: absolute; inset: 0; z-index: -1; background: #dfe6ff; opacity: 0; mix-blend-mode: overlay; pointer-events: none; animation: lightning 11s infinite; }
 @keyframes lightning { 0%, 86%, 100% { opacity: 0 } 87% { opacity: .55 } 88% { opacity: .05 } 89.5% { opacity: .7 } 92% { opacity: 0 } }
 .hero-inner { width: 100%; padding-bottom: clamp(28px, 5vw, 56px); }
-.hero-word { font: 400 clamp(72px, 22vw, 360px)/.78 var(--display); letter-spacing: -.01em; margin: 0 0 18px -.04em; text-shadow: 0 0 60px rgba(224,50,60,.35); }
+.hero-word { font: 400 clamp(72px, min(22vw, 35svh), 640px)/.78 var(--display); letter-spacing: -.01em; margin: 0 0 18px -.04em; text-shadow: 0 0 60px rgba(224,50,60,.35); }
 .hero-row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 22px; }
 .hero-row p { margin: 6px 0 0; max-width: 34ch; font-size: clamp(17px, 1.6vw, 20px); color: var(--bone); }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; }
-.callout { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 96px); right: var(--gutter-r); display: grid; gap: 4px; padding: 14px 18px; border-left: 2px solid var(--blood); background: rgba(10,8,9,.55); backdrop-filter: blur(8px); text-decoration: none; max-width: 260px; }
+.callout { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 96px); right: max(var(--gutter-r), calc((100vw - var(--photo-w)) / 2 + 16px)); display: grid; gap: 4px; padding: 14px 18px; border-left: 2px solid var(--blood); background: rgba(10,8,9,.55); backdrop-filter: blur(8px); text-decoration: none; max-width: 260px; }
 .callout strong { font: 400 34px/1 var(--display); }
 .callout:hover strong { color: var(--blood); }
 .scroll-cue { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); width: 1px; height: 44px; background: linear-gradient(var(--bone), transparent); animation: cue 2.4s ease-in-out infinite; opacity: .6; }
 @keyframes cue { 0%, 100% { transform: translateX(-50%) scaleY(.4); transform-origin: top } 50% { transform: translateX(-50%) scaleY(1); transform-origin: top } }
+/* squarer screens (tablets, small windows): the callout moves down beside the buttons so it never sits on Brett */
+@media (max-aspect-ratio: 3/2) and (min-width: 701px) { .callout { top: auto; bottom: clamp(28px, 5vw, 56px); right: var(--gutter-r); } .hero-row { padding-right: 290px; } }
 @media (max-width: 700px) { .hero { flex-direction: column; justify-content: flex-end; align-items: stretch; } .callout { position: static; align-self: flex-start; margin: 0 0 18px var(--gutter); } .scroll-cue { display: none; } }
 
 /* the fog curtain when you enter the Chateau */
