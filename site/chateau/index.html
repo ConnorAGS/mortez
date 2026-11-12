@@ -581,6 +581,21 @@ body:not(.riding) .lyricbox { display: none; }
 
 .ride-flash { position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 52%, #fff 0%, #ffb0a8 18%, #e0202e 45%, rgba(60,0,8,.9) 100%); }
 body.riding .relics { display: none; }
+/* live world: who's online, and the emote wheel */
+.online { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 290px); right: 20px; z-index: 4; pointer-events: none; padding: 6px 11px; border-radius: 999px; background: rgba(11,10,12,.75); border: 1px solid rgba(255,255,255,.14); color: var(--ink); font: 600 12px var(--body); }
+.online i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 8px #3ddc84; vertical-align: 1px; }
+.emoteBtn { position: fixed; z-index: 6; right: calc(env(safe-area-inset-right, 0px) + 20px); bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(224,50,60,.6); background: rgba(16,12,14,.85); font-size: 24px; cursor: pointer; box-shadow: 0 8px 22px rgba(0,0,0,.5); }
+.emoteBtn[aria-expanded="true"] { background: #e0323c; }
+.emotes { position: fixed; z-index: 7; right: calc(env(safe-area-inset-right, 0px) + 20px); bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); width: min(300px, calc(100vw - 32px)); padding: 12px; border-radius: 16px; background: rgba(16,12,14,.94); border: 1px solid rgba(224,50,60,.45); box-shadow: 0 16px 40px rgba(0,0,0,.6); display: grid; gap: 10px; }
+.emotes[hidden] { display: none; }
+.em-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.em-row button { aspect-ratio: 1; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); font-size: 22px; cursor: pointer; }
+.ph-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.ph-row button { border-radius: 999px; border: 1px solid rgba(255,255,255,.16); background: none; color: var(--ink); padding: 7px 11px; font: 600 12.5px var(--body); cursor: pointer; }
+.em-row button:hover, .ph-row button:hover { border-color: #e0323c; background: rgba(224,50,60,.18); }
+body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
+@media (pointer: coarse) { .emoteBtn { bottom: calc(env(safe-area-inset-bottom, 0px) + 112px); right: calc(env(safe-area-inset-right, 0px) + 30px); width: 48px; height: 48px; } .emotes { bottom: calc(env(safe-area-inset-bottom, 0px) + 170px); } }
+@media (max-width: 600px) { .online { right: 12px; padding: 4px 9px; font-size: 11px; } }
 @media (max-width: 600px) { .mini { width: 84px; top: calc(env(safe-area-inset-top, 0px) + 60px); right: 12px; } .mini canvas { width: 84px; height: 84px; border-radius: 10px; } .mini-name, .mini small, .mini span { font-size: 9px; } .relics { top: calc(env(safe-area-inset-top, 0px) + 160px); right: 12px; padding: 5px 9px; font-size: 11px; } }
 /* phones: one tidy row of buttons. Back, Browse and Cart stay out; Booking, Play together and Classic view fold into ☰ */
 @media (max-width: 600px) {
@@ -643,6 +658,12 @@ body.riding .relics { display: none; }
 
 <div class="mini" id="mini" hidden aria-hidden="true"><canvas id="miniC" width="300" height="300"></canvas><span id="miniName"></span></div>
 <div class="relics" id="relicPill" hidden>☠ <b id="relicN">0</b> / 7 relics</div>
+<div class="online" id="onlinePill" hidden><i></i> <b id="onlineN">1</b> <span id="onlineTxt">online</span></div>
+<button class="emoteBtn" id="emoteBtn" type="button" aria-label="Emotes" aria-expanded="false" title="Emotes (T)">😈</button>
+<div class="emotes" id="emotes" hidden role="menu" aria-label="Emotes">
+  <div class="em-row" id="emRow"></div>
+  <div class="ph-row" id="phRow"></div>
+</div>
 <div class="haunt-hud" id="hauntHud" hidden aria-live="polite"><b id="hhBig"></b><span id="hhLine"></span><button class="btn" id="hhSwing" type="button" hidden>Swing the scythe</button></div>
 <div class="hurt" id="hurt"></div>
 <div class="ride-flash" id="rideFlash"></div>
@@ -947,6 +968,7 @@ body.riding .relics { display: none; }
     ["chapelCrowd", "Chapel crowd", "Other reapers sitting in the Chapel Theater", true],
     ["lyricBox", "Ride lyric box", "A caption box with the words lighting up (off: lyrics fly in the air only)", false],
     ["lyrics3D", "Ride flying lyrics", "The words floating over the track that burst as you hit them", true],
+    ["liveWorld", "Live world", "Everyone in the Chateau sees each other: reapers, emotes and the Chapel's shared screening (via Cloudflare)", true],
     ["playTogether", "Play together", "The button that lets you host a private session and invite friends to walk the Chateau with you", true],
     ["lyricTimer", "Ride lyric timer", "A song clock on the ride for marking where each verse and line starts (also: press L on the ride)", false],
     ["bridgeStrobe", "Ride bridge strobes", "Flickering black and white lights around the giant Reaper (turn off for photosensitive visitors)", true],
@@ -5578,7 +5600,7 @@ body.riding .relics { display: none; }
       b.querySelector("b").textContent = it.t; b.querySelector("small").textContent = [it.sub, it.stat].filter(Boolean).join(" · ");
       const id = ytId(it.url), yt = id ? `https://i.ytimg.com/vi/${id}/mqdefault.jpg` : null, thumb = it.img || (canEmbed && yt) || it.poster || yt;
       if (thumb) { const im = document.createElement("img"); im.alt = ""; im.loading = "lazy"; im.src = thumb; im.onerror = () => im.remove(); b.querySelector(".th").appendChild(im); }
-      b.addEventListener("click", () => { selectVideo(i, true); });
+      b.addEventListener("click", () => { userPlay(i); });
       cnTrack.appendChild(b);
     });
   }
@@ -5596,10 +5618,18 @@ body.riding .relics { display: none; }
   }
   const cnVideo = document.getElementById("cnVideo");
   cnVideo.addEventListener("error", () => { if (cnPlaying) stopScreen(); });
-  function playOnScreen(it) {
-    const id = ytId(it.url);
+  // the shared screening: everyone seated in the Chapel watches the same video from the same moment (live world)
+  function cinemaRemote(i, atLocal) {
+    if (!seated || !cur || cur.id !== "film") return;
+    if (!VIDEOS.length) buildVideoList();
+    const k = ((i % VIDEOS.length) + VIDEOS.length) % VIDEOS.length;
+    selectVideo(k, false); playOnScreen(VIDEOS[k], Math.max(0, (Date.now() - atLocal) / 1000));
+  }
+  function userPlay(i) { selectVideo(i, true); MP.cinemaSet(cnIndex); }
+  function playOnScreen(it, offset) {
+    const id = ytId(it.url), from = offset > 2 ? `&start=${Math.floor(offset)}` : "";
     if (!canEmbed || (!id && !it.video)) return; // in previews the poster stays on the screen; the open link plays it
-    if (id) { cnVideo.hidden = true; cnIframe.hidden = false; cnIframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`; }
+    if (id) { cnVideo.hidden = true; cnIframe.hidden = false; cnIframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1${from}`; }
     else { cnIframe.hidden = true; cnVideo.hidden = false; cnVideo.src = it.video; cnVideo.play().catch(() => {}); }
     frameEl.hidden = false; cnPlaying = true;
   }
@@ -5629,6 +5659,8 @@ body.riding .relics { display: none; }
     document.body.classList.add("seated"); cinemaEl.hidden = false;
     selectVideo(cnIndex, false);
     cnTrack.children[cnIndex] && cnTrack.children[cnIndex].focus({ preventScroll: true });
+    // a screening already running? join it at the right moment
+    const c = MP.cinema(); if (c && Date.now() - c.at < 25 * 60 * 1000) { cinemaRemote(c.i, c.at); showToast("The Chapel", "Now showing", "You've joined the screening already in progress. Everyone seated is watching the same moment.", ""); }
   }
   // sitting on furniture (not a theater seat): you sit facing the way the seat faces; move to stand
   let lounge = null;
@@ -5976,7 +6008,7 @@ body.riding .relics { display: none; }
       if (e.code === "KeyV" || e.code === "KeyC") { e.preventDefault(); setSeatView(seatV.mode + 1); return; }
       if (e.code === "ArrowLeft" || e.code === "KeyA") { e.preventDefault(); selectVideo(cnIndex - 1, false); }
       else if (e.code === "ArrowRight" || e.code === "KeyD") { e.preventDefault(); selectVideo(cnIndex + 1, false); }
-      else if ((e.code === "Enter" || e.code === "Space") && document.activeElement && !document.activeElement.closest(".cinema")) { e.preventDefault(); selectVideo(cnIndex, true); }
+      else if ((e.code === "Enter" || e.code === "Space") && document.activeElement && !document.activeElement.closest(".cinema")) { e.preventDefault(); userPlay(cnIndex); }
       return;
     }
     if (blocked()) return;
@@ -6092,6 +6124,11 @@ body.riding .relics { display: none; }
     const btn = $("mpBtn"), panel = $("mpPanel"), chat = $("mpChat"), log = $("mpLog"), input = $("mpIn"), msg = $("mpMsg");
     let ws = null, hbT = 0, myId = "", isHost = false, code = "", hostId = "", state = "off", joinTimer = 0, lastSend = 0, lastSig = "", lastChat = 0, meSent = "";
     const peers = new Map(), others = new Map();
+    // the live world: one WebSocket to Cloudflare (live/worker.js). Private sessions take over while they run.
+    const LIVE = qs.get("live") || "wss://mortez-live.connor-832.workers.dev/world";
+    const EMOTES = ["🔥", "🖤", "💀", "🦇", "👏", "🤘"], PHRASES = ["Love this song", "Sum fortis", "Join the coven", "Where's the key?", "Found a relic!", "This way"];
+    let pub = null, pubOn = false, pubTries = 0, pubShard = 1, pubTimer = 0, skew = 0, cinState = null;
+    const on = () => state === "live" || pubOn;
     const me = () => { const pl = window.SITE.player || {}; return { name: (pl.name || CHARACTERS[avatarKind].name).slice(0, 18), kind: avatarKind }; };
     const rideTmp = new THREE.Vector3();
     const placeName = sp => sp === "mine" ? "on the ride" : "in " + ((spaces[sp] && spaces[sp].hud && spaces[sp].hud.title) || sp).toString().replace(/\b\w/g, c => c.toUpperCase()).replace(/\B\w+/g, w => w.toLowerCase());
@@ -6154,7 +6191,29 @@ body.riding .relics { display: none; }
       try { await p.pc.setRemoteDescription(payload.sdp); flushIce(p); const ans = await p.pc.createAnswer(); await p.pc.setLocalDescription(ans); sigSend("ANSWER", src, { sdp: p.pc.localDescription, type: "data", connectionId: "mc" }); } catch (e) { dropPeer(src); }
     }
     const send = (p, m) => { if (p.dc && p.dc.readyState === "open") try { p.dc.send(JSON.stringify(m)); } catch (e) {} };
-    const toAll = (m, except) => peers.forEach(p => { if (p.id !== except) send(p, m); });
+    const toAll = (m, except) => { if (state !== "live") { if (pubOn && pub && pub.readyState === 1) try { pub.send(JSON.stringify(m)); } catch (e) {} return; } peers.forEach(p => { if (p.id !== except) send(p, m); }); };
+
+    // --- the live world connection
+    function online() { const n = others.size + 1, el = $("onlinePill"); el.hidden = !pubOn || state === "live"; const rp = $("relicPill"), mm = $("mini"); const ref = rp && !rp.hidden ? rp : mm; if (ref && !el.hidden) { const b = ref.getBoundingClientRect().bottom; if (b) el.style.top = Math.round(b + 8) + "px"; } $("onlineN").textContent = n; $("onlineTxt").textContent = n === 1 ? "online · just you" : "online"; }
+    function pubConnect() {
+      clearTimeout(pubTimer);
+      if (pub || state !== "off" || !FLAGS.liveWorld || !window.WebSocket) return;
+      if (charOpen) { pubTimer = setTimeout(pubConnect, 1500); return; }
+      let sock; try { sock = new WebSocket(LIVE + (LIVE.includes("?") ? "&" : "?") + "s=" + pubShard); } catch (e) { return; }
+      pub = sock;
+      sock.onmessage = ev => {
+        let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+        if (m.k === "you") { pubOn = true; pubTries = 0; myId = m.id; skew = (+m.now || Date.now()) - Date.now(); cinState = m.cin && m.cin.at ? m.cin : null; meSent = ""; lastSig = ""; online(); return; }
+        if (m.k === "full") { pubShard = pubShard >= 9 ? 1 : pubShard + 1; return; }
+        if (m.k === "pong") return;
+        gotData(null, m); online();
+      };
+      sock.onclose = () => { if (pub !== sock) return; pub = null; const was = pubOn; pubOn = false; if (state === "off") { others.forEach((o, id) => dropRemote(id)); } online(); if (state === "off" && FLAGS.liveWorld) pubTimer = setTimeout(pubConnect, Math.min(60000, 2000 * Math.pow(2, pubTries++)) * (was ? .5 : 1)); };
+      sock.onerror = () => {};
+    }
+    function pubStop() { clearTimeout(pubTimer); const s2 = pub; pub = null; pubOn = false; if (s2) try { s2.close(1000); } catch (e) {} others.forEach((o, id) => dropRemote(id)); online(); }
+    // a speech bubble over a reaper: an emote or a preset phrase
+    function bubble(o, text, big) { if (!o) return; o.bubM.map && o.bubM.map.dispose(); o.bubM.map = bubbleTex(text, big ? 256 : 512); o.bubM.needsUpdate = true; o.bub.scale.set(big ? 1.3 : 2.6, .81, 1); o.bubUntil = performance.now() + (big ? 3500 : 5000); }
     const myState = () => ({ k: "st", id: myId, sp: cur ? cur.id : "", x: +avatar.position.x.toFixed(2), y: +avatar.position.y.toFixed(2), z: +avatar.position.z.toFixed(2), r: +avatar.rotation.y.toFixed(3), v: avatar.visible ? 1 : 0, b: BAT.on ? 1 : 0, rt: cur && cur.ride ? +cur.rt.toFixed(2) : 0, seat: RIDE_SEAT });
     const myHi = () => Object.assign({ k: "hi", id: myId }, me());
     function channelOpen(p) {
@@ -6166,7 +6225,7 @@ body.riding .relics { display: none; }
       } else { clearTimeout(joinTimer); state = "live"; send(p, myHi()); send(p, myState()); showLive(); say("You joined the session.", true); }
     }
     function gotData(p, raw) {
-      let m; try { m = JSON.parse(raw); } catch (e) { return; }
+      let m; if (typeof raw === "string") { try { m = JSON.parse(raw); } catch (e) { return; } } else m = raw;
       if (!m || typeof m.k !== "string") return;
       if (isHost) { m.id = p.id; if (m.k === "chat") m.t = clean(m.t); toAll(m, p.id); }   // the host relays, and stamps who it came from
       if (m.k === "full") { fail("That session is full (8 reapers)."); return; }
@@ -6175,6 +6234,9 @@ body.riding .relics { display: none; }
       else if (m.k === "st") { const o = remote(m.id); if (o.sp !== m.sp) { o.snap = true; o.sp = String(m.sp || ""); roster(); } o.tp.set(+m.x || 0, +m.y || 0, +m.z || 0); o.tr = +m.r || 0; o.vis = !!m.v; o.bat = !!m.b; o.rt = +m.rt || 0; o.seat = Math.max(0, Math.min(TRAIN_CARS - 1, m.seat | 0)); o.seen = performance.now(); }
       else if (m.k === "chat") { const o = others.get(m.id); const t = clean(m.t); if (!o || !t) return; say([o.name, t]); o.bubM.map && o.bubM.map.dispose(); o.bubM.map = bubbleTex(t); o.bubM.needsUpdate = true; o.bubUntil = performance.now() + 6000; }
       else if (m.k === "sw") { const o = others.get(m.id); if (o) o.swing = 1; }
+      else if (m.k === "em") { if (EMOTES.includes(m.e)) bubble(others.get(m.id), m.e, true); }
+      else if (m.k === "ph") { const t = PHRASES[m.n | 0]; if (t) bubble(others.get(m.id), t, false); }
+      else if (m.k === "cin") { const i = m.i | 0, at = m.at ? m.at - skew : Date.now(); cinState = { i, at: at + skew }; cinemaRemote(i, at); }
       else if (m.k === "fx") { const f = FX[m.n]; if (typeof f === "function" && cur && cur.id === m.sp) try { f(m.d && typeof m.d === "object" ? m.d : {}, others.get(m.id)); } catch (e) {} }
       else if (m.k === "pn") { const n = Math.round(+m.n); if (n >= 36 && n <= 96 && cur && cur.id === "foyer" && PIANO.foyer) { PIANO.hush = performance.now() + 5000; PIANO.foyer.playNote(n, true); } }
       else if (m.k === "bye") { const o = others.get(m.id); if (o) { say(o.name + " left.", true); dropRemote(m.id); roster(); } }
@@ -6188,12 +6250,12 @@ body.riding .relics { display: none; }
     // --- hosting and joining
     const newCode = () => Array.from({ length: 6 }, () => ABC[Math.floor(Math.random() * ABC.length)]).join("");
     function host(tries = 0) {
-      reset(); isHost = true; state = "hosting"; code = newCode(); myId = PFX + code; msg.textContent = "Opening your session…";
+      pubStop(); reset(); isHost = true; state = "hosting"; code = newCode(); myId = PFX + code; msg.textContent = "Opening your session…";
       signal(myId, () => { state = "live"; showLive(); say("Session " + code + " is open. Send your friends the invite.", true); }, why => { if (why === "ID-TAKEN" && tries < 3) return host(tries + 1); fail(why === "network" || why === "blocked" ? "Couldn't reach the session server from here. Try the site on its own address (not inside a preview), or check the connection." : "Couldn't open a session (" + why + ")."); });
     }
     function join(c) {
       c = String(c || "").toUpperCase().replace(/[^A-Z0-9]/g, ""); if (c.length !== 6) { msg.textContent = "Codes are 6 letters and numbers."; return; }
-      reset(); isHost = false; state = "joining"; code = c; hostId = PFX + c; myId = PFX + c + "-" + newCode().toLowerCase(); msg.textContent = "Finding session " + c + "…";
+      pubStop(); reset(); isHost = false; state = "joining"; code = c; hostId = PFX + c; myId = PFX + c + "-" + newCode().toLowerCase(); msg.textContent = "Finding session " + c + "…";
       signal(myId, async () => {
         const p = makePeer(hostId, true);
         try { const off = await p.pc.createOffer(); await p.pc.setLocalDescription(off); sigSend("OFFER", hostId, { sdp: p.pc.localDescription, type: "data", connectionId: "mc", label: "mortez", serialization: "raw", reliable: true }); } catch (e) { fail("Couldn't start the connection."); }
@@ -6201,8 +6263,8 @@ body.riding .relics { display: none; }
       }, why => fail(why === "network" || why === "blocked" ? "Couldn't reach the session server from here. Try the site on its own address (not inside a preview), or check the connection." : "Couldn't join (" + why + ")."));
     }
     function reset() { clearTimeout(joinTimer); clearInterval(hbT); peers.forEach(p => { try { p.pc.close(); } catch (e) {} }); peers.clear(); others.forEach((o, id) => dropRemote(id)); if (ws) { try { ws.close(); } catch (e) {} ws = null; } }
-    function leave(quiet) { if (!quiet) toAll({ k: "bye", id: myId }); setTimeout(reset, quiet ? 0 : 150); state = "off"; isHost = false; code = ""; chat.hidden = true; $("mpStart").hidden = false; $("mpLive").hidden = true; msg.textContent = quiet ? "" : "You left the session."; btn.innerHTML = 'Play<span class="mp-lg"> together</span>'; document.body.classList.remove("mp-live"); }
-    function fail(t) { reset(); state = "off"; document.body.classList.remove("mp-live"); btn.innerHTML = 'Play<span class="mp-lg"> together</span>'; msg.textContent = t; $("mpStart").hidden = false; $("mpLive").hidden = true; chat.hidden = true; if (panel.hidden) showToast("Play together", "Couldn't connect", t, ""); }
+    function leave(quiet) { if (!quiet) toAll({ k: "bye", id: myId }); setTimeout(() => { reset(); pubConnect(); }, quiet ? 0 : 150); state = "off"; isHost = false; code = ""; chat.hidden = true; $("mpStart").hidden = false; $("mpLive").hidden = true; msg.textContent = quiet ? "" : "You left the session."; btn.innerHTML = 'Play<span class="mp-lg"> together</span>'; document.body.classList.remove("mp-live"); }
+    function fail(t) { reset(); state = "off"; setTimeout(pubConnect, 1000); document.body.classList.remove("mp-live"); btn.innerHTML = 'Play<span class="mp-lg"> together</span>'; msg.textContent = t; $("mpStart").hidden = false; $("mpLive").hidden = true; chat.hidden = true; if (panel.hidden) showToast("Play together", "Couldn't connect", t, ""); }
     const inviteLink = () => { const u = new URL(location.href); u.search = ""; u.hash = ""; u.searchParams.set("join", code); if (sq) u.searchParams.set("peer", sq); return u.toString(); };
     function showLive() { msg.textContent = ""; $("mpStart").hidden = true; $("mpLive").hidden = false; $("mpCodeShow").textContent = code; chat.hidden = false; btn.innerHTML = 'Session<span class="mp-lg"> ' + code + '</span>'; document.body.classList.add("mp-live"); roster(); }
     const openPanel = () => { panel.hidden = false; menuOpen = true; ($("mpLive").hidden ? $("mpHost") : $("mpCopyLink")).focus(); };
@@ -6225,23 +6287,45 @@ body.riding .relics { display: none; }
     addEventListener("pagehide", () => { if (state === "live") toAll({ k: "bye", id: myId }); });
 
     return {
-      active: () => state === "live",
+      active: () => on(),
+      cinema() { return cinState ? { i: cinState.i, at: cinState.at - skew } : null; },
+      cinemaSet(i) { if (!on()) return; cinState = { i, at: Date.now() + skew }; toAll({ k: "cin", id: myId, i }); },
+      emote(e) { if (on() && EMOTES.includes(e)) toAll({ k: "em", id: myId, e }); },
+      phrase(n) { if (on() && PHRASES[n]) toAll({ k: "ph", id: myId, n }); },
+      EMOTES, PHRASES,
       remotes() { const a = []; others.forEach(o => a.push(o.g)); return a; },
       // other players for the mini map: where they are in the room you're in
-      players() { if (state !== "live") return []; const out = []; others.forEach(o => { if (!cur || o.sp !== cur.id || !o.name) return; out.push({ id: o.id, name: o.name, x: o.g.visible ? o.g.position.x : o.tp.x, z: o.g.visible ? o.g.position.z : o.tp.z, r: o.g.rotation.y, bat: !!o.bat }); }); return out; },
+      players() { if (!on()) return []; const out = []; others.forEach(o => { if (!cur || o.sp !== cur.id || !o.name) return; out.push({ id: o.id, name: o.name, x: o.g.visible ? o.g.position.x : o.tp.x, z: o.g.visible ? o.g.position.z : o.tp.z, r: o.g.rotation.y, bat: !!o.bat }); }); return out; },
       focusChat() { if (state === "live") { chat.hidden = false; input.focus(); } },
-      swung() { if (state === "live") toAll({ k: "sw", id: myId }); },
-      note(n) { if (state === "live") toAll({ k: "pn", id: myId, n }); },
-      fx(n, d) { if (state === "live") toAll({ k: "fx", id: myId, n, sp: cur ? cur.id : "", d }); },
+      swung() { if (on()) toAll({ k: "sw", id: myId }); },
+      note(n) { if (on()) toAll({ k: "pn", id: myId, n }); },
+      fx(n, d) { if (on()) toAll({ k: "fx", id: myId, n, sp: cur ? cur.id : "", d }); },
       boot(q) {
         // keep the mini map (and relic counter) just under the buttons, however many rows they wrap to
         const acts = btn.parentElement, mini = $("mini"), rel = $("relicPill");
-        const place = () => { const r = acts.getBoundingClientRect(); if (!r.height) return; const top = Math.round(r.bottom + 10); mini.style.top = top + "px"; if (rel) rel.style.top = (top + mini.offsetHeight + 8) + "px"; };
+        const place = () => { const r = acts.getBoundingClientRect(); if (!r.height) return; const top = Math.round(r.bottom + 10); mini.style.top = top + "px"; if (rel) rel.style.top = (top + mini.offsetHeight + 8) + "px"; const op = $("onlinePill"); if (op) op.style.top = (top + mini.offsetHeight + 8 + (rel && !rel.hidden ? rel.offsetHeight + 8 : 0)) + "px"; };
         if (window.ResizeObserver) new ResizeObserver(place).observe(acts); addEventListener("resize", place); setTimeout(place, 500);
-        btn.hidden = !FLAGS.playTogether; flagsReady.then(() => { btn.hidden = !FLAGS.playTogether && state === "off"; }); const j = q.get("join"); if (j) { const go = () => { if (charOpen) return setTimeout(go, 700); openPanel(); $("mpCode").value = j.toUpperCase(); join(j); }; setTimeout(go, 900); } },
+        btn.hidden = !FLAGS.playTogether; flagsReady.then(() => { btn.hidden = !FLAGS.playTogether && state === "off"; if (!q.get("join")) setTimeout(pubConnect, 800); });
+        addEventListener("online", () => { if (!pub) pubConnect(); });
+        // the emote wheel: six emotes and six preset phrases, shown over your reaper (and everyone else's screen when you're online)
+        const ebtn = $("emoteBtn"), wheel = $("emotes");
+        const myBubM = new THREE.SpriteMaterial({ transparent: true, depthWrite: false, depthTest: false }), myBub = new THREE.Sprite(myBubM); myBub.position.y = 3.25; myBub.visible = false; myBub.renderOrder = 980; avatar.add(myBub);
+        let myBubT = 0;
+        const mine = (text, big) => { myBubM.map && myBubM.map.dispose(); myBubM.map = bubbleTex(text, big ? 256 : 512); myBubM.needsUpdate = true; myBub.scale.set(big ? 1.3 : 2.6, .81, 1); myBub.visible = true; clearTimeout(myBubT); myBubT = setTimeout(() => { myBub.visible = false; }, big ? 3500 : 5000); };
+        const setW = o => { wheel.hidden = !o; ebtn.setAttribute("aria-expanded", o); };
+        $("emRow").innerHTML = EMOTES.map(e => `<button type="button" role="menuitem" data-e="${e}" aria-label="Emote ${e}">${e}</button>`).join("");
+        $("phRow").innerHTML = PHRASES.map((t, i) => `<button type="button" role="menuitem" data-n="${i}">${t}</button>`).join("");
+        let lastEm = 0;
+        wheel.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; const now = performance.now(); if (now - lastEm < 900) return; lastEm = now;
+          if (b.dataset.e) { mine(b.dataset.e, true); if (on()) toAll({ k: "em", id: myId, e: b.dataset.e }); } else { const n = +b.dataset.n; mine(PHRASES[n], false); if (on()) toAll({ k: "ph", id: myId, n }); }
+          setW(false); canvas.focus(); });
+        ebtn.addEventListener("click", e => { e.stopPropagation(); setW(wheel.hidden); });
+        addEventListener("pointerdown", e => { if (!wheel.hidden && !wheel.contains(e.target) && e.target !== ebtn) setW(false); }, true);
+        addEventListener("keydown", e => { if (e.code !== "KeyT" || e.repeat || (cur && cur.ride) || seated || ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName) || charOpen) return; setW(wheel.hidden); if (!wheel.hidden) wheel.querySelector("button").focus(); });
+        wheel.addEventListener("keydown", e => { if (e.code === "Escape") { setW(false); canvas.focus(); } }); const j = q.get("join"); if (j) { const go = () => { if (charOpen) return setTimeout(go, 700); openPanel(); $("mpCode").value = j.toUpperCase(); join(j); }; setTimeout(go, 900); } },
       tick(now, dt) {
-        if (state !== "live") return;
-        if (now - lastSend > 100) { lastSend = now; const st = myState(), sig = [st.sp, st.x, st.y, st.z, st.r, st.v, st.b].join(); if (sig !== lastSig || now % 1000 < 110) { lastSig = sig; toAll(st); } const hi = JSON.stringify(me()); if (hi !== meSent) { meSent = hi; toAll(myHi()); } }
+        if (!on()) return;
+        if (now - lastSend > (state === "live" ? 100 : 200)) { lastSend = now; const st = myState(), sig = [st.sp, st.x, st.y, st.z, st.r, st.v, st.b].join(); if (sig !== lastSig || now % 1000 < 110) { lastSig = sig; toAll(st); } const hi = JSON.stringify(me()); if (hi !== meSent) { meSent = hi; toAll(myHi()); } }
         others.forEach(o => {
           // on the ride: friends whose song is in step with yours sit in their car on your train
           if (cur && cur.id === "mine") {

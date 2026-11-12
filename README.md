@@ -48,3 +48,11 @@ Search for these names:
 - `site/data/releases.js`: every release and lyric. The Chateau library and the classic Lyrics section both read it.
 - `site/coven.php`: mailing-list sign-ups, saved to `coven-subscribers.csv` one level above the web root.
 - Links, videos and room cards on the home page: the `LINKS`, `VIDEOS` and `ROOMS` lists near the top of the script in `site/index.html`.
+
+## The live world (Cloudflare)
+
+- `live/worker.js` is the always-on world: one Durable Object passes positions, emotes, preset phrases and the Chapel's shared screening between everyone in the Chateau. Free text chat is never relayed (it stays in private Play together sessions).
+- Deployed as the `mortez-live` Worker: `wss://mortez-live.connor-832.workers.dev/world`. The address is the `LIVE` constant in `site/chateau/index.html` (or `?live=` to test another).
+- Redeploy: `CF_TOKEN_FILE=~/.mortez/cloudflare-token CF_ACCOUNT=<account id> python3 scripts/deploy_live.py` (or `npx wrangler deploy` in `live/`). The token is never stored in this repo.
+- Allowed sites: mortezmusic.com and its subdomains, localhost and *.netlify.app. Add others with the `EXTRA_ORIGINS` variable.
+- Turn it off without a deploy: the "Live world" switch in admin.

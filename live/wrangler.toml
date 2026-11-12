@@ -1,0 +1,16 @@
+# Mortez live (the always-on world). Deploy: npx wrangler deploy   (or scripts/deploy_live.py with an API token)
+name = "mortez-live"
+main = "worker.js"
+compatibility_date = "2025-04-01"
+workers_dev = true
+
+[[durable_objects.bindings]]
+name = "WORLD"
+class_name = "World"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["World"]
+
+# [vars]
+# EXTRA_ORIGINS = "staging.example.com"
