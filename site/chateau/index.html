@@ -4081,7 +4081,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const banM = new THREE.MeshStandardMaterial({ map: bannerTexture(), transparent: true, alphaTest: .1, side: THREE.DoubleSide, roughness: .9 });
     [-1, 1].forEach(sx => [-11, -15].forEach(z => { const b = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 4.6), banM); b.position.set(sx * (W / 2 - .05), 4.6, z); b.rotation.y = -sx * Math.PI / 2; root.add(b); }));
     const pl = new THREE.Mesh(new THREE.PlaneGeometry(4, .8), new THREE.MeshBasicMaterial({ map: (() => { const [c, g] = cv(512, 102); g.fillStyle = "#120a0c"; g.fillRect(0, 0, 512, 102); g.strokeStyle = "#c9a14a"; g.lineWidth = 6; g.strokeRect(6, 6, 500, 90); g.fillStyle = "#e9d9b0"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = `400 58px ${DISP}`; g.fillText("SUM FORTIS", 256, 54); return tex(c); })() }));
-    pl.position.set(0, 5.6, -.05); pl.rotation.y = Math.PI; root.add(pl);
+    void pl;   // the SUM FORTIS plaque over the door is off (it sat behind the FOYER sign)
     const warm = new THREE.PointLight(0xffa860, 1.1, 20, 1.5); warm.position.set(0, 6, -5); root.add(warm);
 
     placeDoor(root, O, doors, inter, { to: "foyer", sign: "FOYER", x: 0, z: -.35, ry: Math.PI, scale: 1.05, color: "#5a5a66" });
