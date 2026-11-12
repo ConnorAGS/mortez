@@ -610,7 +610,7 @@ body.riding .relics { display: none; }
 </div>
 
 <div class="mini" id="mini" hidden aria-hidden="true"><canvas id="miniC" width="300" height="300"></canvas><span id="miniName"></span></div>
-<div class="relics" id="relicPill" hidden>☠ <b id="relicN">0</b> / 6 relics</div>
+<div class="relics" id="relicPill" hidden>☠ <b id="relicN">0</b> / 7 relics</div>
 <div class="haunt-hud" id="hauntHud" hidden aria-live="polite"><b id="hhBig"></b><span id="hhLine"></span><button class="btn" id="hhSwing" type="button" hidden>Swing the scythe</button></div>
 <div class="hurt" id="hurt"></div>
 <div class="ride-flash" id="rideFlash"></div>
@@ -904,7 +904,7 @@ body.riding .relics { display: none; }
   const FLAG_DEFS = [
     ["hauntings", "Automatic ghost attacks", "Ghost waves start on their own now and then. Off: they only start from the button below", false],
     ["hauntMinutes", "Minutes between ghost attacks", "Roughly how often a haunting starts", 4, [2, 3, 4, 6, 8, 12]],
-    ["relics", "Treasure hunt", "The Reaper's Relics: six hidden relics and the Ledger", true],
+    ["relics", "Treasure hunt", "The Reaper's Relics: six hidden relics, then the Reaper's Key to the private study upstairs", true],
     ["hauntedHall", "Haunted hall", "The jump-scare walk-through behind the green arch", true],
     ["minimap", "Mini map", "The map in the corner", true],
     ["piano", "Haunted piano", "The grand piano's waltz in the foyer", true],
@@ -2508,8 +2508,17 @@ body.riding .relics { display: none; }
     });
     const locked = gothicDoor("#5a5a66", "KEEP OUT", 1); locked.group.position.set(6.5, H, ZB + .35); root.add(locked.group); root.updateMatrixWorld(true);
     let rattle = -1e9;
-    inter.push({ spot: frontOf(locked.group, 1.6), obj: locked.group, label: "Try the door", lvl: H, door: locked,
-      act: () => { rattle = performance.now(); showToast("Locked", "Keep out", "It won't open. Something on the other side is scratching at the wood.", ""); } });
+    // the Reaper's study: locked until you hold the Reaper's Key (the last relic of the hunt)
+    locked.room = { id: "sanctum" };
+    const lockedEntry = { spot: frontOf(locked.group, 1.6), obj: locked.group, lvl: H, door: locked,
+      get label() { return EXTRAS.hasKey() ? "Unlock the Reaper's study" : "Try the door"; },
+      act: () => {
+        if (EXTRAS.hasKey()) { SFX.init(); SFX.page && SFX.page(); travel("sanctum"); return; }
+        rattle = performance.now();
+        const n = EXTRAS.relicCount();
+        showToast("Locked", "Keep out", n >= 6 ? "It won't open. The Reaper's Key is waiting at his Ledger in the library." : "It won't open. Something on the other side is scratching at the wood. Whoever finds the Reaper's relics finds the key.", n ? n + " / 6" : "");
+      } };
+    inter.push(lockedEntry);
     const out = gothicDoor("#b02a30", "OUTSIDE", 1.15); out.group.position.set(0, 0, ZF - .35); out.group.rotation.y = Math.PI; root.add(out.group); root.updateMatrixWorld(true);
     inter.push({ spot: frontOf(out.group, 1.6 * 1.15), obj: out.group, label: "Back outside", act: () => goPlaza("foyer"), door: out, lvl: 0 });
     const allDoors = doors.concat([locked, out]);
@@ -2640,7 +2649,7 @@ body.riding .relics { display: none; }
       exitPose(id) {
         if (id === "haunted") return { pos: L(0, 0, ZB + 3.4), rot: 0 };
         if (id === "westhall" || id === "easthall") { const sx = id === "westhall" ? -1 : 1; return { pos: L(sx * (XW - 2.6), 0, WZ), rot: -sx * Math.PI / 2 }; }
-        const d = doors.find(x => x.room.id === id); if (!d) return null;
+        const d = doors.concat([locked]).find(x => x.room && x.room.id === id); if (!d) return null;
         const dir = d.front.clone().sub(d.group.getWorldPosition(new THREE.Vector3())).setY(0).normalize();
         const pos = d.front.clone().addScaledVector(dir, 2.4); pos.y = d.group.position.y;
         return { pos, rot: Math.atan2(dir.x, dir.z) };
@@ -2661,7 +2670,7 @@ body.riding .relics { display: none; }
         for (const d of allDoors) {
           const w = (d.room && enteringId === d.room.id) ? 1 : (near && near.door === d) ? .62 : 0;
           d.open += (w - d.open) * Math.min(1, dtt * 6);
-          d.hinge.rotation.y = d === locked ? Math.sin((t - rattle) / 30) * .03 * Math.max(0, 1 - (t - rattle) / 900) : -d.open * 1.6;
+          d.hinge.rotation.y = d === locked && !EXTRAS.hasKey() ? Math.sin((t - rattle) / 30) * .03 * Math.max(0, 1 - (t - rattle) / 900) : -d.open * 1.6;
           d.pad.material.opacity = .35 + d.open * .6;
         }
         if (reduce) return;
@@ -3586,8 +3595,8 @@ body.riding .relics { display: none; }
   // ---------- Castle wings: shared kit ----------
   // Every door says where it goes. Each space can tell where to put you when you arrive from another one.
   const PARENT = { foyer: "plaza", mine: "station", station: "plaza", westhall: "foyer", easthall: "foyer", contact: "westhall", haunted: "foyer",
-    music: "westhall", merch: "plaza", library: "foyer", courtyard: "westhall", film: "easthall", tour: "easthall", dining: "easthall" };
-  const PLACE_NAMES = { station: "Station", mine: "Station", plaza: "Outside", foyer: "Foyer", westhall: "West wing", easthall: "East wing", courtyard: "Courtyard", dining: "Dining hall", library: "Haunted library", haunted: "Foyer" };
+    music: "westhall", merch: "plaza", library: "foyer", sanctum: "foyer", courtyard: "westhall", film: "easthall", tour: "easthall", dining: "easthall" };
+  const PLACE_NAMES = { station: "Station", mine: "Station", plaza: "Outside", foyer: "Foyer", westhall: "West wing", easthall: "East wing", courtyard: "Courtyard", dining: "Dining hall", library: "Haunted library", haunted: "Foyer", sanctum: "The Reaper's study" };
   function doorSet(root) {
     const list = [];
     return {
@@ -3871,6 +3880,99 @@ body.riding .relics { display: none; }
         chairs.forEach(c => { const d = Math.hypot(ax - c.base, az - c.z), k = d < 3 ? (3 - d) / 3 : 0; c.g.position.x += ((c.base + c.sx * k * .45) - c.g.position.x) * Math.min(1, dt * 3); });
         const hd = Math.hypot(ax - host.position.x, az - host.position.z); ghostM.opacity += ((hd > 12 ? .26 : 0) - ghostM.opacity) * Math.min(1, dt * 2);
         lightning(sp, t, wins, lights[0]);
+      }
+    };
+    return sp;
+  }
+
+  // ---------- The Reaper's Study: the private room behind the KEEP OUT door upstairs. Only the Reaper's Key opens it. ----------
+  // The reward for finishing the hunt: the six relics on display, every cover framed on the wall (each opens its lyrics), the Reaper's throne and a letter.
+  // The letter is the band's to write: edit STUDY_LETTER.
+  const STUDY_LETTER = "You found every relic and the key to this room. Not many make it this far. Thank you for walking the Chateau with us. Sum fortis. — Mortez";
+  function buildSanctum() {
+    const O = new THREE.Vector3(-3200, 0, 0), W = 16, D = 18, WH = 8;
+    const root = new THREE.Group(); root.position.copy(O); root.visible = false; scene.add(root);
+    const inter = [], anims = [], colliders = [], doors = doorSet(root), LL = (x, y, z) => L2(O, x, y, z);
+    const wood = deco.wood(), gold = deco.gold();
+    const floorT = (() => { const [c, g] = cv(256, 256); g.fillStyle = "#1a0608"; g.fillRect(0, 0, 256, 256); g.strokeStyle = "rgba(201,161,74,.35)"; g.lineWidth = 3; for (let i = 0; i < 4; i++) { g.beginPath(); g.moveTo(i * 64 + 32, 0); g.lineTo(i * 64, 32); g.lineTo(i * 64 + 32, 64); g.lineTo(i * 64 + 64, 32); g.closePath(); g.stroke(); } const t = tex(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(5, 22); return t; })();
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.MeshStandardMaterial({ map: floorT, roughness: .85 })); floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0, -D / 2); floor.receiveShadow = true; root.add(floor);
+    const wallM = new THREE.MeshStandardMaterial({ map: stoneTexture([6, 3], "#1e1a1c"), roughness: .95 });
+    [-1, 1].forEach(sx => box(.6, WH, D, wallM, sx * (W / 2 + .3), WH / 2, -D / 2, root));
+    [0, -D].forEach(z => box(W + 1.2, WH, .6, wallM, 0, WH / 2, z + (z ? -.3 : .3), root));
+    box(W + 1.2, .4, D + 1.2, std(0x0e0a0c), 0, WH + .2, -D / 2, root).castShadow = false;
+    for (let z = -2; z > -D; z -= 4) box(W, .4, .4, wood, 0, WH - .2, z, root).castShadow = false;
+    // red velvet runner from the door to the throne
+    const run = new THREE.Mesh(new THREE.PlaneGeometry(2.6, D - 2.4), std(0x6a0a14, { roughness: .95 })); run.rotation.x = -Math.PI / 2; run.position.set(0, .012, -D / 2 - .6); root.add(run);
+
+    // ---- the record wall: every release, framed in gold on the far wall; walk up to one to read its lyrics
+    const rels = (window.MORTEZ_RELEASES || []).slice().reverse(), loader = new THREE.TextureLoader();
+    rels.forEach((rel, i) => {
+      // six across the top; four below, leaving the middle clear for the throne
+      const row = i < 6 ? 0 : 1, col = row ? [0, 1, 4, 5][i - 6] : i, x = -6.75 + col * 2.7, y = row ? 3.0 : 5.9, z = -D + .05;
+      box(2.3, 2.3, .1, gold, x, y, z + .05, root).castShadow = false;
+      const mat = new THREE.MeshBasicMaterial({ color: 0x222222 });
+      if (rel.cover) loader.load("../" + rel.cover, t => { mat.map = t; mat.color.set(0xffffff); mat.needsUpdate = true; });
+      const pic = new THREE.Mesh(new THREE.PlaneGeometry(2.05, 2.05), mat); pic.position.set(x, y, z + .12); root.add(pic);
+      inter.push({ spot: LL(x, 0, z + (row ? 2.2 : 3.6)), obj: pic, label: "Read " + rel.title, act: () => openSongBook(rel) });
+    });
+    const recL = new THREE.PointLight(0xffd8b0, 1.1, 14, 1.6); recL.position.set(0, 6, -D + 4); root.add(recL);
+
+    // ---- the Reaper's throne under the record wall
+    const throne = new THREE.Group(); throne.position.set(0, 0, -D + 1.6); root.add(throne);
+    box(2.2, .5, 1.8, std(0x120a0c), 0, .25, 0, throne);
+    box(1.5, .3, 1.2, std(0x5a0a14, { roughness: .9 }), 0, .9, .1, throne);
+    box(1.7, 3.2, .3, std(0x120a0c), 0, 2.1, -.6, throne); box(1.3, 2.4, .1, std(0x5a0a14, { roughness: .9 }), 0, 2.1, -.42, throne).castShadow = false;
+    [-1, 1].forEach(sx => { box(.25, 1, 1.2, std(0x120a0c), sx * .85, 1.05, .1, throne); const sp2 = new THREE.Mesh(new THREE.ConeGeometry(.16, .7, 6), gold); sp2.position.set(sx * .7, 4.05, -.6); throne.add(sp2); });
+    const crown = new THREE.Mesh(new THREE.ConeGeometry(.22, .9, 6), gold); crown.position.set(0, 4.15, -.6); throne.add(crown);
+    colliders.push({ x: O.x, z: O.z - D + 1.6, r: 1.3 });
+    inter.push({ spot: LL(0, 0, -D + 4), obj: throne, label: "Sit on the Reaper's throne", act: () => { SFX.init(); SFX.whisper && SFX.whisper(1); showToast("The Reaper's throne", "Sum fortis", "It's yours now. The Chateau knows your name.", ""); } });
+
+    // ---- the reliquary: the six relics you found, turning under a glass dome
+    const ped = new THREE.Group(); ped.position.set(0, 0, -D / 2 + 1); root.add(ped);
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.45, 1, 8), std(0x14100e)); base.position.y = .5; ped.add(base);
+    const top = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.35, .08, 24), gold); top.position.y = 1.04; ped.add(top);
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(1.25, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xbfd8ff, transparent: true, opacity: .14, roughness: .05, metalness: .2, depthWrite: false })); dome.position.y = 1.08; ped.add(dome);
+    const spin = new THREE.Group(); spin.position.y = 1.5; ped.add(spin);
+    ["rose", "blade", "feather", "vinyl", "ring", "page"].forEach((id, i) => { const m = EXTRAS.relicMesh(id); const a = i / 6 * Math.PI * 2; m.scale.setScalar(.75); m.position.set(Math.cos(a) * .75, 0, Math.sin(a) * .75); spin.add(m); });
+    const pedL = new THREE.PointLight(0xff4a3a, 1.4, 9, 1.8); pedL.position.set(0, 3, -D / 2 + 1); root.add(pedL);
+    colliders.push({ x: O.x, z: O.z - D / 2 + 1, r: 1.7 });
+    inter.push({ spot: LL(0, 0, -D / 2 + 3.4), obj: ped, label: "Look at the relics", act: () => showToast("The reliquary", "The six relics of Mortez", "The Black Rose, the Scythe Blade, the Raven's Feather, the First Pressing, the Sum Fortis Ring and the Lost Lyric Page. You brought them all home.", "") });
+
+    // ---- the writing desk with the band's letter
+    const desk = new THREE.Group(); desk.position.set(-W / 2 + 1.6, 0, -6); desk.rotation.y = Math.PI / 2; root.add(desk);
+    box(2.6, .12, 1.2, wood, 0, 1, 0, desk); [-1.1, 1.1].forEach(dx => [-.45, .45].forEach(dz => box(.12, 1, .12, wood, dx, .5, dz, desk).castShadow = false));
+    const letter = new THREE.Mesh(new THREE.PlaneGeometry(.5, .66), new THREE.MeshBasicMaterial({ color: 0xe8dcc6 })); letter.rotation.x = -Math.PI / 2; letter.rotation.z = .2; letter.position.set(.2, 1.07, 0); desk.add(letter);
+    const seal = new THREE.Mesh(new THREE.CircleGeometry(.07, 16), new THREE.MeshBasicMaterial({ color: 0xa8101c })); seal.rotation.x = -Math.PI / 2; seal.position.set(.2, 1.075, .18); desk.add(seal);
+    const quill = new THREE.Mesh(new THREE.ConeGeometry(.04, .7, 5), new THREE.MeshBasicMaterial({ color: 0x0a0a12 })); quill.rotation.z = 1.2; quill.position.set(-.6, 1.2, .1); desk.add(quill);
+    colliders.push({ x: O.x - W / 2 + 1.6, z: O.z - 6, r: 1.1 });
+    inter.push({ spot: LL(-W / 2 + 3.4, 0, -6), obj: desk, label: "Read the letter", act: () => { SFX.init(); SFX.page && SFX.page(); showToast("A letter, sealed in red", "From Mortez", STUDY_LETTER, "", true); } });
+
+    // ---- candelabras in the corners, floating candles, banners, a SUM FORTIS plaque over the door
+    const flames = [];
+    [[-1, -2.2], [1, -2.2], [-1, -D + 2.2], [1, -D + 2.2]].forEach(([sx, z]) => { const g = new THREE.Group(); g.position.set(sx * (W / 2 - 1.2), 0, z); root.add(g); const pole = new THREE.Mesh(new THREE.CylinderGeometry(.06, .2, 2.4, 8), gold); pole.position.y = 1.2; g.add(pole); box(1, .05, .05, gold, 0, 2.4, 0, g).castShadow = false; [-.45, 0, .45].forEach(dx => { box(.08, .3, .08, std(0xe8dcc6), dx, 2.58, 0, g).castShadow = false; const f = new THREE.Mesh(new THREE.SphereGeometry(.055, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffb04a })); f.scale.y = 1.8; f.position.set(dx, 2.8, 0); g.add(f); flames.push(f); }); });
+    floatingCandles(root, lite ? 14 : 28, [-6, 6, 4.5, 7, -D + 2, -2], anims);
+    const banM = new THREE.MeshStandardMaterial({ map: bannerTexture(), transparent: true, alphaTest: .1, side: THREE.DoubleSide, roughness: .9 });
+    [-1, 1].forEach(sx => [-11, -15].forEach(z => { const b = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 4.6), banM); b.position.set(sx * (W / 2 - .05), 4.6, z); b.rotation.y = -sx * Math.PI / 2; root.add(b); }));
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(4, .8), new THREE.MeshBasicMaterial({ map: (() => { const [c, g] = cv(512, 102); g.fillStyle = "#120a0c"; g.fillRect(0, 0, 512, 102); g.strokeStyle = "#c9a14a"; g.lineWidth = 6; g.strokeRect(6, 6, 500, 90); g.fillStyle = "#e9d9b0"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = `400 58px ${DISP}`; g.fillText("SUM FORTIS", 256, 54); return tex(c); })() }));
+    pl.position.set(0, 5.6, -.05); pl.rotation.y = Math.PI; root.add(pl);
+    const warm = new THREE.PointLight(0xffa860, 1.1, 20, 1.5); warm.position.set(0, 6, -5); root.add(warm);
+
+    placeDoor(root, O, doors, inter, { to: "foyer", sign: "FOYER", x: 0, z: -.35, ry: Math.PI, scale: 1.05, color: "#5a5a66" });
+    const sp = {
+      id: "sanctum", root, floor: [floor], origin: O, shadowR: 20,
+      fog: [0x0b0607, 12, 40], bg: 0x070405, hemi: [0xffb8a0, 0x1a080a, .4], sun: [0xffb0a0, .2, new THREE.Vector3(O.x - 6, 20, O.z)],
+      camOff: new THREE.Vector3(0, 3.2, 6.6), lookY: 2, footY: 0, ceiling: WH - .4,
+      spawn: new THREE.Vector3(O.x, 0, O.z - 3), spawnRot: Math.PI,
+      walkable(p) { const x = p.x - O.x, z = p.z - O.z; return Math.abs(x) < W / 2 - .7 && z < -.8 && z > -D + .9; }, clamp() {},
+      colliders, interactables: inter, doors: doors.list, arrive: doors.arrive,
+      hud: { loc: "Behind the locked door", title: "THE REAPER'S STUDY", sub: "You found the key. Every relic, every record, and a letter left for you.", color: "#e0323c" },
+      update(t, dt, near, enteringId) {
+        doors.update(near, enteringId, dt);
+        if (reduce) return;
+        anims.forEach(f => f(t, dt));
+        spin.rotation.y = t / 2400; spin.position.y = 1.5 + Math.sin(t / 900) * .08;
+        flames.forEach((f, i) => f.scale.y = 1.5 + Math.sin(t / 45 + i) * .35);
+        pedL.intensity = 1.3 + Math.sin(t / 300) * .2;
       }
     };
     return sp;
@@ -4167,7 +4269,7 @@ body.riding .relics { display: none; }
       spawn: new THREE.Vector3(O.x, 0, O.z - 3), spawnRot: Math.PI,
       surface, walkable(p) { return surface(p, sp.footY) !== null; }, clamp() {},
       colliders, interactables: inter, doors: doors.list, arrive: doors.arrive,
-      hud: { loc: "Up the foyer stairs", title: "THE HAUNTED LIBRARY", sub: "Two floors of stacks. Keep your voice down. The Reaper's Ledger at the far end starts the hunt for his six relics.", color: "#e0323c" },
+      hud: { loc: "Up the foyer stairs", title: "THE HAUNTED LIBRARY", sub: "Two floors of stacks. Keep your voice down. The Reaper's Ledger at the far end starts the hunt for his six relics and his key.", color: "#e0323c" },
       update(t, dt, near, enteringId) {
         doors.update(near, enteringId, dt);
         if (reduce) return;
@@ -6296,12 +6398,16 @@ body.riding .relics { display: none; }
       { id: "feather", name: "The Raven's Feather", space: "courtyard", at: [-6, -6], hint: "In the courtyard open to the moon, the raven dropped a feather." },
       { id: "vinyl", name: "The First Pressing", space: "dining", at: [6, -10], hint: "At the long table in the dining hall, a record that was never played." },
       { id: "ring", name: "The Sum Fortis Ring", space: "film", at: [0, -20], hint: "In the chapel theater, near the altar where the screen glows." },
-      { id: "page", name: "The Lost Lyric Page", space: "library", at: [-11.5, -27.5], hint: "In the haunted library, at the far end of the stacks, a page torn from the book of lyrics." }
+      { id: "page", name: "The Lost Lyric Page", space: "library", at: [-11.5, -27.5], hint: "In the haunted library, at the far end of the stacks, a page torn from the book of lyrics." },
+      // the last relic only appears once the six are found; it opens the Reaper's study upstairs in the foyer
+      { id: "key", name: "The Reaper's Key", space: "library", at: [2.2, -37.6], hint: "With all six relics found, go back to the Reaper's Ledger in the library. He left you a key.", final: true }
     ];
+    const SIX = 6;
     const relics = RELICS.map(r => Object.assign({ got: false }, r));
     const hunt = { on: !!store.get("mortez.hunt", false) };
     const saved = store.get("mortez.relics", []); relics.forEach(r => r.got = saved.includes(r.id));
     const pill = document.getElementById("relicPill"), relicN = document.getElementById("relicN");
+    const sixDone = () => relics.filter(r => !r.final && r.got).length >= SIX;
     function updatePill() { const n = relics.filter(r => r.got).length; relicN.textContent = n; pill.hidden = !FLAGS.relics || (!hunt.on && !n); if (n === relics.length) pill.classList.add("done"); }
     function relicMesh(id) {
       const g = new THREE.Group(), red = new THREE.MeshBasicMaterial({ color: 0xc8102a }), gold = new THREE.MeshStandardMaterial({ color: 0xc9a14a, metalness: .7, roughness: .3, emissive: 0x3a2a08 });
@@ -6310,6 +6416,7 @@ body.riding .relics { display: none; }
       else if (id === "feather") { const sh = new THREE.Shape(); sh.moveTo(0, -.3); sh.quadraticCurveTo(.14, 0, 0, .3); sh.quadraticCurveTo(-.12, 0, 0, -.3); g.add(new THREE.Mesh(new THREE.ShapeGeometry(sh), new THREE.MeshBasicMaterial({ color: 0x0a0a12, side: THREE.DoubleSide }))); }
       else if (id === "vinyl") { const d = new THREE.Mesh(new THREE.CylinderGeometry(.3, .3, .015, 28), new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: .3 })); d.rotation.x = Math.PI / 2; g.add(d); const l = new THREE.Mesh(new THREE.CircleGeometry(.1, 20), red); l.position.z = .01; g.add(l); }
       else if (id === "ring") { g.add(new THREE.Mesh(new THREE.TorusGeometry(.14, .04, 8, 24), gold)); const st = new THREE.Mesh(new THREE.OctahedronGeometry(.07), red); st.position.y = .17; g.add(st); }
+      else if (id === "key") { const kg = new THREE.MeshStandardMaterial({ color: 0xd9b25a, metalness: .85, roughness: .25, emissive: 0x4a3410 }); const bow = new THREE.Mesh(new THREE.TorusGeometry(.13, .035, 8, 20), kg); bow.position.x = -.3; g.add(bow); const sh = new THREE.Mesh(new THREE.BoxGeometry(.5, .05, .05), kg); sh.position.x = .05; g.add(sh); [[.22, -.07], [.3, -.09]].forEach(([x, y]) => { const t2 = new THREE.Mesh(new THREE.BoxGeometry(.05, .12, .05), kg); t2.position.set(x, y, 0); g.add(t2); }); const sk = new THREE.Mesh(new THREE.SphereGeometry(.06, 8, 6), red); sk.position.x = -.3; g.add(sk); g.scale.setScalar(1.3); }
       else { g.add(new THREE.Mesh(new THREE.PlaneGeometry(.34, .44), new THREE.MeshBasicMaterial({ color: 0xe8dcc6, side: THREE.DoubleSide }))); }
       const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexture("255,70,60"), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .8 })); glow.scale.setScalar(1.3); g.add(glow);
       return g;
@@ -6326,8 +6433,8 @@ body.riding .relics { display: none; }
         r.world = findSpot(sp, r.at[0], r.at[1]);
         if (r.got) return;
         const m = relicMesh(r.id); m.position.set(r.world.x - sp.root.position.x, .95, r.world.z - sp.root.position.z); sp.root.add(m); r.mesh = m;
-        sp.interactables.push({ spot: r.world, obj: m, label: "Take " + r.name.toLowerCase().replace(/^the /, "the "), lvl: 0, when: () => FLAGS.relics && !r.got, act: () => collect(r) });
-        const prev = sp.update; sp.update = function (t, dt, n, e) { if (r.mesh) r.mesh.visible = FLAGS.relics && !r.got; if (r.mesh && !r.got && !reduce) { r.mesh.rotation.y = t / 900; r.mesh.position.y = .95 + Math.sin(t / 600) * .12; } return prev.call(this, t, dt, n, e); };
+        sp.interactables.push({ spot: r.world, obj: m, label: "Take " + r.name.toLowerCase().replace(/^the /, "the "), lvl: 0, when: () => FLAGS.relics && !r.got && (!r.final || sixDone()), act: () => collect(r) });
+        const prev = sp.update; sp.update = function (t, dt, n, e) { if (r.mesh) r.mesh.visible = FLAGS.relics && !r.got && (!r.final || sixDone()); if (r.mesh && !r.got && !reduce) { r.mesh.rotation.y = t / 900; r.mesh.position.y = .95 + Math.sin(t / 600) * .12; } return prev.call(this, t, dt, n, e); };
       });
     }
     function collect(r) {
@@ -6335,8 +6442,9 @@ body.riding .relics { display: none; }
       store.set("mortez.relics", relics.filter(x => x.got).map(x => x.id)); updatePill();
       const n = relics.filter(x => x.got).length;
       SFX.init(); SFX.page && SFX.page();
-      if (n === relics.length) { SFX.musicbox && SFX.musicbox(); setAura(true); showToast("The Reaper's Relics", "All six found. Sum fortis.", "You hold every relic of Mortez. The Reaper marks you as one of his own; look at the red glow you carry now.", n + " / " + relics.length, true); }
-      else { const nextOne = relics.find(x => !x.got); showToast("Relic found", r.name, "Next: " + nextOne.hint, n + " / " + relics.length); }
+      if (r.final) { SFX.musicbox && SFX.musicbox(); showToast("The Reaper's Key", "The study is open", "Go back to the foyer and up the stairs. The door marked KEEP OUT will open for you now.", n + " / " + relics.length, true); }
+      else if (sixDone() && !relics.find(x => x.final).got) { SFX.musicbox && SFX.musicbox(); setAura(true); showToast("The Reaper's Relics", "All six found. Sum fortis.", "The Reaper marks you as one of his own; look at the red glow you carry now. One relic is left: his key, waiting at the Ledger in the library.", n + " / " + relics.length, true); }
+      else { const nextOne = relics.find(x => !x.got && !x.final) || relics.find(x => !x.got); showToast("Relic found", r.name, "Next: " + nextOne.hint, n + " / " + relics.length); }
     }
     let aura = null;
     function setAura(on) {
@@ -6347,12 +6455,14 @@ body.riding .relics { display: none; }
       if (!FLAGS.relics) { showToast("The Reaper's Ledger", "The hunt is closed", "The pages are blank for now. Come back soon.", ""); return; }
       hunt.on = true; store.set("mortez.hunt", true); updatePill(); SFX.init(); SFX.page && SFX.page();
       const n = relics.filter(r => r.got).length;
-      const list = relics.map(r => (r.got ? "✓ " + r.name : "☐ " + r.hint)).join("\n");
-      showToast("The Reaper's Ledger", n === relics.length ? "Every relic found" : "Find the six relics of Mortez", list, n + " / " + relics.length, true);
+      const list = relics.map(r => (r.got ? "✓ " + r.name : r.final && !sixDone() ? "☐ The seventh relic stays hidden until the six are found." : "☐ " + r.hint)).join("\n");
+      const title = n === relics.length ? "Every relic found. The study is yours." : sixDone() ? "Take the Reaper's Key from beside the Ledger" : "Find the six relics of Mortez, then his key";
+      showToast("The Reaper's Ledger", title, list, n + " / " + relics.length, true);
     }
 
     return {
-      init() { placeRelics(); updatePill(); if (relics.every(r => r.got)) setAura(true); },
+      init() { placeRelics(); updatePill(); if (sixDone()) setAura(true); },
+      hasKey: () => relics.some(r => r.final && r.got), relicCount: () => relics.filter(r => !r.final && r.got).length, relicMesh,
       tick(now, dt) { tickHaunt(now, dt); if (now - mapT > 90) { mapT = now; drawMini(); } },
       click, swing, haunt: () => start(true), ledger, get haunting() { return H.state !== "idle"; }, _relics: relics, _H: H, _SW: SW
     };
@@ -6641,7 +6751,7 @@ body.riding .relics { display: none; }
     let saved = null; try { saved = JSON.parse(localStorage.getItem("mortez.char") || "null"); } catch (e) {}
     if (saved && CHARACTERS[saved.kind]) { setAvatar(saved.kind, saved.name); window.SITE.player = saved; charName.value = saved.name || ""; }
     else if (!want && !q.has("contact") && FLAGS.charSelect) openChars();
-    if (want && spaces[want] && want !== "plaza" && want !== "leap") setTimeout(() => window.SITE.goRoom(want), 400);
+    if (want && spaces[want] && want !== "plaza" && want !== "leap" && (want !== "sanctum" || EXTRAS.hasKey())) setTimeout(() => window.SITE.goRoom(want), 400);
     if (q.has("contact")) setTimeout(() => ui() && ui().openContact(null), 600);
     if (q.has("admin")) setTimeout(openAdmin, 500);
     MP.boot(q);
@@ -6659,6 +6769,7 @@ body.riding .relics { display: none; }
     spaces.dining = buildDining();
     spaces.library = buildLibrary();
     spaces.haunted = buildHaunted();
+    spaces.sanctum = buildSanctum();
     ROOMS.forEach((r, i) => { if (!r.off) spaces[r.id] = r.id === "film" ? buildChapel(r, i) : r.id === "merch" ? buildShop(r, i) : buildRoom(r, i); });
     spaces.mine = buildCoaster();
     spaces.station = buildStation();
