@@ -6590,7 +6590,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const relics = RELICS.map(r => Object.assign({ got: false }, r));
     // the hunt is on from the moment you arrive; the Ledger is where you go for hints (each read reveals one, and marks it on the mini map)
     const hunt = { on: true };
-    let hints = store.get("mortez.hints", []), introDone = !!store.get("mortez.huntIntro", false), arrivedAt = 0, arrivedIn = null;
+    let hints = store.get("mortez.hints", []), introDone = !!store.get("mortez.welcome", false), arrivedAt = 0, arrivedIn = null;
     const saved = store.get("mortez.relics", []); relics.forEach(r => r.got = saved.includes(r.id));
     const pill = document.getElementById("relicPill"), relicN = document.getElementById("relicN");
     const sixDone = () => relics.filter(r => !r.final && r.got).length >= SIX;
@@ -6653,7 +6653,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     // the welcome: a clear card in the middle of the screen the first time you're settled in the world
     const wcEl = document.getElementById("welcome");
     function openWelcome() { wcEl.hidden = false; menuOpen = true; for (const k in keys) keys[k] = false; document.getElementById("wcGo").focus({ preventScroll: true }); wcEl.scrollTop = 0; }
-    function closeWelcome() { if (wcEl.hidden) return; wcEl.hidden = true; menuOpen = false; introDone = true; store.set("mortez.huntIntro", true); SFX.init(); SFX.page && SFX.page(); canvas.focus(); }
+    function closeWelcome() { if (wcEl.hidden) return; wcEl.hidden = true; menuOpen = false; introDone = true; store.set("mortez.welcome", true); SFX.init(); SFX.page && SFX.page(); canvas.focus(); }
     document.getElementById("wcGo").addEventListener("click", closeWelcome);
     wcEl.addEventListener("keydown", e => { e.stopPropagation(); if (e.code === "Escape" || e.code === "Enter") { e.preventDefault(); closeWelcome(); } });
     function intro(now) {
