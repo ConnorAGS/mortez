@@ -58,5 +58,4 @@ Search for these names:
 - Turn it off without a deploy: the "Live world" switch in admin.
 
 ## Before launch
-- Set `STUDY_UNLOCKED_FOR_TESTING` back to `false` in `site/chateau/index.html` (the Keep Out door is open for testing).
 - Switch `site/robots.txt` from `Disallow: /` to allow search engines.
