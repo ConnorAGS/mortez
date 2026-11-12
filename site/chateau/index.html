@@ -454,6 +454,15 @@ a.cl-card { text-decoration: none; }
 .ct-empty { color: var(--muted); }
 .ct-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.07); font: 600 15px var(--body); }
 .ct-foot button:disabled { opacity: .4; cursor: default; }
+/* quick browsing: arrows on the photo, a position counter, swipe on phones */
+.sp-card { position: relative; }
+.sp-arrow { position: absolute; z-index: 2; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(224,50,60,.6); background: rgba(16,12,14,.85); color: #fff; font: 600 28px/1 var(--body); display: grid; place-items: center; padding-bottom: 3px; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.5); transition: background .2s, transform .2s; }
+.sp-arrow:hover { background: #e0323c; transform: translateY(-50%) scale(1.06); }
+.sp-prev { left: 12px; } .sp-next { left: calc(50% - 60px); }
+.sp-pos { float: right; color: var(--ink); opacity: .7; letter-spacing: .08em; }
+.pill-browse { background: rgba(224,50,60,.18); border-color: rgba(224,50,60,.7); }
+.pill-more { display: none; }
+@media (max-width: 680px) { .sp-arrow { top: min(20vh, 46vw); } .sp-next { left: auto; right: 12px; } }
 @media (max-width: 680px) { .sp-card { grid-template-columns: 1fr; } .sp-img { border-radius: 18px 18px 0 0; } .sp-img canvas, .sp-img > img { max-height: 40vh; } .sp-info h2 { font-size: 32px; } }
 
 .depart-hud { position: fixed; top: 96px; left: 50%; transform: translateX(-50%); z-index: 12; display: flex; align-items: center; gap: 12px; background: rgba(10,6,8,.86); border: 1px solid rgba(224,50,60,.5); border-radius: 14px; padding: 8px 16px 8px 10px; color: #f3e9e6; font: 600 14px var(--body); max-width: calc(100vw - 24px); }
@@ -572,7 +581,28 @@ body:not(.riding) .lyricbox { display: none; }
 
 .ride-flash { position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 52%, #fff 0%, #ffb0a8 18%, #e0202e 45%, rgba(60,0,8,.9) 100%); }
 body.riding .relics { display: none; }
-@media (max-width: 600px) { .mini { width: 108px; top: calc(env(safe-area-inset-top, 0px) + 60px); right: 12px; } .mini canvas { width: 108px; height: 108px; } .relics { top: calc(env(safe-area-inset-top, 0px) + 196px); right: 12px; } }
+@media (max-width: 600px) { .mini { width: 84px; top: calc(env(safe-area-inset-top, 0px) + 60px); right: 12px; } .mini canvas { width: 84px; height: 84px; border-radius: 10px; } .mini-name, .mini small, .mini span { font-size: 9px; } .relics { top: calc(env(safe-area-inset-top, 0px) + 160px); right: 12px; padding: 5px 9px; font-size: 11px; } }
+/* phones: one tidy row of buttons. Back, Browse and Cart stay out; Booking, Play together and Classic view fold into ☰ */
+@media (max-width: 600px) {
+  .pill-more { display: inline-block; }
+  .actions { flex-wrap: nowrap; align-items: flex-start; position: relative; }
+  .actions > #contactBtn, .actions > #mpBtn, .actions > #menuBtn { display: none; }
+  body.acts-open .actions > #contactBtn:not([hidden]), body.acts-open .actions > #mpBtn:not([hidden]), body.acts-open .actions > #menuBtn:not([hidden]) { display: block; position: absolute; right: 0; min-width: 170px; text-align: left; background: #141012; backdrop-filter: none; padding: 10px 16px; font-size: 14px; }
+  body.acts-open .actions > #contactBtn { top: calc(100% + 8px); } body.acts-open .actions > #mpBtn { top: calc(100% + 50px); } body.acts-open .actions > #menuBtn { top: calc(100% + 92px); }
+  body.acts-open .pill-more { background: #e0323c; border-color: #e0323c; }
+  body.acts-open .hud { z-index: 40; }
+  body.acts-open .mp-lg { display: inline; }
+  body.acts-open .actions > .pill:not(.pill-more) { box-shadow: 0 10px 26px rgba(0,0,0,.6); }
+  body.acts-open .actions > #contactBtn:not([hidden]) { background: #e0323c; }
+  .toast { left: 12px; right: 12px; width: auto; top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 150px); padding: 12px 14px; max-height: 42vh; overflow: auto; }
+  .toast h3, .toast #tTitle { font-size: 22px; }
+  .toast #tText { font-size: 13.5px; line-height: 1.45; }
+  .top { flex-direction: column-reverse; gap: 10px; }
+  .actions { align-self: stretch; justify-content: flex-end; }
+  .brand { max-width: calc(100% - 100px); }
+  .brand h1 { font-size: 26px; } .brand .loc { font-size: 10px; margin-bottom: 2px; }
+  .pill-browse .bw-lg { display: none; }
+}
 </style>
 </head>
 <body>
@@ -589,12 +619,14 @@ body.riding .relics { display: none; }
       <nav class="pages-nav" id="pagesNav" aria-label="Pages"><a href="/music/">Music</a><a href="/videos/">Videos</a><a href="/shop/">Merch</a><a href="/story/">Story</a><a href="/contact/">Booking</a></nav>
     </div>
     <div class="actions">
+      <button class="pill pill-browse" id="browseBtn" type="button" hidden>Browse<span class="bw-lg"> merch</span></button>
       <button class="pill pill-cart" id="cartBtn" type="button" hidden>Cart · <b id="cartN">0</b></button>
       <button class="pill pill-contact" id="contactBtn" type="button">Booking</button>
       <button class="pill" id="plazaBtn" type="button" hidden>← Outside</button>
       <button class="pill pill-exit" id="rideExit" type="button" hidden>✕ Exit ride</button>
       <button class="pill pill-mp" id="mpBtn" type="button" hidden>Play<span class="mp-lg"> together</span></button>
       <button class="pill" id="menuBtn" type="button">Classic view</button>
+      <button class="pill pill-more" id="moreBtn" type="button" aria-expanded="false" aria-label="More options">☰</button>
     </div>
   </div>
   <div class="bottom">
@@ -666,9 +698,11 @@ body.riding .relics { display: none; }
 </div>
 <div class="shop" id="shop" hidden role="dialog" aria-modal="true" aria-labelledby="spName">
   <div class="sp-card">
+    <button type="button" class="sp-arrow sp-prev" id="spPrev" aria-label="Previous product">‹</button>
+    <button type="button" class="sp-arrow sp-next" id="spNext" aria-label="Next product">›</button>
     <div class="sp-img" id="spImg"></div>
     <div class="sp-info">
-      <small>Mortez · Merch</small><h2 id="spName"></h2><div class="sp-price" id="spPrice"></div>
+      <small>Mortez · Merch <span class="sp-pos" id="spPos"></span></small><h2 id="spName"></h2><div class="sp-price" id="spPrice"></div>
       <p id="spDesc"></p>
       <div class="sp-sizes" id="spColors" aria-label="Colour"></div><div class="sp-sizes" id="spSizes" aria-label="Size"></div>
       <div class="sp-qty"><button type="button" class="pill" id="spMinus" aria-label="Fewer">−</button><span id="spQty">1</span><button type="button" class="pill" id="spPlus" aria-label="More">+</button></div>
@@ -3267,6 +3301,7 @@ body.riding .relics { display: none; }
   const priceOf = (p, size, color) => { const v = variantOf(p, size, color); return v ? v.price : p.price; };
   function spPrice() { const p = shopItem; document.getElementById("spPrice").textContent = money(priceOf(p, shopSize, shopColor)); }
   function openProduct(p) {
+    document.getElementById("spPos").textContent = (MERCH.indexOf(p) + 1) + " / " + MERCH.length;
     shopItem = p; shopSize = p.sizes[0] || null; shopColor = (p.colors || [])[0] || null; shopQty = 1; shopOpen = true; for (const k in keys) keys[k] = false;
     const img = document.getElementById("spImg"); img.innerHTML = "";
     if (p.img && p.img.length) { const main = document.createElement("img"); main.src = p.img[0]; main.alt = p.name; img.appendChild(main); if (p.img.length > 1) { const th = document.createElement("div"); th.className = "sp-thumbs"; p.img.forEach((u, i) => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-label", "Photo " + (i + 1)); b.className = i ? "" : "on"; b.innerHTML = `<img src="${u}" alt="">`; b.addEventListener("click", () => { main.src = u; th.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); }); th.appendChild(b); }); img.appendChild(th); } }
@@ -3280,6 +3315,18 @@ body.riding .relics { display: none; }
     document.getElementById("spQty").textContent = shopQty; document.getElementById("spMsg").textContent = "";
     shopEl.hidden = false; document.getElementById("spAdd").focus();
   }
+  // quick browsing: step through every product without walking to it
+  function stepProduct(d) { if (!shopItem) return; const i = MERCH.indexOf(shopItem), n = MERCH.length; if (n < 2) return; const wasWall = wallReturn; openProduct(MERCH[(i + d + n) % n]); wallReturn = wasWall; }
+  document.getElementById("spPrev").addEventListener("click", () => stepProduct(-1));
+  document.getElementById("spNext").addEventListener("click", () => stepProduct(1));
+  addEventListener("keydown", e => { if (shopEl.hidden || ["INPUT", "SELECT", "TEXTAREA"].includes(e.target.tagName)) return; if (e.code === "ArrowRight") { e.preventDefault(); stepProduct(1); } else if (e.code === "ArrowLeft") { e.preventDefault(); stepProduct(-1); } });
+  { let sx = null; const im = document.getElementById("spImg"); im.addEventListener("touchstart", e => { sx = e.touches[0].clientX; }, { passive: true }); im.addEventListener("touchend", e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(dx) > 50) stepProduct(dx < 0 ? 1 : -1); }, { passive: true }); }
+  // phones: the ☰ button opens the folded buttons (Booking, Play together, Classic view); any tap closes it again
+  { const more = document.getElementById("moreBtn"), setOpen = o => { document.body.classList.toggle("acts-open", o); more.setAttribute("aria-expanded", o); more.textContent = o ? "✕" : "☰"; };
+    more.addEventListener("click", e => { e.stopPropagation(); setOpen(!document.body.classList.contains("acts-open")); });
+    addEventListener("pointerdown", e => { if (document.body.classList.contains("acts-open") && e.target !== more) setTimeout(() => setOpen(false), 0); }, true); }
+  const browseBtn = document.getElementById("browseBtn");
+  browseBtn.addEventListener("click", () => { if (MERCH.length) openProduct(MERCH[0]); });
   function closeProduct() { shopEl.hidden = true; shopOpen = false; if (wallReturn) { wallReturn = false; openWall(true); return; } canvas.focus(); }
   // ---- the merch wall browser: filter chips, size and price, and a quick swipe/arrow carousel
   const wallEl = document.getElementById("mwall"), mwTrack = document.getElementById("mwTrack"), mwChips = document.getElementById("mwChips");
@@ -3427,7 +3474,7 @@ body.riding .relics { display: none; }
       spawn: L(0, 0, ZF - 3), spawnRot: Math.PI,
       walkable, clamp() {}, colliders, interactables: inter, doors: doors.list, arrive: doors.arrive,
       hud: { loc: "The Chateau · Merch", title: "THE MERCH SHOP", sub: "Walk up to anything to see it, pick a size and add it to your cart.", color: "#e0323c" },
-      enter() { saveCart(); }, exit() { cartBtn.hidden = !cart.length; },
+      enter() { saveCart(); browseBtn.hidden = false; }, exit() { cartBtn.hidden = !cart.length; browseBtn.hidden = true; },
       update(t, dt, near, enteringId) {
         doors.update(near, enteringId, dt);
         if (reduce) return;
