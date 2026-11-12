@@ -1345,8 +1345,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const frameMat = std(0x1d1736, { flatShading: false, roughness: .6 });
     box(.35, 3.6, .5, frameMat, -1.05, 1.8, 0, group); box(.35, 3.6, .5, frameMat, 1.05, 1.8, 0, group);
     box(2.45, .35, .5, frameMat, 0, 3.6, 0, group);
-    const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.75, 3.4), new THREE.MeshBasicMaterial({ color: col, side: THREE.DoubleSide }));
-    glow.position.set(0, 1.72, -.2); group.add(glow);
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.75, 3.4), new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4, fog: false }));
+    glow.position.set(0, 1.72, -.016); group.add(glow);
     const hinge = new THREE.Group(); hinge.position.set(-.88, 0, .05);
     const leaf = new THREE.Mesh(new THREE.BoxGeometry(1.76, 3.42, .12), std(col.clone().multiplyScalar(.45), { flatShading: false, roughness: .5 }));
     leaf.position.set(.88, 1.72, 0); leaf.castShadow = true; hinge.add(leaf);
@@ -1525,8 +1525,11 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const tym = new THREE.Shape(); tym.moveTo(-.9, 3.4); tym.quadraticCurveTo(-.9, 4.28, 0, 4.55); tym.quadraticCurveTo(.9, 4.28, .9, 3.4); tym.closePath();
     const tm = new THREE.Mesh(new THREE.ShapeGeometry(tym), new THREE.MeshBasicMaterial({ color: col.clone().multiplyScalar(.85) })); tm.position.z = .02; inner.add(tm);
     box(.06, 1.15, .04, doorIron, 0, 3.95, .05, inner).castShadow = false;
-    const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 3.4), new THREE.MeshBasicMaterial({ color: col, side: THREE.DoubleSide }));
-    glow.position.set(0, 1.7, -.25); inner.add(glow);
+    // the doorway itself: pure black behind the leaf, so an opening door shows darkness, never the wall it's set into.
+    // It sits just in front of the wall and wins any depth tie with it (polygonOffset), on every door in the Chateau.
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 3.4), new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4, fog: false }));
+    glow.position.set(0, 1.7, .006); inner.add(glow);
+
     const hinge = new THREE.Group(); hinge.position.set(-.9, 0, .08); inner.add(hinge);
     const leaf = new THREE.Mesh(new THREE.BoxGeometry(1.8, 3.4, .14), doorWood); leaf.position.set(.9, 1.7, 0); leaf.castShadow = true; hinge.add(leaf);
     [.7, 1.7, 2.7].forEach(y => box(1.7, .1, .05, doorIron, .9, y, .09, hinge).castShadow = false);
@@ -1553,13 +1556,13 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
 
     // ---- Paths: the road in, the cemetery walk, the gravel drive around the fountain
     const dirt = new THREE.MeshStandardMaterial({ map: speckleTexture("#2a231d", ["rgba(60,50,40,.6)", "rgba(16,12,10,.6)"], [1, 4]), roughness: 1 });
-    const flat = (geo, mat, x, z, y) => { const m = new THREE.Mesh(geo, mat); m.rotation.x = -Math.PI / 2; m.position.set(x, y || .02, z); m.receiveShadow = true; root.add(m); floors.push(m); return m; };
+    const flat = (geo, mat, x, z, y) => { const m = new THREE.Mesh(geo, mat); m.rotation.x = -Math.PI / 2; m.position.set(x, y || .03, z); m.receiveShadow = true; root.add(m); floors.push(m); return m; };   // ground layers sit 2–3 cm apart: closer than that and they flicker (z-fighting) at a distance
     flat(new THREE.PlaneGeometry(5, 16), dirt, 0, 52);
     flat(new THREE.PlaneGeometry(3.4, 24), dirt, 0, 32);
     const gravel = new THREE.MeshStandardMaterial({ map: speckleTexture("#3a3739", GRAVEL, [5, 5]), roughness: 1 });
-    flat(new THREE.RingGeometry(4.7, 10.5, 56), gravel, FOUNT.x, FOUNT.z, .025);
-    flat(new THREE.PlaneGeometry(9, 5.6), gravel, 0, -5.2, .03);
-    flat(new THREE.PlaneGeometry(3.4, 6), gravel, 0, 17.5, .028);
+    flat(new THREE.RingGeometry(4.7, 10.5, 56), gravel, FOUNT.x, FOUNT.z, .055);
+    flat(new THREE.PlaneGeometry(9, 5.6), gravel, 0, -5.2, .07);
+    flat(new THREE.PlaneGeometry(3.4, 6), gravel, 0, 17.5, .07);
     // flagstones down the cemetery path
     const flag = new THREE.InstancedMesh(new THREE.BoxGeometry(.85, .06, .62), std(0x4a474b), 70), dm = new THREE.Object3D();
     for (let i = 0; i < 35; i++) [-.48, .48].forEach((x, k) => { dm.position.set(x + (rnd() - .5) * .2, .05, 21.2 + i * .66 + (rnd() - .5) * .1); dm.rotation.set(0, (rnd() - .5) * .3, 0); dm.updateMatrix(); flag.setMatrixAt(i * 2 + k, dm.matrix); });
@@ -2178,7 +2181,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     [shopDoor].forEach(d => {
       const a = d.front.clone(), b = new THREE.Vector3(FOUNT.x, 0, FOUNT.z); const dir = b.clone().sub(a).setY(0); const full = dir.length(); dir.normalize();
       const s = a.clone().addScaledVector(dir, -1.5), e = b.clone().addScaledVector(dir, -10); const len = s.distanceTo(e);
-      const pth = flat(new THREE.PlaneGeometry(3.2, len), gravel, (s.x + e.x) / 2, (s.z + e.z) / 2, .029); pth.rotation.z = Math.atan2(dir.x, dir.z); void full;
+      const pth = flat(new THREE.PlaneGeometry(3.2, len), gravel, (s.x + e.x) / 2, (s.z + e.z) / 2, .085); pth.rotation.z = Math.atan2(dir.x, dir.z); void full;
     });
     frontAnims.push(t => { bulbs.forEach((b, i) => b.material.color.setScalar(((Math.floor(t / 180) + i) % 3 === 0) ? .35 : 1)); cGlow.material.opacity = .4 + Math.sin(t / 2300) * .08; chapelL.intensity = 1.5 + Math.sin(t / 61) * .1; shopL.intensity = 1.4 + Math.sin(t / 53) * .08; });
     anims.push(...frontAnims.map(f => (t) => f(t)));
@@ -3047,7 +3050,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     // ---- stacked opera boxes flanking the stage (two levels each side)
     const boxSeats = [], sideDoors = [];
     const doorM = std(0x5a0a12, { roughness: .8 }), panelM = std(0x141216, { roughness: .9 });
-    [-1, 1].forEach(sx => [[BY, true], [BY + 3.6, false]].forEach(([y, walk]) => [-20.5, -23.5].forEach((z, i) => {
+    // (removed by request: the stacked opera boxes and the stage boxes beside the stage. The numbered side boxes stay.)
+    [].forEach(sx => [[BY, true], [BY + 3.6, false]].forEach(([y, walk]) => [-20.5, -23.5].forEach((z, i) => {
       const g = new THREE.Group(); g.position.set(sx * (NW - 1.6), y, z); root.add(g);
       const front = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 1.1, 18, 1, true, sx > 0 ? Math.PI : 0, Math.PI), ivory); front.position.set(-sx * .2, .5, 0); g.add(front);
       const band = new THREE.Mesh(new THREE.CylinderGeometry(1.52, 1.52, .14, 18, 1, true, sx > 0 ? Math.PI : 0, Math.PI), gold); band.position.set(-sx * .2, .85, 0); g.add(band);
@@ -3062,7 +3066,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     // (the walls block you; the doors swing open as you walk up). Walk on from the side-box corridor: antechamber, Stage Box, then the Royal Box.
     const SPZ = [-19, -22], SDX0 = 13.0, SDX1 = 14.2;   // partition z positions; the doorway spans |x| 13.0 to 14.2
     const stageDoors = [];
-    [-1, 1].forEach(sx => {
+    [].forEach(sx => {
       box(NW - 11.6, .45, 8.2, black, sx * (11.6 + NW) / 2, BY - .225, -21, root).castShadow = false;   // floor out over the stage wings
       const cpt = new THREE.Mesh(new THREE.PlaneGeometry(NW - 12.2, 7.6), velvet); cpt.rotation.x = -Math.PI / 2; cpt.position.set(sx * (12.2 + NW) / 2, BY + .015, -21); root.add(cpt);
       box(NW - 11.6, 3.4, .25, panelM, sx * (11.6 + NW) / 2, BY + 1.7, -25.1, root).castShadow = false;   // back wall by the proscenium
@@ -3268,7 +3272,6 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       const sb = sideBox(ax, z);
       if (sb === "in" || sb === "door") c.push(BY);
       if (sb !== "wall" && sb !== "in" && sb !== "door" && !inHall(x, z) && z > -17 && (ax > BI ? z < ZE - 6 + .25 : z < RBK - .1) && !(onStair && sh < BY - .05)) { const tz = ax < BI ? tierAt(z) : 0, h = BY + TIERH * tz; if (!inPew(x, z, h)) c.push(h); }
-      if (ax > 12 && z > -24.85 && z <= -17 && !SPZ.some(zp => Math.abs(z - zp) < .22 && !(ax > SDX0 + .15 && ax < SDX1 - .15))) c.push(BY);   // the lower stage boxes: partitions block except at their doors
       let best = null, bd = .75; c.forEach(h => { const d = Math.abs(h - y); if (d < bd) { bd = d; best = h; } }); return best;
     };
     const sp = {
@@ -3278,7 +3281,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       spawn: L(0, 0, ZE - 4), spawnRot: Math.PI,
       surface, walkable(p) { return surface(p, sp.footY) !== null; }, clamp() {},
       colliders, doors: doors.list, arrive: doors.arrive,
-      hud: { loc: room.eyebrow, title: "THE CHAPEL THEATER", sub: "Take a pew in the stalls, climb to the balcony, or sit in a box by the stage. Videos play on the great screen.", color: room.color },
+      hud: { loc: room.eyebrow, title: "THE CHAPEL THEATER", sub: "Take a pew in the stalls, climb to the balcony, or sit in a private box along the side. Videos play on the great screen.", color: room.color },
       interactables: inter, setScreen, idleScreen, seatOccluders: () => crowd.map(c => c.m),
       init() { idleScreen(); },
       update(t, dt, near, enteringId) {
@@ -6733,7 +6736,9 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
   addEventListener("keydown", e => { if (!sbEl.hidden && e.code === "Escape") { e.stopPropagation(); closeSongBook(); } }, true);
   // ---------- Through the doorway: when you walk up to a door, it shows a view of the room on the other side ----------
   const peekCam = new THREE.PerspectiveCamera(64, 1.8 / 3.4, .1, 400), peekRT = {};
+  // (switched off: every doorway is plain black when it opens, by request)
   function peekFor(d) {
+    return;
     if (!d || !d.glow || !cur) return;
     const to = d.to || (d.room && d.room.id) || PARENT[cur.id];
     if (!to || to === cur.id || to === "station" || to === "mine" || !spaces[to]) return;
