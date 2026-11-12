@@ -5735,7 +5735,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
   const carName = i => i === 0 ? "the front car" : i === TRAIN_CARS - 1 ? "the back car" : "car " + (i + 1);
   function boardTrain(i, spot) {
     RIDE_SEAT = i; SFX.init();
-    if (!MP.active()) { showToast("All aboard", i === 0 ? "Front car" : i === TRAIN_CARS - 1 ? "Back car" : "Car " + (i + 1), "Hold on. The ride follows the song.", ""); enterRoom("mine"); return; }
+    // alone in the station (or offline): the train leaves straight away. With others here, it waits 12 s so they can hop on.
+    if (!MP.active() || (!MP.players().length && !(DEPART.at > performance.now()))) { showToast("All aboard", i === 0 ? "Front car" : i === TRAIN_CARS - 1 ? "Back car" : "Car " + (i + 1), "Hold on. The ride follows the song.", ""); enterRoom("mine"); return; }
     const now = performance.now();
     DEPART.mine = true; DEPART.seat = i; DEPART.spot = spot.clone();
     if (!(DEPART.at > now + 1500)) { DEPART.at = now + 12000; MP.fx("depart", { in: 12000 }); }
