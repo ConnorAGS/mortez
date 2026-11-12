@@ -3646,14 +3646,14 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     box(.2, .12, HZ0 - HZ1, red, TX - 2.05, .06, (HZ0 + HZ1) / 2, root).castShadow = false;
     for (let z = HZ0 - 1; z > HZ1; z -= 2) { const lip = new THREE.Mesh(new THREE.SphereGeometry(.05, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffd8a0 })); lip.position.set(TX - 2.1, -.12, z); root.add(lip); }
 
-    const train = [], TZ0 = -16, gates = [];
+    const train = [], TZ0 = -16, gates = [], pull = { t0: 0 };   // pull: the train rolling back in after a ride
     for (let i = 0; i < TRAIN_CARS; i++) {
       const c = new THREE.Group(); c.position.set(TX, -.08, TZ0 - (TRAIN_CARS - 1 - i) * 2.9); c.rotation.y = Math.PI; c.add(creepyCar(i === 0, i === TRAIN_CARS - 1)); root.add(c);
       const num = new THREE.Mesh(new THREE.PlaneGeometry(1.1, .4), new THREE.MeshBasicMaterial({ map: signTexture(i === 0 ? "FRONT" : i === TRAIN_CARS - 1 ? "BACK" : "CAR " + (i + 1), "#ff3b3b") })); num.position.set(TX - 2.2, 2.6, TZ0 - (TRAIN_CARS - 1 - i) * 2.9); num.rotation.y = -Math.PI / 2; root.add(num);
       box(.06, 2.6, .06, iron, TX - 2.2, 1.3, TZ0 - (TRAIN_CARS - 1 - i) * 2.9 + .6, root).castShadow = false;
       // a little iron gate at the platform edge for each car, swinging open when you walk up
       const gp = new THREE.Group(); gp.position.set(TX - 2.15, 0, TZ0 - (TRAIN_CARS - 1 - i) * 2.9 + .75); root.add(gp); const leaf = new THREE.Group(); gp.add(leaf); for (let k = 0; k < 6; k++) box(.04, 1, .04, gold, 0, .55, -k * .26, leaf).castShadow = false; box(.05, .05, 1.4, gold, 0, 1.05, -.65, leaf).castShadow = false; box(.05, .05, 1.4, gold, 0, .15, -.65, leaf).castShadow = false; gates.push({ leaf, i, open: 0 });
-      train.push(c);
+      c.userData.z0 = c.position.z; train.push(c);
       const label = i === 0 ? "Board the front car (best view)" : i === TRAIN_CARS - 1 ? "Board the back car (see the whole train)" : "Board car " + (i + 1);
       inter.push({ spot: L(TX - 2.4, 0, TZ0 - (TRAIN_CARS - 1 - i) * 2.9), obj: c, label, lvl: 0, act: () => boardTrain(i, L(TX - 2.4, 0, TZ0 - (TRAIN_CARS - 1 - i) * 2.9)) });
     }
@@ -3686,9 +3686,16 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       spawn: L(0, 0, 1), spawnRot: Math.PI,
       walkable, clamp() {}, colliders, interactables: inter,
       hud: { loc: "Beneath the crypt", title: "THE REAPER'S STATION", sub: "Going down. When the gate opens, walk to the train and pick a car.", color: "#ff3b3b" },
-      arrive(from) { if (from === "mine") { E.state = "open"; return { pos: L(TX - 2.6, 0, TZ0 + 1), rot: Math.PI }; } E.state = "down"; E.t0 = performance.now(); return { pos: L(0, 0, .8), rot: Math.PI }; },
+      arrive(from) { if (from === "mine") { E.state = "open"; pull.t0 = performance.now(); return { pos: L(TX - 3.4, 0, TZ0 - 5), rot: Math.PI * .62 }; } E.state = "down"; E.t0 = performance.now(); return { pos: L(0, 0, .8), rot: Math.PI }; },
       enter() { if (E.state === "open") { shaft.position.y = DROP; gateBars.position.y = 3.8; sp.ceiling = HH; } else { shaft.position.y = 0; gateBars.position.y = 0; sp.ceiling = 4; SFX.init(); SFX.liftGate(false); setTimeout(() => SFX.liftRun(6.2), 700); } },
       update(t, dt, near) {
+        // back from the ride: the train rolls in from the tunnel and brakes at the platform (5 s)
+        if (pull.t0) {
+          const k = Math.min(1, (t - pull.t0) / 5000), e = 1 - Math.pow(1 - k, 3);
+          train.forEach(c2 => { c2.position.z = c2.userData.z0 + (1 - e) * 34; c2.visible = c2.position.z < HZ0 - 1; });
+          if (k > .55 && !pull.squeal) { pull.squeal = true; SFX.creak && SFX.creak(); }
+          if (k >= 1) { pull.t0 = 0; pull.squeal = false; SFX.thud && SFX.thud(); showToast("Back in the station", "Reaper · Mortez", "That was the ride. Ride again: pick any car. Want Mortez in your town? Hit Booking.", ""); }
+        }
         if (E.state === "down") {
           const k = Math.max(0, Math.min(1, (t - E.t0) / 6500)), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
           shaft.position.y = e * DROP; cage.position.x = Math.sin(t / 37) * .015 * (1 - k); cageL.intensity = 1.4 * (Math.sin(t / 61) > .93 ? .3 : 1);
@@ -4829,23 +4836,23 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     { t: 9.6, text: "YOU KEEP ON COMIN' / LIKE A SHADOW" }, { t: 13.6, text: "YOU PUT YOUR MARK ON ME" },
     { t: 17.6, text: "COLD LIKE A CASKET / IN THE HALLOWS" }, { t: 21.6, text: "SPARE ME YOUR WICKED GAMES" },
     // pre-chorus
-    { t: 41.4, text: "BOY YOU CAN'T CATCH ME / GO TO SLEEP I WON'T DO IT" }, { t: 44.2, text: "I WON'T SIGN / THAT TWISTED LINE" },
-    { t: 46.4, text: "YOUR CLAWS WON'T / MURDER THIS MISFIT" }, { t: 48.5, text: "SUM FORTIS", hook: true },
+    { t: 25.6, text: "BOY YOU CAN'T CATCH ME / GO TO SLEEP I WON'T DO IT" }, { t: 29.6, text: "I WON'T SIGN / THAT TWISTED LINE" },
+    { t: 33.6, text: "YOUR CLAWS WON'T / MURDER THIS MISFIT" }, { t: 37.6, text: "SUM FORTIS", hook: true },
     // chorus
-    { t: 49.6, text: "YOU WON'T PUSH ME / TO MY KNEES I WON'T PLEAD" }, { t: 53.6, text: "I DON'T OWE YOU A DAMN THANG / HEAR THEM SING" },
+    { t: 41.6, text: "YOU WON'T PUSH ME / TO MY KNEES I WON'T PLEAD", hold: 7.8 }, { t: 49.6, text: "I DON'T OWE YOU A DAMN THANG / HEAR THEM SING", hold: 7.8 },
     { t: 57.6, text: "NO REST / FOR THE REAPER", hook: true }, { t: 61.6, text: "NO REST / FOR THE REAPER", hook: true },
     // verse 2
     { t: 66.1, text: "I KEEP ON RUNNING / FROM THIS NIGHTMARE" }, { t: 70.1, text: "HUNT ME LIKE I'M YOUR PREY" },
     { t: 74.1, text: "HELLFIRE FUELING / ALL MY POWER" }, { t: 78.1, text: "YOUR BLOOD DRIPS ON MY BLADE" },
     // pre-chorus
-    { t: 97.9, text: "BOY YOU CAN'T CATCH ME / GO TO SLEEP I WON'T DO IT" }, { t: 100.7, text: "I WON'T SIGN / THAT TWISTED LINE" },
-    { t: 102.9, text: "YOUR CLAWS WON'T / MURDER THIS MISFIT" }, { t: 105.0, text: "SUM FORTIS", hook: true },
+    { t: 82.1, text: "BOY YOU CAN'T CATCH ME / GO TO SLEEP I WON'T DO IT" }, { t: 86.1, text: "I WON'T SIGN / THAT TWISTED LINE" },
+    { t: 90.1, text: "YOUR CLAWS WON'T / MURDER THIS MISFIT" }, { t: 94.1, text: "SUM FORTIS", hook: true },
     // chorus
-    { t: 106.1, text: "YOU WON'T PUSH ME / TO MY KNEES I WON'T PLEAD" }, { t: 110.1, text: "I DON'T OWE YOU A DAMN THANG / HEAR THEM SING" },
+    { t: 98.1, text: "YOU WON'T PUSH ME / TO MY KNEES I WON'T PLEAD", hold: 7.8 }, { t: 106.1, text: "I DON'T OWE YOU A DAMN THANG / HEAR THEM SING", hold: 7.8 },
     { t: 114.1, text: "NO REST / FOR THE REAPER", hook: true }, { t: 118.1, text: "NO REST / FOR THE REAPER", hook: true },
     // bridge
-    { t: 122.5, text: "TROUBLES CALLIN'" }, { t: 126.5, text: "CALLING TO ME" },
-    { t: 130.5, text: "ASHES TO ASHES" }, { t: 134.5, text: "SET ME FREE", hook: true },
+    { t: 124.0, text: "TROUBLES CALLIN'", hold: 5.6 }, { t: 129.7, text: "CALLING TO ME", hold: 5.6 },
+    { t: 135.4, text: "ASHES TO ASHES", hold: 5.6 }, { t: 141.1, text: "SET ME FREE", hook: true, hold: 5.6 },
     // outro
     { t: 147.0, text: "I HAVE SEEN / YOUR BITTER SADNESS" }, { t: 151.0, text: "WATCHED YOU FIGHT / WATCHED YOU FALL" },
     { t: 155.3, text: "YOU SURVIVED / HOLY MADNESS" }, { t: 159.4, text: "YET YOU STILL WANT MORE" },
@@ -5200,7 +5207,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       const sz = Math.min(L.hook ? .95 : .7, (L.hook ? 7.2 : 6.6) / (Math.max(6, longest) * .78)), gap = sz * 1.16;
       rows.forEach((chars, ri) => { const wtot = chars.length * sz * .78, y0 = ((rows.length - 1) / 2 - ri) * gap; chars.forEach((ch, k) => { if (ch === " ") return; const m = new THREE.Mesh(new THREE.PlaneGeometry(sz * .8, sz), new THREE.MeshBasicMaterial({ map: getLetter(ch), transparent: true, depthWrite: false, depthTest: false, side: THREE.DoubleSide, fog: false })); m.renderOrder = 990; const x0 = -wtot / 2 + k * sz * .78 + sz * .39; m.position.set(x0, y0, 0); g.add(m); letters.push({ m, x0, y0, v: new V3((Math.random() - .5) * 9, (Math.random() - .25) * 7, -2 - Math.random() * 6), spin: (Math.random() - .5) * 9 }); }); });
       const next = LYRICS[i + 1], sylls = L.text.replace(/\//g, " ").split(/\s+/).reduce((a2, w) => a2 + syl(w), 0);
-      const tEnd = Math.min(next ? next.t - .12 : SONG.seconds, L.t + Math.max(1.3, sylls * .3 + .3));
+      const tEnd = Math.min(next ? next.t - .12 : SONG.seconds, L.t + Math.max(L.hold ? L.hold - .6 : 1.3, sylls * .3 + .3));
       const wMax = Math.max(...rows.map(r => r.length)) * sz * .78, hTot = sz + (rows.length - 1) * gap;
       return { L, g, letters, tEnd, sylls, sz, wMax, hTot, held: new V3(), hq: new THREE.Quaternion(), hs: 1, frozen: false, state: 0 };
     });
@@ -5208,11 +5215,11 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     // ---- the lyric box: every line, wrapped inside a caption box, each word lighting up as it's sung
     const lyricBox = document.getElementById("lyricBox"), lbLine = document.getElementById("lbLine"), lbNext = document.getElementById("lbNext");
     const sentence = x => { const w = x.replace(/\s*\/\s*/g, " ").toLowerCase().replace(/\bi(?=\b|')/g, "I").replace(/\breaper\b/g, "Reaper").replace(/\bmortez\b/g, "Mortez").replace(/\bsum fortis\b/g, "Sum Fortis"); return w.charAt(0).toUpperCase() + w.slice(1); };
-    const LT = LYRICS.map((L, i) => { const next = LYRICS[i + 1], end = Math.min(next ? next.t - .12 : SONG.seconds, L.t + 6.5), words = sentence(L.text).split(/\s+/); return { L, end, words, sing: Math.min(end - L.t, Math.max(1.2, words.length * .42)) }; });
+    const LT = LYRICS.map((L, i) => { const next = LYRICS[i + 1], end = Math.min(next ? next.t - .12 : SONG.seconds, L.t + (L.hold || 6.5)), words = sentence(L.text).split(/\s+/); return { L, end, words, sing: Math.min(end - L.t, Math.max(1.2, words.length * .42)) }; });
     let lbAt = -2, lbWords = [];
     function retime() {
-      lines.forEach((ln, i) => { const L = LYRICS[i], nx = LYRICS[i + 1]; ln.tEnd = Math.min(nx ? nx.t - .12 : SONG.seconds, L.t + Math.max(1.3, ln.sylls * .3 + .3)); ln.frozen = false; });
-      LT.forEach((e, i) => { const nx = LYRICS[i + 1]; e.end = Math.min(nx ? nx.t - .12 : SONG.seconds, e.L.t + 6.5); e.sing = Math.min(e.end - e.L.t, Math.max(1.2, e.words.length * .42)); });
+      lines.forEach((ln, i) => { const L = LYRICS[i], nx = LYRICS[i + 1]; ln.tEnd = Math.min(nx ? nx.t - .12 : SONG.seconds, L.t + Math.max(L.hold ? L.hold - .6 : 1.3, ln.sylls * .3 + .3)); ln.frozen = false; });
+      LT.forEach((e, i) => { const nx = LYRICS[i + 1]; e.end = Math.min(nx ? nx.t - .12 : SONG.seconds, e.L.t + (e.L.hold || 6.5)); e.sing = Math.min(e.end - e.L.t, Math.max(1.2, e.words.length * .42)); });
       lbAt = -2;
     }
     if (!localTimes) flagsReady.then(() => { if (setTimes(FLAGS.lyricTimes)) retime(); });
@@ -5372,6 +5379,12 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
         // portals: a white-red flash at each crossing, the fov punches in as you go through
         let pk = 0; for (let i = 1; i < SC.length; i++) { const d = Math.abs(R.t - SC[i].t0); if (d < .5) pk = Math.max(pk, 1 - d / .5); }
         flash.style.opacity = (pk * .95).toFixed(3);
+        // "I have seen your bitter sadness": the lights strobe on every beat (120 bpm), with a blackout every eighth beat
+        if (!reduce && R.t >= 147 && R.t < 178.6) {
+          const bp = (R.t - 147) / .5, ph = bp % 1, n = Math.floor(bp); let st = ph < .16 ? 1 - ph / .16 : 0; if (n % 8 === 7 && ph > .45) st = -1; if (n % 2 === 1) st *= .6;
+          if (st > 0) flash.style.opacity = Math.max(pk * .95, st * .3).toFixed(3);
+          hemi.intensity = st < 0 ? .03 : .4 + st * 1.4; R._strobe = true;
+        } else if (R._strobe) { R._strobe = false; hemi.intensity = .4; }
         camera.fov = Math.min(110, 62 + v * .55 + b * 3 + pk * 18); camera.updateProjectionMatrix();
         // shared lights follow the car where a scene asks for it
         SL.forEach(l => { if (l.userData.follow) { const ff = c.frame(Math.min(c.len, s + l.userData.follow)); l.position.copy(ff.p).add(G).addScaledVector(ff.u, 3); } l.intensity = (l.userData.base || 0) * (1 + b * .35); });
@@ -5404,8 +5417,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
         if (smash > 0) { flash.style.opacity = Math.max(+flash.style.opacity || 0, smash * .35).toFixed(3); camera.fov = Math.min(115, camera.fov + smash * 8); camera.updateProjectionMatrix(); }
         if (R.t >= SONG.seconds - .5 && !R.done) {
           R.done = true;
-          showToast("End of the line", "Reaper · Mortez", "That was the ride. Want Mortez in your town? Hit Booking.", "");
-          setTimeout(() => { if (cur && cur.id === "mine") goPlaza("mine"); }, 3500);
+          showToast("End of the line", "Reaper · Mortez", "Pulling back into the station…", "");
+          setTimeout(() => { if (cur && cur.id === "mine") travel("station"); }, 2200);
         }
       }
     };
