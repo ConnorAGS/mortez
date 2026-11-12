@@ -2143,7 +2143,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     {
       const PL = 21, Z0 = CF + 3.1, flagM = std(0x8e8a90, { roughness: 1 }), flagD = std(0x2a282c, { roughness: 1 });
       const flags = new THREE.InstancedMesh(new THREE.CylinderGeometry(.62, .66, .08, 7), flagM, 64), flagsD = new THREE.InstancedMesh(new THREE.CylinderGeometry(.62, .66, .08, 7), flagD, 64); let nf = 0, nd = 0;
-      for (let k = 0; k < 34; k++) [-.55, .55].forEach((x, j) => { const z = Z0 + k * .62 + (j ? .31 : 0); if (z > Z0 + PL) return; dm.position.set(x + (rnd() - .5) * .12, .075 + ((k * 2 + j) % 4) * .014, z); dm.rotation.set(0, rnd() * 3, 0);   // stones overlap, so each sits at its own height (same height = flicker), all above the gravel path dm.scale.set(.85 + rnd() * .2, 1, .85 + rnd() * .2); dm.updateMatrix(); ((k + j) % 2 ? flagsD : flags).setMatrixAt((k + j) % 2 ? nd++ : nf++, dm.matrix); });
+      // the stones overlap, so each sits at its own height (same height = flicker), all above the gravel path
+      for (let k = 0; k < 34; k++) [-.55, .55].forEach((x, j) => { const z = Z0 + k * .62 + (j ? .31 : 0); if (z > Z0 + PL) return; dm.position.set(x + (rnd() - .5) * .12, .075 + ((k * 2 + j) % 4) * .014, z); dm.rotation.set(0, rnd() * 3, 0); dm.scale.set(.85 + rnd() * .2, 1, .85 + rnd() * .2); dm.updateMatrix(); ((k + j) % 2 ? flagsD : flags).setMatrixAt((k + j) % 2 ? nd++ : nf++, dm.matrix); });
       flags.count = nf; flagsD.count = nd; chapel.add(flags, flagsD);
       [-1, 1].forEach(sx => { const edgeS = box(.18, .16, PL, std(0x1a181c), sx * 1.45, .08, Z0 + PL / 2, chapel); edgeS.castShadow = false; });
       // lantern posts down both sides, each with a red-glass lantern
