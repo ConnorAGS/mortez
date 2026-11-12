@@ -1048,6 +1048,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
   sun.castShadow = true;
   sun.shadow.mapSize.set(lite ? 1024 : 2048, lite ? 1024 : 2048);
   Object.assign(sun.shadow.camera, { left: -20, right: 20, top: 20, bottom: -20, near: 1, far: 80 });
+  // without a bias every wall and floor shadows itself in fine stripes that crawl as you move ("shadow acne")
+  sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.05;
   scene.add(sun, sun.target);
 
   // ---------- Helpers ----------
@@ -2301,6 +2303,15 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     g.fillStyle = "#0c0b0d"; for (let i = 0; i < 70; i++) { const x = r() * 512, y = r() * 512, s = 8 + r() * 22; g.beginPath(); g.ellipse(x, y, s, s * (.7 + r() * .5), r() * 3, 0, 7); g.fill(); }
     const t = tex(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
   }
+  // wallpaper sized to each face: one texture repeated the same number of times on a 30 m wall and a 3 m strip squashes it
+  // into fine stripes that shimmer as you move. This gives every face of a wall box its own repeat, so the pattern stays the same size.
+  const paperCache = {};
+  function paperBox(w, h, d, tex0, tileW, tileH, props) {
+    const face = (fw, fh) => { const rx = Math.max(.25, +(fw / tileW).toFixed(2)), ry = Math.max(.25, +(fh / tileH).toFixed(2)), k = tex0.uuid + ":" + rx + ":" + ry + ":" + JSON.stringify(props || {});
+      if (!paperCache[k]) { const t = tex0.clone(); t.needsUpdate = true; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx, ry); paperCache[k] = new THREE.MeshStandardMaterial(Object.assign({ map: t, roughness: .9 }, props || {})); }
+      return paperCache[k]; };
+    return [face(d, h), face(d, h), face(w, d), face(w, d), face(w, h), face(w, h)];
+  }
   function damaskTexture() {
     const [c, g] = cv(256, 256); g.fillStyle = "#0e0d10"; g.fillRect(0, 0, 256, 256);
     const motif = (x, y) => {
@@ -2374,21 +2385,22 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const dt2 = damaskTexture(); dt2.repeat.set(16, 9);
     const paper = new THREE.MeshStandardMaterial({ map: dt2, roughness: .9 });
     const dts = dt2.clone(); dts.needsUpdate = true; dts.repeat.set(18, 9); const paperS = new THREE.MeshStandardMaterial({ map: dts, roughness: .9 });
-    box(XW * 2 + 1.2, CEIL, .6, paperS, 0, CEIL / 2, ZF + .3, root);
+    const pbox = (w, h, d, x, y, z) => box(w, h, d, paperBox(w, h, d, dt2, 1.5, 1.67), x, y, z, root);   // every foyer wall: pattern the same size everywhere
+    pbox(XW * 2 + 1.2, CEIL, .6, 0, CEIL / 2, ZF + .3);
     // side walls, each with a tall open arch at z = WZ through to its wing hallway
     const WZ = 10.3, OW = 3.6, OH = 4.8;
     [-1, 1].forEach(sx => {
       const z1 = WZ - OW / 2, z2 = WZ + OW / 2;
-      box(.6, CEIL, z1 - ZB, paperS, sx * (XW + .3), CEIL / 2, (z1 + ZB) / 2, root);
-      box(.6, CEIL, ZF - z2, paperS, sx * (XW + .3), CEIL / 2, (ZF + z2) / 2, root);
-      box(.6, CEIL - OH, OW, paperS, sx * (XW + .3), OH + (CEIL - OH) / 2, WZ, root);
+      pbox(.6, CEIL, z1 - ZB, sx * (XW + .3), CEIL / 2, (z1 + ZB) / 2);
+      pbox(.6, CEIL, ZF - z2, sx * (XW + .3), CEIL / 2, (ZF + z2) / 2);
+      pbox(.6, CEIL - OH, OW, sx * (XW + .3), OH + (CEIL - OH) / 2, WZ);
       const fr = new THREE.Mesh(new THREE.TorusGeometry(OW / 2 + .15, .32, 6, 24, Math.PI), stone); fr.position.set(sx * (XW - .05), OH - OW / 2 - .1, WZ); fr.rotation.y = Math.PI / 2; root.add(fr);
       [-1, 1].forEach(k => box(.7, OH - OW / 2, .7, stone, sx * (XW - .05), (OH - OW / 2) / 2, WZ + k * (OW / 2 + .15), root).castShadow = false);
       const sill = new THREE.Mesh(new THREE.PlaneGeometry(1.4, OW), carpet); sill.rotation.set(-Math.PI / 2, 0, 0); sill.position.set(sx * (XW + .3), .02, WZ); root.add(sill); floors.push(sill);
     });
     const AW = 3.4, AH = 5;
-    [-1, 1].forEach(sx => box(XW - AW, CEIL, .6, paper, sx * (AW + (XW - AW) / 2), CEIL / 2, ZB - .3, root));
-    box(AW * 2, CEIL - AH, .6, paper, 0, AH + (CEIL - AH) / 2, ZB - .3, root);
+    [-1, 1].forEach(sx => pbox(XW - AW, CEIL, .6, sx * (AW + (XW - AW) / 2), CEIL / 2, ZB - .3));
+    pbox(AW * 2, CEIL - AH, .6, 0, AH + (CEIL - AH) / 2, ZB - .3);
     const ceil = new THREE.Mesh(new THREE.PlaneGeometry(XW * 2, ZF - ZB), std(0x0d0a0b)); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, CEIL, (ZF + ZB) / 2); root.add(ceil);
     for (let z = ZB + 3; z < ZF; z += 5) box(XW * 2, .6, .5, wood, 0, CEIL - .3, z, root).castShadow = false;
     box(XW * 2, 1.5, .12, wood, 0, .75, ZF - .06, root).castShadow = false;
@@ -3797,19 +3809,20 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const rt = runnerTexture(); rt.repeat.set(1, 10);
     const runner = new THREE.Mesh(new THREE.PlaneGeometry(2.2, L - 2), new THREE.MeshStandardMaterial({ map: rt, roughness: 1 })); runner.rotation.x = -Math.PI / 2; runner.position.set(0, .015, -L / 2); root.add(runner);
     const dt2 = damaskTexture(); dt2.repeat.set(30, 5); const paper = new THREE.MeshStandardMaterial({ map: dt2, color: cfg.tint || 0xffffff, roughness: .9 });
-    [-1, 1].forEach(sx => { box(.6, WH, L, paper, sx * (W / 2 + .3), WH / 2, -L / 2, root); box(.12, 1.4, L, wood, sx * (W / 2 - .06), .7, -L / 2, root).castShadow = false; });
+    const hp = (w, h, d) => paperBox(w, h, d, dt2, 1.5, 1.67, { color: cfg.tint || 0xffffff });
+    [-1, 1].forEach(sx => { box(.6, WH, L, hp(.6, WH, L), sx * (W / 2 + .3), WH / 2, -L / 2, root); box(.12, 1.4, L, wood, sx * (W / 2 - .06), .7, -L / 2, root).castShadow = false; });
     const OW = 3.6, OH = 4.8;
     if (cfg.open) {
       // the entrance is an open arch back to the foyer, with the foyer's warm light beyond it
       const sw = (W + 1.2 - OW) / 2;
-      [-1, 1].forEach(sx => box(sw, WH + 3, .6, paper, sx * (OW / 2 + sw / 2), (WH + 3) / 2, .3, root));
-      box(OW, WH + 3 - OH, .6, paper, 0, OH + (WH + 3 - OH) / 2, .3, root);
+      [-1, 1].forEach(sx => box(sw, WH + 3, .6, hp(sw, WH + 3, .6), sx * (OW / 2 + sw / 2), (WH + 3) / 2, .3, root));
+      box(OW, WH + 3 - OH, .6, hp(OW, WH + 3 - OH, .6), 0, OH + (WH + 3 - OH) / 2, .3, root);
       const fr = new THREE.Mesh(new THREE.TorusGeometry(OW / 2 + .15, .32, 6, 24, Math.PI), std(0x3a363c)); fr.position.set(0, OH - OW / 2 - .1, -.05); root.add(fr);
       const glowC = document.createElement("canvas"); glowC.width = 64; glowC.height = 128; const gg = glowC.getContext("2d"), gr = gg.createLinearGradient(0, 0, 0, 128); gr.addColorStop(0, "#1a0e0a"); gr.addColorStop(.6, "#7a4a28"); gr.addColorStop(1, "#c08048"); gg.fillStyle = gr; gg.fillRect(0, 0, 64, 128);
       const veil = new THREE.Mesh(new THREE.PlaneGeometry(OW, OH + .4), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(glowC), fog: false })); veil.position.set(0, (OH + .4) / 2, 1.6); veil.rotation.y = Math.PI; veil.userData.noCopy = true; root.add(veil);
       const vfl = new THREE.Mesh(new THREE.PlaneGeometry(OW, 1.8), std(0x7a0f18, { roughness: 1 })); vfl.rotation.x = -Math.PI / 2; vfl.position.set(0, .02, .7); vfl.userData.noCopy = true; root.add(vfl);
-    } else box(W + 1.2, WH + 3, .6, paper, 0, (WH + 3) / 2, .3, root);
-    box(W + 1.2, WH + 3, .6, paper, 0, (WH + 3) / 2, -L - .3, root);
+    } else box(W + 1.2, WH + 3, .6, hp(W + 1.2, WH + 3, .6), 0, (WH + 3) / 2, .3, root);
+    box(W + 1.2, WH + 3, .6, hp(W + 1.2, WH + 3, .6), 0, (WH + 3) / 2, -L - .3, root);
     const vaultT = opArtTexture("stripes", 512); vaultT.repeat.set(1, 6); const vault = gableRoof(W + 1.2, 3, L, new THREE.MeshStandardMaterial({ map: vaultT, side: THREE.DoubleSide, roughness: .9 })); vault.position.set(0, WH, -L / 2); root.add(vault);
     for (let z = -2; z > -L; z -= 4) [-1, 1].forEach(sx => { const rib = box(.3, .3, 4.9, wood, sx * W / 4, WH + 1.5, z, root); rib.rotation.set(0, Math.PI / 2, -sx * Math.atan2(3, W / 2 + .6)); rib.castShadow = false; });
     // doors
