@@ -5233,9 +5233,11 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       if (i >= 0) { const e = LT[i], total = e.words.reduce((a, w) => a + w.length + 1, 0); let acc = 0; lbWords.forEach((sp, k) => { const at = e.L.t + e.sing * acc / total; acc += e.words[k].length + 1; sp.classList.toggle("sung", t >= at); }); }
     }
     // ---- tap-to-time: press T on each line as it's sung, then Y to copy the timings (for the band to lock them exactly)
+    // only for setting the timings: open the ride with ?timing (e.g. /chateau/?room=station&timing). Visitors never see it.
+    const TIMING_TOOL = new URLSearchParams(location.search).has("timing");
     const tap = { on: false, i: 0, times: [] };
     addEventListener("keydown", e => {
-      if (!cur || cur.id !== "mine") return;
+      if (!cur || cur.id !== "mine" || !TIMING_TOOL) return;
       if (e.code === "KeyT") { if (!tap.on) { tap.on = true; tap.i = 0; tap.times = []; showToast("Lyric timing", "Tap T on each line", "Press T the moment each line starts. Press Y when you're done to copy the timings.", "", true); } else if (tap.i < LYRICS.length) { tap.times.push(+R.t.toFixed(2)); showToast("Lyric timing", LYRICS[tap.i].text.replace(/\s*\/\s*/g, " "), "Line " + (tap.i + 1) + " of " + LYRICS.length + " at " + R.t.toFixed(2) + "s", "", true); tap.i++; } }
       if (e.code === "KeyY" && tap.on) { const out = tap.times.map((tt, k) => `{ t: ${tt}, text: ${JSON.stringify(LYRICS[k].text)}${LYRICS[k].hook ? ", hook: true" : ""} }`).join(",\n"); try { navigator.clipboard.writeText(out); } catch (er) {} console.log(out); showToast("Lyric timing", "Copied " + tap.times.length + " timings", "Paste them to Claude and the ride will use them.", "", true); tap.on = false; }
     });
@@ -5313,7 +5315,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       } else if (a === "reset") { if (!confirm("Put every line back to the built-in timings?")) return; setTimes(DEFAULT_T); try { localStorage.removeItem("mortez.lyricTimes"); } catch (er) {} ltMsg.textContent = "Back to the built-in timings."; changed(); try { localStorage.removeItem("mortez.lyricTimes"); } catch (er) {} }
     });
     addEventListener("keydown", e => {
-      if (!cur || cur.id !== "mine" || e.target.tagName === "INPUT") return;
+      if (!cur || cur.id !== "mine" || e.target.tagName === "INPUT" || !TIMING_TOOL) return;
       if (e.code === "KeyL") showLT(lt.hidden);
       else if (e.code === "KeyM" && !lt.hidden) {
         if (armed.kind === "sec") { markSection(armed.i, R.t); if (armed.i < SECTIONS.length - 1) armed = { kind: "sec", i: armed.i + 1 }; }
