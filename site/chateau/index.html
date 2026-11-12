@@ -3687,13 +3687,13 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       walkable, clamp() {}, colliders, interactables: inter,
       hud: { loc: "Beneath the crypt", title: "THE REAPER'S STATION", sub: "Going down. When the gate opens, walk to the train and pick a car.", color: "#ff3b3b" },
       arrive(from) { if (from === "mine") { E.state = "open"; return { pos: L(TX - 2.6, 0, TZ0 + 1), rot: Math.PI }; } E.state = "down"; E.t0 = performance.now(); return { pos: L(0, 0, .8), rot: Math.PI }; },
-      enter() { if (E.state === "open") { shaft.position.y = DROP; gateBars.position.y = 3.8; sp.ceiling = HH; } else { shaft.position.y = 0; gateBars.position.y = 0; sp.ceiling = 4; SFX.init(); SFX.creak && SFX.creak(); } },
+      enter() { if (E.state === "open") { shaft.position.y = DROP; gateBars.position.y = 3.8; sp.ceiling = HH; } else { shaft.position.y = 0; gateBars.position.y = 0; sp.ceiling = 4; SFX.init(); SFX.liftGate(false); setTimeout(() => SFX.liftRun(6.2), 700); } },
       update(t, dt, near) {
         if (E.state === "down") {
           const k = Math.max(0, Math.min(1, (t - E.t0) / 6500)), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
           shaft.position.y = e * DROP; cage.position.x = Math.sin(t / 37) * .015 * (1 - k); cageL.intensity = 1.4 * (Math.sin(t / 61) > .93 ? .3 : 1);
-          if (Math.random() < dt * 1.2) SFX.thud && SFX.thud();
-          if (k >= 1) { E.state = "opening"; E.t0 = t; SFX.creak && SFX.creak(); }
+          if (Math.random() < dt * .35) SFX.thud && SFX.thud();   // now and then the cage knocks the shaft wall
+          if (k >= 1) { E.state = "opening"; E.t0 = t; SFX.liftBell(); setTimeout(() => SFX.liftGate(true), 450); }
         } else if (E.state === "opening") {
           const k = Math.min(1, (t - E.t0) / 1400); gateBars.position.y = k * 3.8; if (k >= 1) { E.state = "open"; sp.ceiling = HH; showToast("The Reaper's Station", "Pick your seat", "Walk up to any car on the train. The front has the best view; the back sees the whole train fly.", ""); }
         }
@@ -3705,7 +3705,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
         void near; void hallLs; void upSpot;
       }
     };
-    inter.push({ spot: L(0, 0, 0), obj: lever, label: "Ride the elevator back up", lvl: 0, when: () => E.state === "open", act: () => { E.state = "idle"; travel("plaza"); } });
+    inter.push({ spot: L(0, 0, 0), obj: lever, label: "Ride the elevator back up", lvl: 0, when: () => E.state === "open", act: () => { E.state = "idle"; SFX.init(); SFX.liftGate(false); setTimeout(() => SFX.liftRun(2.4), 500); travel("plaza"); } });
     return sp;
   }
   function velvetRope() { return std(0x7a0a14, { roughness: 1 }); }
@@ -4433,6 +4433,18 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     let drone = null;
     return {
       init, get ctx() { return ctx; }, get quiet() { return quiet; }, set quiet(v) { quiet = v; },
+      // the crypt elevator: an iron cage gate, a chain-driven descent, and a deep bell when you arrive
+      liftGate(open) { if (!ok()) return; const t = ctx.currentTime;
+        noise(t, .09, 2400, 6, .22, "bandpass"); tone(410, t, .5, "triangle", .07); tone(623, t, .4, "triangle", .045);          // the latch: a metallic clank
+        for (let i = 0; i < 6; i++) { const d = .12 + i * .075; noise(t + d, .05, 1700 + (open ? i : -i) * 140, 9, .07, "bandpass"); }   // the folding bars rattling along their track
+        noise(t + .6, .12, 900, 3, .14, "bandpass"); tone(110, t + .6, .35, "sine", .2); },                                          // and the bang as it stops
+      liftRun(dur) { if (!ok()) return; const t = ctx.currentTime;
+        const o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter(); o.type = "sawtooth"; o.frequency.setValueAtTime(44, t); o.frequency.linearRampToValueAtTime(52, t + dur * .5); o.frequency.linearRampToValueAtTime(40, t + dur);
+        f.type = "lowpass"; f.frequency.value = 160; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.09, t + .8); g.gain.setValueAtTime(.09, t + dur - 1.2); g.gain.linearRampToValueAtTime(0, t + dur);
+        o.connect(f).connect(g).connect(master); o.start(t); o.stop(t + dur + .1);                                                   // the motor's low hum
+        noise(t, dur, 300, .7, .05, "lowpass");                                                                                       // the shaft's rush of air
+        for (let d = .4; d < dur - .6; d += .22 + Math.random() * .12) noise(t + d, .04, 2600 + Math.random() * 900, 12, .035, "bandpass"); },   // the chain clicking over its gears
+      liftBell() { if (!ok()) return; const t = ctx.currentTime; [[196, .16], [392, .07], [522, .045], [784, .02]].forEach(([fq, v]) => tone(fq, t, 3.2, "sine", v)); tone(98, t, 2.2, "sine", .1); },
       bus(v) { if (!ok()) return null; const g = ctx.createGain(); g.gain.value = v || 0; g.connect(master); return g; },
       pnote(n, at, dur, vol, dest) { if (!ok()) return; const f = N(n); tone(f, at, dur * 1.6 + .6, "triangle", vol, dest); tone(f * 2.003, at, dur * .8 + .3, "sine", vol * .3, dest); tone(f * 3.01, at, .5, "sine", vol * .08, dest); },
       piano() { if (!ok()) return; const t = ctx.currentTime + .05, seq = [64, 69, 72, 71, 69, 64, 65, 63, 64, 57, 60, 59];
