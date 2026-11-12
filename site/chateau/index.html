@@ -397,6 +397,23 @@ a.cl-card { text-decoration: none; }
 .mini span { display: inline-block; margin-top: 6px; font: 600 10px/1 var(--mono, monospace); letter-spacing: .14em; text-transform: uppercase; color: #e9dcd6; text-shadow: 0 1px 4px #000; }
 .relics { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 246px); right: 20px; z-index: 4; pointer-events: none; padding: 7px 12px; border-radius: 999px; background: rgba(11,10,12,.75); border: 1px solid rgba(201,161,74,.5); color: #f0e2c4; font: 600 12px var(--body); }
 .relics.done { border-color: #e0323c; color: #ff8f96; }
+button.relics { pointer-events: auto; cursor: pointer; appearance: none; transition: background .2s, border-color .2s; }
+button.relics:hover, button.relics[aria-expanded="true"] { background: rgba(26,16,19,.92); border-color: #c9a14a; }
+.relics i { font-style: normal; font-size: 9px; margin-left: 2px; opacity: .75; display: inline-block; transition: transform .2s; }
+.relics[aria-expanded="true"] i { transform: rotate(180deg); }
+.relic-list { position: fixed; right: 20px; top: calc(env(safe-area-inset-top, 0px) + 284px); z-index: 6; width: min(300px, calc(100vw - 24px)); max-height: calc(100svh - 300px); overflow-y: auto; padding: 14px 14px 12px; border-radius: 16px; background: linear-gradient(180deg, rgba(26,16,19,.97), rgba(12,9,11,.97)); border: 1px solid rgba(201,161,74,.45); box-shadow: 0 20px 60px rgba(0,0,0,.6); color: #f0e2c4; font: 13px var(--body); }
+.rl-k { margin: 0 0 8px; font: 600 11px var(--mono); letter-spacing: .18em; text-transform: uppercase; color: #ff5a5a; }
+.relic-list ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.relic-list li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: center; padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.07); }
+.relic-list li.got { background: rgba(201,161,74,.1); border-color: rgba(201,161,74,.4); }
+.relic-list li.final { border-style: dashed; }
+.rl-ic { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; background: rgba(255,255,255,.06); color: #8a7f86; }
+.got .rl-ic { background: #c9a14a; color: #1a0f0a; font-weight: 700; }
+.relic-list b { display: block; font: 700 13.5px var(--body); color: #f3e9df; }
+.relic-list li:not(.got) b { color: #b9adb2; }
+.relic-list small { display: block; font-size: 11.5px; color: #9a8f96; margin-top: 1px; }
+.got small { color: #d8bf86; }
+.rl-foot { margin: 10px 2px 0; font-size: 11.5px; color: #9a8f96; line-height: 1.4; }
 .haunt-hud { position: fixed; top: 22%; left: 50%; transform: translateX(-50%); z-index: 6; text-align: center; pointer-events: none; }
 .haunt-hud b#hhBig { display: block; font: 400 clamp(54px, 12vw, 120px)/1 var(--display); color: #ff3b3b; text-shadow: 0 0 30px rgba(255,30,42,.7), 0 4px 12px #000; letter-spacing: .04em; }
 .haunt-hud span { display: block; margin-top: 8px; font: 600 14px var(--body); color: #f3e9df; text-shadow: 0 1px 6px #000; }
@@ -608,7 +625,7 @@ body:not(.riding) .lyricbox { display: none; }
 @media (max-width: 600px) { .lyricbox { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); } .lb-inner { padding: 10px 14px; } }
 
 .ride-flash { position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 52%, #fff 0%, #ffb0a8 18%, #e0202e 45%, rgba(60,0,8,.9) 100%); }
-body.riding .relics { display: none; }
+body.riding .relics, body.riding .relic-list { display: none; }
 /* live world: who's online, and the emote wheel */
 .online { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 290px); right: 20px; z-index: 4; pointer-events: none; padding: 6px 11px; border-radius: 999px; background: rgba(11,10,12,.75); border: 1px solid rgba(255,255,255,.14); color: var(--ink); font: 600 12px var(--body); }
 .online i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 8px #3ddc84; vertical-align: 1px; }
@@ -624,7 +641,7 @@ body.riding .relics { display: none; }
 body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
 @media (pointer: coarse) { .emoteBtn { bottom: calc(env(safe-area-inset-bottom, 0px) + 112px); right: calc(env(safe-area-inset-right, 0px) + 30px); width: 48px; height: 48px; } .emotes { bottom: calc(env(safe-area-inset-bottom, 0px) + 170px); } }
 @media (max-width: 600px) { .online { right: 12px; padding: 4px 9px; font-size: 11px; } }
-@media (max-width: 600px) { .mini { width: 84px; top: calc(env(safe-area-inset-top, 0px) + 60px); right: 12px; } .mini canvas { width: 84px; height: 84px; border-radius: 10px; } .mini-name, .mini small, .mini span { font-size: 9px; } .relics { top: calc(env(safe-area-inset-top, 0px) + 160px); right: 12px; padding: 5px 9px; font-size: 11px; } }
+@media (max-width: 600px) { .mini { width: 84px; top: calc(env(safe-area-inset-top, 0px) + 60px); right: 12px; } .mini canvas { width: 84px; height: 84px; border-radius: 10px; } .mini-name, .mini small, .mini span { font-size: 9px; } .relics { top: calc(env(safe-area-inset-top, 0px) + 160px); right: 12px; padding: 5px 9px; font-size: 11px; } .relic-list { right: 12px; top: calc(env(safe-area-inset-top, 0px) + 192px); max-height: calc(100svh - 210px); } }
 /* phones: one tidy row of buttons. Back, Browse and Cart stay out; Booking, Play together and Classic view fold into ☰ */
 @media (max-width: 600px) {
   .pill-more { display: inline-block; }
@@ -685,7 +702,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
 </div>
 
 <div class="mini" id="mini" hidden aria-hidden="true"><canvas id="miniC" width="300" height="300"></canvas><span id="miniName"></span></div>
-<div class="relics" id="relicPill" hidden>☠ <b id="relicN">0</b> / 7 relics</div>
+<button class="relics" id="relicPill" type="button" hidden aria-expanded="false" aria-controls="relicList">☠ <b id="relicN">0</b> / 7 relics <i aria-hidden="true">▾</i></button>
+<div class="relic-list" id="relicList" hidden role="dialog" aria-label="Your relics"><p class="rl-k">The Reaper's Relics</p><ul id="relicRows"></ul><p class="rl-foot">Stuck? The Reaper's Ledger in the library gives hints.</p></div>
 <div class="online" id="onlinePill" hidden><i></i> <b id="onlineN">1</b> <span id="onlineTxt">online</span></div>
 <button class="emoteBtn" id="emoteBtn" type="button" aria-label="Emotes" aria-expanded="false" title="Emotes (T)">😈</button>
 <div class="emotes" id="emotes" hidden role="menu" aria-label="Emotes">
@@ -2635,6 +2653,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
         const n = EXTRAS.relicCount();
         showToast("Locked", "Keep out", n >= 6 ? "It won't open. The Reaper's Key is waiting at his Ledger in the library." : "It won't open. Something on the other side is scratching at the wood. Whoever finds the Reaper's relics finds the key.", n ? n + " / 6" : "");
       } };
+    locked.front = lockedEntry.spot;   // so leaving the study puts you back on the landing outside this door
     inter.push(lockedEntry);
     const out = gothicDoor("#b02a30", "OUTSIDE", 1.15); out.group.position.set(0, 0, ZF - .35); out.group.rotation.y = Math.PI; root.add(out.group); root.updateMatrixWorld(true);
     inter.push({ spot: frontOf(out.group, 1.6 * 1.15), obj: out.group, label: "Back outside", act: () => goPlaza("foyer"), door: out, lvl: 0 });
@@ -4057,15 +4076,37 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     });
     const recL = new THREE.PointLight(0xffd8b0, 1.1, 14, 1.6); recL.position.set(0, 6, -D + 4); root.add(recL);
 
-    // ---- the Reaper's throne under the record wall
-    const throne = new THREE.Group(); throne.position.set(0, 0, -D + 1.6); root.add(throne);
-    box(2.2, .5, 1.8, std(0x120a0c), 0, .25, 0, throne);
-    box(1.5, .3, 1.2, std(0x5a0a14, { roughness: .9 }), 0, .9, .1, throne);
-    box(1.7, 3.2, .3, std(0x120a0c), 0, 2.1, -.6, throne); box(1.3, 2.4, .1, std(0x5a0a14, { roughness: .9 }), 0, 2.1, -.42, throne).castShadow = false;
-    [-1, 1].forEach(sx => { box(.25, 1, 1.2, std(0x120a0c), sx * .85, 1.05, .1, throne); const sp2 = new THREE.Mesh(new THREE.ConeGeometry(.16, .7, 6), gold); sp2.position.set(sx * .7, 4.05, -.6); throne.add(sp2); });
-    const crown = new THREE.Mesh(new THREE.ConeGeometry(.22, .9, 6), gold); crown.position.set(0, 4.15, -.6); throne.add(crown);
-    colliders.push({ x: O.x, z: O.z - D + 1.6, r: 1.3 });
-    inter.push({ spot: LL(0, 0, -D + 4), obj: throne, label: "Sit on the Reaper's throne", act: () => { SFX.init(); SFX.whisper && SFX.whisper(1); showToast("The Reaper's throne", "Sum fortis", "It's yours now. The Chateau knows your name.", ""); } });
+    // ---- two thrones under the record wall: the Reaper's and the Lady Reaper's. Both are real seats.
+    const silver = std(0xc8ccd4, { metalness: .85, roughness: .3 });
+    const thrones = [
+      { x: -1.35, who: "the Reaper", frame: 0x120a0c, velvet: 0x5a0a14, trim: gold, title: "The Reaper's throne", text: "Sum fortis. It's yours now. The Chateau knows your name." },
+      { x: 1.35, who: "the Lady Reaper", frame: 0x0e0a10, velvet: 0x3a0a2a, trim: silver, title: "The Lady Reaper's throne", text: "She keeps the roses and the records. Sit a while, she won't mind." }
+    ];
+    thrones.forEach((T2, k) => {
+      const th = new THREE.Group(); th.position.set(T2.x, 0, -D + 1.6); th.rotation.y = -Math.sign(T2.x) * .12; root.add(th);
+      const fr = std(T2.frame), vel = std(T2.velvet, { roughness: .9 });
+      box(2.1, .5, 1.8, fr, 0, .25, 0, th);
+      box(1.45, .3, 1.2, vel, 0, .9, .1, th);
+      box(1.6, 3.2, .3, fr, 0, 2.1, -.6, th); box(1.2, 2.4, .1, vel, 0, 2.1, -.42, th).castShadow = false;
+      [-1, 1].forEach(sx => { box(.25, 1, 1.2, fr, sx * .8, 1.05, .1, th); box(.3, .06, 1.25, T2.trim, sx * .8, 1.58, .1, th).castShadow = false; });
+      if (k === 0) {
+        // the Reaper's: gold spires and a crown, a pair of crossed scythe blades over the back
+        [-1, 1].forEach(sx => { const sp2 = new THREE.Mesh(new THREE.ConeGeometry(.16, .7, 6), gold); sp2.position.set(sx * .66, 4.05, -.6); th.add(sp2); });
+        const crown = new THREE.Mesh(new THREE.ConeGeometry(.22, .9, 6), gold); crown.position.set(0, 4.15, -.6); th.add(crown);
+        [-1, 1].forEach(sx => { const bl = new THREE.Mesh(new THREE.TorusGeometry(.42, .04, 4, 16, Math.PI * .8), silver); bl.position.set(sx * .1, 3.15, -.4); bl.rotation.z = .3; bl.scale.set(sx, 1, .3); th.add(bl); });
+      } else {
+        // the Lady Reaper's: a rounded arch back in silver, a rose window, and a red rose on top
+        const arch = new THREE.Mesh(new THREE.CylinderGeometry(.8, .8, .3, 24, 1, false, -Math.PI / 2, Math.PI), fr); arch.rotation.x = Math.PI / 2; arch.rotation.z = Math.PI / 2; arch.position.set(0, 3.7, -.6); th.add(arch);
+        const archT = new THREE.Mesh(new THREE.TorusGeometry(.8, .045, 6, 28, Math.PI), silver); archT.position.set(0, 3.7, -.43); th.add(archT);
+        const win = new THREE.Mesh(new THREE.TorusGeometry(.32, .05, 6, 24), silver); win.position.set(0, 3.55, -.4); th.add(win);
+        for (let j = 0; j < 6; j++) { const a2 = j / 6 * Math.PI * 2, pet = box(.05, .3, .03, silver, Math.cos(a2) * .15, 3.55 + Math.sin(a2) * .15, -.4, th); pet.rotation.z = a2 + Math.PI / 2; pet.castShadow = false; }
+        const roseM = std(0x9a0a1a, { roughness: .6, emissive: 0x2a0206 }); for (let j = 0; j < 7; j++) { const r = new THREE.Mesh(new THREE.SphereGeometry(j ? .1 : .13, 8, 6), roseM); const a2 = j / 6 * Math.PI * 2; r.position.set(j ? Math.cos(a2) * .12 : 0, 4.6 + (j ? -.03 : .04), -.6 + (j ? Math.sin(a2) * .12 : 0)); r.scale.y = .8; th.add(r); }
+        [-1, 1].forEach(sx => { const sp2 = new THREE.Mesh(new THREE.ConeGeometry(.12, .55, 6), silver); sp2.position.set(sx * .72, 3.95, -.6); th.add(sp2); });
+      }
+      colliders.push({ x: O.x + T2.x, z: O.z - D + 1.4, r: 1.1 });
+      const rot = th.rotation.y, seat = LL(T2.x + Math.sin(rot) * .1, 0, -D + 1.6 + Math.cos(rot) * .1);
+      inter.push({ spot: LL(T2.x + Math.sin(rot) * 2.4, 0, -D + 1.6 + Math.cos(rot) * 2.4), obj: th, label: "Sit on " + T2.who + "'s throne", act: () => { SFX.init(); SFX.whisper && SFX.whisper(1); loungeSit(seat, rot, LL(T2.x * 2, 0, -D + 9), { y: 1.07, kicker: "Take a seat", title: T2.title, text: T2.text + " Move to stand up." }); } });
+    });
 
     // ---- the reliquary: the six relics you found, turning under a glass dome
     const ped = new THREE.Group(); ped.position.set(0, 0, -D / 2 + 1); root.add(ped);
@@ -4191,30 +4232,100 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const swag = (a, b, drop) => [a, a.clone().lerp(b, .25).add(new THREE.Vector3(0, -drop * .75, 0)), a.clone().lerp(b, .5).add(new THREE.Vector3(0, -drop, 0)), a.clone().lerp(b, .75).add(new THREE.Vector3(0, -drop * .75, 0)), b];
     const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
+    // ---- shared pieces for the dressed cases: canvas pictures, flying figures on a loop round a case, hanging cloth
+    const canvasTex = (w, h, draw) => { const [c, gg] = cv(w, h); draw(gg, w, h); return tex(c); };
+    const mistTex = rgb => canvasTex(128, 128, c => { for (let k = 0; k < 7; k++) { const x = 50 + Math.random() * 28, y = 50 + Math.random() * 28, r = 26 + Math.random() * 20, gr = c.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(${rgb},.5)`); gr.addColorStop(1, `rgba(${rgb},0)`); c.fillStyle = gr; c.fillRect(0, 0, 128, 128); } });
+    // figures drawn facing right; each one flies a loop round the case and turns with its path
+    const flyers = (g, frames, o) => {
+      const list = [], n = lite ? Math.max(2, Math.ceil(o.n * .6)) : o.n;
+      for (let i = 0; i < n; i++) {
+        const m = new THREE.MeshBasicMaterial({ map: frames[0], transparent: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
+        const p = new THREE.Mesh(new THREE.PlaneGeometry(o.w, o.h), m); g.add(p);
+        const glow = sprite(o.glow, 1, 1, o.glowOp || .45); glow.scale.set(o.w * 1.4, o.h * 1.8, 1); g.add(glow);
+        const trail = []; for (let k = 0; k < (lite ? 3 : 6); k++) { const s = sprite(o.trail || o.glow, 1, 1, .55 - k * .08); s.scale.setScalar(.22 - k * .025); g.add(s); trail.push(s); }
+        list.push({ p, m, glow, trail, a: i / n * Math.PI * 2 + Math.random() * .5, y: o.y0 + (o.y1 - o.y0) * (n > 1 ? i / (n - 1) : .5), sp: o.speed * (.8 + Math.random() * .4), ph: Math.random() * 6 });
+      }
+      anims.push((t, dt) => list.forEach((f, i) => {
+        f.a += dt * f.sp;
+        const yy = f.y + Math.sin(t / 900 + f.ph) * o.bob, x = Math.cos(f.a) * o.rx, z = Math.sin(f.a) * o.rz, vx = -Math.sin(f.a) * o.rx, vz = Math.cos(f.a) * o.rz;
+        f.p.position.set(x, yy, z); f.p.rotation.set(0, Math.atan2(-vz, vx), Math.cos(t / 900 + f.ph) * .18);
+        f.glow.position.set(x, yy, z);
+        if (frames.length > 1) f.m.map = frames[Math.floor(t / o.flap + i * 1.7) % frames.length];
+        f.trail.forEach((s, k) => { const a = f.a - (k + 1) * .09; s.position.set(Math.cos(a) * o.rx, f.y + Math.sin((t - (k + 1) * 90) / 900 + f.ph) * o.bob - .05, Math.sin(a) * o.rz); });
+      }));
+    };
+    // a hanging cloth: top edge at pos, w wide and h tall, folds bulging out along its face, swaying
+    const drape = (g, w, h, pos, ry, mat, o = {}) => {
+      const geo = new THREE.PlaneGeometry(w, h, Math.max(8, Math.round(w * 6)), Math.max(6, Math.round(h * 3))); geo.translate(0, -h / 2, 0);
+      const m = new THREE.Mesh(geo, mat); m.position.copy(pos); m.rotation.y = ry; m.castShadow = false; g.add(m);
+      const base = geo.attributes.position.array.slice(), fold = o.fold || .08, fq = o.fq || 7, ph = Math.random() * 6, sway = o.sway == null ? .03 : o.sway;
+      const shape = t => { const p = geo.attributes.position; for (let i = 0; i < p.count; i++) { const x = base[i * 3], y = base[i * 3 + 1], k = -y / h; let z = (.5 + .5 * Math.sin(x * fq + ph + k * 1.5)) * fold * (.3 + k) + (o.flare || 0) * k * k; z += Math.sin(t / (o.slow || 1400) + x * 1.7 + y * .8 + ph) * sway * k; p.setZ(i, Math.max(0, z)); } p.needsUpdate = true; };
+      shape(0); geo.computeVertexNormals(); if (sway) anims.push(t => shape(t)); return m;
+    };
+    const beads = (g, pts, r, mat) => { const curve = new THREE.CatmullRomCurve3(pts), n = Math.max(3, Math.floor(curve.getLength() / (r * 2.3))), im = new THREE.InstancedMesh(new THREE.SphereGeometry(r, 8, 6), mat, n), m4 = new THREE.Matrix4(); for (let i = 0; i < n; i++) { const p = curve.getPointAt((i + .5) / n); m4.makeTranslation(p.x, p.y, p.z); im.setMatrixAt(i, m4); } im.castShadow = false; g.add(im); return im; };
+    const faceRY = out => out < 0 ? -Math.PI / 2 : Math.PI / 2;
+
     // each design gets the case group, the aisle-end x, and the direction out into the aisle
     const DESIGNS = {
+      // Castle: a fortress coming apart. Gap-toothed battlements, one tower standing and one broken, stones dropping to the rubble below
       castle(g, EX, out, T) {
-        const cloudM = std(0xf6f4f0, { roughness: .95 });
-        for (let i = 0; i < 9; i++) { const c = new THREE.Mesh(new THREE.IcosahedronGeometry(.35 + Math.random() * .3, 1), cloudM); c.position.set(EX - out * (i * .62), CH + .35 + Math.random() * .2, (Math.random() - .5) * .5); c.scale.y = .6; g.add(c); }
-        for (let i = 0; i < 5; i++) { const c = new THREE.Mesh(new THREE.IcosahedronGeometry(.25 + Math.random() * .15, 1), cloudM); c.position.set(EX + out * .2, 1.9 + (i % 2) * .15, -.55 + i * .28); c.scale.y = .55; g.add(c); }
-        const tur = new THREE.Group(); tur.position.set(EX - out * .4, CH + .5, 0); g.add(tur);
-        const tw = new THREE.Mesh(new THREE.CylinderGeometry(.32, .36, 1.5, 10), std(T.frame)); tw.position.y = .75; tur.add(tw);
-        const roof = new THREE.Mesh(new THREE.ConeGeometry(.45, .9, 10), std(0x2a3450)); roof.position.y = 1.95; tur.add(roof);
-        for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; box(.12, .16, .12, std(T.frame), Math.cos(a) * .3, 1.55, Math.sin(a) * .3, tur).castShadow = false; }
-        box(.012, .5, .012, std(0x1a1a1a), 0, 2.6, 0, tur).castShadow = false; const flag = new THREE.Mesh(new THREE.PlaneGeometry(.32, .18), new THREE.MeshBasicMaterial({ color: 0xb3121c, side: THREE.DoubleSide })); flag.position.set(.17, 2.75, 0); tur.add(flag); anims.push(t => { flag.rotation.y = Math.sin(t / 400) * .4; });
-        const win = new THREE.Mesh(new THREE.PlaneGeometry(.14, .26), new THREE.MeshBasicMaterial({ color: 0xffe0a0 })); win.position.set(out * .37, .9, 0); win.rotation.y = out * Math.PI / 2; tur.add(win);
-        const halo = sprite(T.glow, 1, 1, .55); halo.position.set(EX - out * .4, CH + 1.6, 0); halo.scale.set(3.2, 3.2, 1); g.add(halo);
+        const stoneT = canvasTex(256, 256, c2 => { c2.fillStyle = "#cfc8bb"; c2.fillRect(0, 0, 256, 256); for (let r = 0; r < 8; r++) for (let k = -1; k < 5; k++) { const x = k * 64 + (r % 2 ? 32 : 0), v = 170 + Math.random() * 70 | 0; c2.fillStyle = `rgb(${v},${v - 6},${v - 16})`; c2.fillRect(x + 2, r * 32 + 2, 60, 28); for (let n = 0; n < 12; n++) { c2.fillStyle = `rgba(60,50,40,${Math.random() * .25})`; c2.fillRect(x + 2 + Math.random() * 58, r * 32 + 2 + Math.random() * 26, 2 + Math.random() * 4, 2); } } c2.strokeStyle = "rgba(40,30,25,.55)"; c2.lineWidth = 1.5; for (let i = 0; i < 6; i++) { c2.beginPath(); let x = Math.random() * 256, y = 0; c2.moveTo(x, y); while (y < 256) { x += (Math.random() - .5) * 18; y += 10 + Math.random() * 14; c2.lineTo(x, y); } c2.stroke(); } });
+        stoneT.wrapS = stoneT.wrapT = THREE.RepeatWrapping;
+        const stoneTex = (rx, ry) => { const t2 = stoneT.clone(); t2.needsUpdate = true; t2.repeat.set(rx, ry); return std(T.frame, { roughness: .95, map: t2 }); };
+        const stone = stoneTex(1, 1), dark2 = std(0x8a8478, { roughness: 1 }), roofM = std(0x2a3450), top = CH + .3;
+        for (let x = -CW / 2 + .3; x < CW / 2; x += .72) [-1, 1].forEach(sz => { if (Math.random() < .22) return; const m = box(.42, .5, .22, Math.random() < .3 ? dark2 : stone, x, top + .25, sz * .42, g); m.castShadow = false; if (Math.random() < .35) { m.rotation.set((Math.random() - .5) * .3, 0, (Math.random() - .5) * .5); m.position.y -= .08; m.position.z += sz * .06; } });
+        [-.25, .25].forEach(dz => { const m = box(.22, .5, .3, stone, EX - out * .1, top + .25, dz, g); m.castShadow = false; });
+        // a curtain wall round the foot of the case, broken along its top
+        const wallM = stoneTex(CW / 1.1, 1.3);
+        [-1, 1].forEach(sz => { box(CW, 1.3, .14, wallM, 0, .65, sz * .48, g).castShadow = false; for (let x = -CW / 2 + .25; x < CW / 2; x += .5) { if (Math.random() < .3) continue; const h = .12 + Math.random() * .4, b = box(.46, h, .14, stone, x, 1.3 + h / 2, sz * .48, g); b.castShadow = false; if (Math.random() < .25) b.rotation.z = (Math.random() - .5) * .3; } });
+        // the case top as a stone parapet
+        box(CW + .1, .12, 1.0, stoneTex(CW / 1.1, 1), 0, top + .03, 0, g).castShadow = false;
+        const tX = EX - out * .3, rAt = (y, h) => .38 - .08 * y / h + .015;
+        // the tower still standing, flag flying
+        const tA = new THREE.Group(); tA.position.set(tX, 0, -1.0); g.add(tA); const hA = CH + 1.1;
+        const cA = new THREE.Mesh(new THREE.CylinderGeometry(.3, .38, hA, 12), stoneTex(2, hA / .9)); cA.position.y = hA / 2; tA.add(cA);
+        for (let k = 0; k < 7; k++) { const a = k / 7 * Math.PI * 2; box(.14, .2, .14, stone, Math.cos(a) * .28, hA + .1, Math.sin(a) * .28, tA).castShadow = false; }
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(.42, 1.0, 12), roofM); roof.position.y = hA + .7; tA.add(roof);
+        box(.012, .5, .012, std(0x1a1a1a), 0, hA + 1.4, 0, tA).castShadow = false; const flag = new THREE.Mesh(new THREE.PlaneGeometry(.34, .18), new THREE.MeshBasicMaterial({ color: 0xb3121c, side: THREE.DoubleSide })); flag.position.set(.17, hA + 1.55, 0); tA.add(flag); anims.push(t => { flag.rotation.y = Math.sin(t / 400) * .4; });
+        [2.4, 4.4, 6.2].forEach(y => { const w = new THREE.Mesh(new THREE.PlaneGeometry(.12, .24), new THREE.MeshBasicMaterial({ color: 0xffe0a0 })); w.position.set(out * rAt(y, hA), y, 0); w.rotation.y = faceRY(out); tA.add(w); });
+        // the broken tower, leaning out, its top bitten off
+        const tB = new THREE.Group(); tB.position.set(tX, 0, 1.0); tB.rotation.set(.1, 0, -out * .05); g.add(tB); const hB = CH * .72;
+        const cB = new THREE.Mesh(new THREE.CylinderGeometry(.33, .38, hB, 12), stoneTex(2, hB / .9)); cB.position.y = hB / 2; tB.add(cB);
+        for (let k = 0; k < 9; k++) { const a = k / 9 * Math.PI * 2, h = .1 + Math.random() * .6, b = box(.2, h, .16, k % 3 ? stone : dark2, Math.cos(a) * .27, hB + h / 2 - .05, Math.sin(a) * .27, tB); b.rotation.y = -a; b.rotation.z = (Math.random() - .5) * .4; b.castShadow = false; }
+        const crack = new THREE.Mesh(new THREE.PlaneGeometry(.05, 1.6), new THREE.MeshBasicMaterial({ color: 0x9ab8ff, toneMapped: false })); crack.position.set(out * .37, hB - 1.1, 0); crack.rotation.set(0, faceRY(out), .25); tB.add(crack);
+        const chunk = box(.6, .45, .5, stone, tX + out * .9, .22, 1.35, g); chunk.rotation.set(.2, .7, .15); chunk.castShadow = false;
+        // rubble round the base
+        for (let i = 0; i < (lite ? 14 : 30); i++) { const s = .12 + Math.random() * .28, sz = Math.random() < .5 ? -1 : 1, nearEnd = Math.random() < .4, x = nearEnd ? EX + out * Math.random() * 1.2 : (Math.random() - .5) * CW, z = nearEnd ? sz * (.75 + Math.random() * .8) : sz * (.5 + Math.random() * .7), r = box(s * 1.3, s, s, Math.random() < .3 ? dark2 : stone, x, s / 2, z, g); r.rotation.set(Math.random() * .6, Math.random() * 3, Math.random() * .5); r.castShadow = false; }
+        // stones falling from the top, a puff of dust where they land
+        const fall = []; for (let i = 0; i < (lite ? 4 : 8); i++) { const s = new THREE.Mesh(new THREE.BoxGeometry(.18 + Math.random() * .16, .14 + Math.random() * .1, .16 + Math.random() * .12), stone); s.visible = false; g.add(s); const d = sprite("225,220,205", 1, 1, 0); g.add(d); fall.push({ s, d, y: 0, vy: 0, wait: Math.random() * 5, dust: 0 }); }
+        const drop = f => { const sz = Math.random() < .5 ? -1 : 1; if (Math.random() < .3) f.s.position.set(EX + out * .1, 0, sz * (.8 + Math.random() * .3)); else f.s.position.set((Math.random() - .5) * (CW - .6), 0, sz * (.6 + Math.random() * .2)); f.y = top + .3; f.vy = 0; f.s.rotation.set(Math.random(), Math.random(), Math.random()); f.s.visible = true; };
+        anims.push((t, dt) => fall.forEach(f => { if (f.dust > 0) { f.dust -= dt * 1.2; f.d.material.opacity = Math.max(0, f.dust) * .5; f.d.scale.setScalar(.4 + (1 - f.dust) * 1.4); } if (f.wait > 0) { f.wait -= dt; if (f.wait <= 0) drop(f); return; } f.vy -= 9 * dt; f.y += f.vy * dt; f.s.rotation.x += dt * 3; f.s.rotation.z += dt * 2; f.s.position.y = f.y; if (f.y < .1) { f.s.visible = false; f.d.position.set(f.s.position.x, .3, f.s.position.z); f.dust = 1; f.wait = 1.5 + Math.random() * 5; } }));
+        embers(g, EX + out * .4, 0, 0, 8, "220,225,240", .8);
+        const halo = sprite(T.glow, 1, 1, .5); halo.position.set(tX, CH + 1.6, -1); halo.scale.set(3.2, 3.2, 1); g.add(halo);
       },
+      // Sirens: winged sirens circling the case, wings beating, trailing sparks. The stained glass stays.
       sirens(g, EX, out, T) {
         const gold = std(T.trim, { metalness: .7, roughness: .35 });
         [-1, 1].forEach(sz => { const b = box(.22, 1.5, .22, std(T.frame), EX, CH + .55, sz * .32, g); b.rotation.x = -sz * .55; b.castShadow = false; });
         const cross = std(T.trim, { metalness: .7, roughness: .35 }); box(.08, .5, .08, cross, EX, CH + 1.45, 0, g).castShadow = false; box(.08, .08, .3, cross, EX, CH + 1.55, 0, g).castShadow = false;
         const [c, gg] = cv(160, 256); gg.fillStyle = "#120a08"; gg.fillRect(0, 0, 160, 256); const cols = ["#b3121c", "#1a3a8a", "#d8a030", "#6a1a7a", "#1a6a4a", "#e0c070"]; gg.save(); gg.beginPath(); gg.moveTo(10, 250); gg.lineTo(10, 90); gg.quadraticCurveTo(10, 10, 80, 4); gg.quadraticCurveTo(150, 10, 150, 90); gg.lineTo(150, 250); gg.closePath(); gg.clip(); for (let y = 0; y < 256; y += 26) for (let x = 0; x < 160; x += 26) { gg.fillStyle = cols[(Math.random() * cols.length) | 0]; gg.fillRect(x + 2, y + 2, 23, 23); } gg.strokeStyle = "#0a0606"; gg.lineWidth = 4; gg.beginPath(); gg.arc(80, 110, 40, 0, 7); gg.stroke(); gg.restore();
-        const glass = new THREE.Mesh(new THREE.PlaneGeometry(.9, 1.45), new THREE.MeshBasicMaterial({ map: tex(c), toneMapped: false })); glass.position.set(EX + out * .135, 4.55, 0); glass.rotation.y = out < 0 ? -Math.PI / 2 : Math.PI / 2; g.add(glass);
+        const glass = new THREE.Mesh(new THREE.PlaneGeometry(.9, 1.45), new THREE.MeshBasicMaterial({ map: tex(c), toneMapped: false })); glass.position.set(EX + out * .135, 4.55, 0); glass.rotation.y = faceRY(out); g.add(glass);
         const gl = sprite(T.glow, 1, 1, .4); gl.position.set(EX + out * .5, 4.5, 0); gl.scale.set(2.2, 2.6, 1); g.add(gl);
         [-1, 1].forEach(sz => { box(.06, 1.7, .42, std(0x2a1610), EX + out * .14, .95, sz * .22, g).castShadow = false; const ring = new THREE.Mesh(new THREE.TorusGeometry(.07, .015, 6, 14), gold); ring.position.set(EX + out * .19, 1.05, sz * .12); ring.rotation.y = Math.PI / 2; g.add(ring); });
         embers(g, EX + out * .5, .1, 0, 10, "255,140,60", .5);
+        const siren = up => canvasTex(256, 128, c2 => {
+          c2.shadowColor = "rgba(255,150,70,1)"; c2.shadowBlur = 14; c2.fillStyle = c2.strokeStyle = "rgba(255,236,205,.96)";
+          // the far wing, dimmer, behind the body
+          c2.globalAlpha = .55; c2.beginPath(); c2.moveTo(160, 64); c2.quadraticCurveTo(140, up ? 20 : 112, 96, up ? 26 : 104); c2.lineTo(140, 70); c2.closePath(); c2.fill(); c2.globalAlpha = 1;
+          c2.lineWidth = 3; for (let k = 0; k < 5; k++) { c2.beginPath(); c2.moveTo(198, 50 + k * 2); c2.bezierCurveTo(168, 40 + k * 6, 142, 60 + k * 4, 112 + k * 3, 48 + k * 7); c2.stroke(); }
+          c2.beginPath(); c2.ellipse(204, 56, 9, 10, 0, 0, 7); c2.fill();
+          c2.beginPath(); c2.moveTo(198, 64); c2.quadraticCurveTo(170, 76, 140, 74); c2.quadraticCurveTo(100, 72, 60, 84); c2.lineTo(20, 98); c2.lineTo(40, 84); c2.lineTo(16, 82); c2.lineTo(58, 74); c2.quadraticCurveTo(100, 62, 138, 64); c2.quadraticCurveTo(170, 62, 194, 56); c2.closePath(); c2.fill();
+          c2.lineWidth = 3.5; c2.beginPath(); c2.moveTo(186, 66); c2.quadraticCurveTo(206, 76, 232, 70); c2.stroke();
+          c2.beginPath(); c2.moveTo(172, 66); c2.quadraticCurveTo(150, up ? 4 : 124, 70, up ? 12 : 118); for (let k = 0; k < 6; k++) { const x = 70 + k * 16, y = up ? 12 + k * 9 : 118 - k * 9; c2.quadraticCurveTo(x + 4, y + (up ? 15 : -15), x + 16, y + (up ? 9 : -9)); } c2.lineTo(150, 68); c2.closePath(); c2.fill();
+        });
+        flyers(g, [siren(true), siren(false)], { n: 5, w: 2.3, h: 1.15, rx: CW / 2 + .8, rz: 1.6, y0: 3.2, y1: 6.9, speed: .42, bob: .35, flap: 260, glow: "255,150,80", glowOp: .5, trail: "255,190,110" });
       },
+      // Down With The Devil: red mist rising and curling round the case, horns and a burning halo on top
       devil(g, EX, out, T) {
         const horn = std(0x2a0a08, { roughness: .5 });
         [-1, 1].forEach(sz => { const h = new THREE.Mesh(new THREE.ConeGeometry(.16, .9, 8), horn); h.position.set(EX - out * .2, CH + .5, sz * .42); h.rotation.set(sz * .5, 0, -out * .3); g.add(h); });
@@ -4223,61 +4334,147 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
         anims.push(t => { halo.rotation.z = t / 2600; halo.position.y = CH + 1.1 + Math.sin(t / 700) * .06; });
         const hl = sprite(T.glow, 1, 1, .55); hl.position.set(EX - out * 1.3, CH + 1.2, 0); hl.scale.set(3, 2, 1); g.add(hl);
         embers(g, EX + out * .4, .2, 0, 14, "255,110,40", .6); embers(g, EX - out * 1.5, CH, 0, 8, "255,110,40", .7);
+        const mT = [mistTex("230,25,30"), mistTex("190,10,40")], mist = [];
+        const mk = (low) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: mT[mist.length % 2], transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 })); g.add(s); mist.push({ s, low, a: Math.random() * 6.28, u: Math.random(), sp: (.18 + Math.random() * .22) * (Math.random() < .25 ? -1 : 1), r: .85 + Math.random() * .35, sz: 1.8 + Math.random() * 1.8, rot: Math.random() * 6 }); };
+        for (let i = 0; i < (lite ? 24 : 52); i++) mk(false); for (let i = 0; i < (lite ? 6 : 12); i++) mk(true);
+        anims.push((t, dt) => mist.forEach((m, i) => {
+          m.a += dt * m.sp; const rr = m.r * (1 + Math.sin(t / 1300 + i) * .08);
+          if (m.low) { m.s.position.set(Math.cos(m.a) * (CW / 2 + .9) * rr, .35, Math.sin(m.a) * 1.7 * rr); m.s.material.opacity = .55 + Math.sin(t / 1700 + i) * .15; m.s.scale.set(m.sz * 1.8, m.sz * .8, 1); }
+          else { m.u = (m.u + dt / 13) % 1; const k = Math.sin(m.u * Math.PI); m.s.position.set(Math.cos(m.a) * (CW / 2 + .45) * rr, m.u * (CH + 2.2) - .3, Math.sin(m.a) * 1.25 * rr); m.s.material.opacity = k * .95; m.s.scale.setScalar(m.sz * (.7 + m.u * .8)); }
+          m.s.material.rotation = m.rot + t / 4000;
+        }));
+        const red = new THREE.PointLight(0xff2a1a, lite ? 0 : .9, 7, 1.6); red.position.set(EX + out * .6, 2.4, 0); g.add(red); anims.push(t => { red.intensity = lite ? 0 : .8 + Math.sin(t / 900) * .25; });
       },
+      // COVEN: witches on broomsticks circling the case; the candle circle, moons and drying herbs stay
       coven(g, EX, out, T) {
         const cx = EX + out * 1.35;
         const ring = new THREE.Mesh(new THREE.RingGeometry(.95, 1.02, 48), new THREE.MeshBasicMaterial({ color: 0x9a6aff, transparent: true, opacity: .7, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; ring.position.set(cx, .02, 0); g.add(ring);
         for (let k = 0; k < 7; k++) { const a = k / 7 * Math.PI * 2; candle(g, cx + Math.cos(a) * 1.0, 0, Math.sin(a) * 1.0, .25 + (k % 3) * .1); }
-        const moonM = std(0xd8d0e8, { emissive: 0x4a3a6a, roughness: .5 }); [[0, 1], [-1.6, .8], [-3.2, .9]].forEach(([dx, s], k) => { const m = new THREE.Mesh(new THREE.TorusGeometry(.32 * s, .07 * s, 6, 18, Math.PI * 1.25), moonM); m.position.set(EX - out * (.4 - dx * -1) + out * 0, CH + .55, 0); m.position.x = EX - out * (.4 + Math.abs(dx)); m.rotation.set(0, Math.PI / 2, .6 + k); g.add(m); });
+        const moonM = std(0xd8d0e8, { emissive: 0x4a3a6a, roughness: .5 }); [0, 1.6, 3.2].forEach((dx, k) => { const m = new THREE.Mesh(new THREE.TorusGeometry(.32 * [1, .8, .9][k], .07 * [1, .8, .9][k], 6, 18, Math.PI * 1.25), moonM); m.position.set(EX - out * (.4 + dx), CH + .55, 0); m.rotation.set(0, Math.PI / 2, .6 + k); g.add(m); });
         const herbs = std(0x4a5a2a); for (let k = 0; k < 4; k++) { box(.01, .5, .01, std(0x2a1a10), EX + out * .2, CH - .4, -.45 + k * .3, g).castShadow = false; const b = new THREE.Mesh(new THREE.ConeGeometry(.08, .3, 5), herbs); b.position.set(EX + out * .2, CH - .8, -.45 + k * .3); b.rotation.x = Math.PI; g.add(b); }
         const gl = sprite(T.glow, 1, 1, .45); gl.position.set(cx, .6, 0); gl.scale.set(3, 1.6, 1); g.add(gl); const gl2 = sprite("90,255,160", 1, 1, .25); gl2.position.set(EX - out * 1.2, CH + .7, 0); gl2.scale.set(3, 1.6, 1); g.add(gl2);
         anims.push(t => { ring.material.opacity = .45 + Math.sin(t / 600) * .25; });
+        const witch = k => canvasTex(256, 128, c2 => {
+          c2.shadowColor = "rgba(160,100,255,1)"; c2.shadowBlur = 12;
+          c2.strokeStyle = "#4a2e14"; c2.lineWidth = 4; c2.beginPath(); c2.moveTo(60, 92); c2.lineTo(238, 80); c2.stroke();
+          c2.fillStyle = "#5a3e1a"; c2.beginPath(); c2.moveTo(64, 90); c2.lineTo(8, 76 + k * 4); c2.lineTo(16, 92); c2.lineTo(4, 100); c2.lineTo(14, 106); c2.lineTo(10, 118 - k * 3); c2.closePath(); c2.fill();
+          c2.fillStyle = "#1c0f2a"; c2.strokeStyle = "#1c0f2a";
+          c2.beginPath(); c2.moveTo(152, 46); c2.quadraticCurveTo(112, 50 + k * 6, 64, 38 + k * 10); c2.lineTo(84, 60); c2.lineTo(66, 70 - k * 4); c2.quadraticCurveTo(110, 88, 148, 88); c2.closePath(); c2.fill();
+          c2.beginPath(); c2.moveTo(140, 50); c2.lineTo(164, 46); c2.lineTo(172, 84); c2.lineTo(198, 86); c2.lineTo(196, 94); c2.lineTo(150, 92); c2.closePath(); c2.fill();
+          c2.lineWidth = 5; c2.beginPath(); c2.moveTo(160, 54); c2.lineTo(186, 72); c2.lineTo(202, 82); c2.stroke();
+          c2.beginPath(); c2.arc(162, 38, 9, 0, 7); c2.fill();
+          c2.beginPath(); c2.ellipse(160, 30, 21, 4, -.15, 0, 7); c2.fill(); c2.beginPath(); c2.moveTo(147, 30); c2.lineTo(172, 27); c2.quadraticCurveTo(162, 10, 128, 3 + k * 4); c2.quadraticCurveTo(152, 14, 147, 30); c2.fill();
+          c2.strokeStyle = "#3a2050"; c2.lineWidth = 2; for (let j = 0; j < 4; j++) { c2.beginPath(); c2.moveTo(154, 36 + j * 2); c2.quadraticCurveTo(138, 40 + j * 3, 118, 36 + j * 5 + k * 3); c2.stroke(); }
+        });
+        flyers(g, [witch(0), witch(1)], { n: 4, w: 2.2, h: 1.1, rx: CW / 2 + .8, rz: 1.75, y0: 3.3, y1: 6.8, speed: .5, bob: .4, flap: 180, glow: "150,90,255", glowOp: .65, trail: "110,255,160" });
       },
+      // River Runnin: water pouring off the shelves into a pool round the foot of the case
       river(g, EX, out, T) {
         const iron = std(0x1e1e22, { metalness: .6, roughness: .5 });
         [1.2, 3.3, 5.4].forEach(y => { box(.05, .12, 1.04, iron, EX + out * .13, y, 0, g).castShadow = false; for (let k = -1; k <= 1; k += 2) box(.06, .06, .06, iron, EX + out * .16, y, k * .4, g).castShadow = false; });
-        box(.16, 1.5, .16, std(0x4a3a2a), EX - out * .3, CH + .75, 0, g).castShadow = false; box(.16, .16, .8, std(0x4a3a2a), EX - out * .3, CH + 1.05, 0, g).castShadow = false;
-        const [c, gg] = cv(128, 256); const wt = tex(c); wt.wrapS = wt.wrapT = THREE.RepeatWrapping; const drawW = (o) => { gg.fillStyle = "#0a2a4a"; gg.fillRect(0, 0, 128, 256); for (let i = 0; i < 26; i++) { const y = (i * 23 + o) % 256; gg.strokeStyle = `rgba(140,210,255,${.25 + (i % 3) * .15})`; gg.lineWidth = 2; gg.beginPath(); for (let x = 0; x <= 128; x += 8) gg.lineTo(x, y + Math.sin(x * .09 + i) * 4); gg.stroke(); } wt.needsUpdate = true; }; drawW(0);
-        const water = new THREE.Mesh(new THREE.PlaneGeometry(.9, 6.4), new THREE.MeshBasicMaterial({ map: wt, transparent: true, opacity: .85, toneMapped: false })); water.rotation.x = -Math.PI / 2; water.position.set(EX + out * .75, .03, 0); g.add(water); water.rotation.z = Math.PI / 2;
-        anims.push(t => { wt.offset.y = (t / 9000) % 1; });
-        const rail = std(0x3a3a40, { metalness: .7, roughness: .4 }); [-1, 1].forEach(s2 => box(3.2, .06, .06, rail, EX + out * .75, .06, s2 * .55, g).castShadow = false); for (let k = 0; k < 6; k++) box(.14, .04, 1.3, std(0x3a2a1a), EX + out * .75 - 1.4 + k * .55, .03, 0, g).castShadow = false;
+        const fallT = canvasTex(64, 256, c2 => { c2.fillStyle = "rgba(40,120,210,.28)"; c2.fillRect(0, 0, 64, 256); for (let i = 0; i < 46; i++) { const x = Math.random() * 64, w = 1 + Math.random() * 3, y = Math.random() * 256, l = 30 + Math.random() * 150; c2.fillStyle = `rgba(${170 + Math.random() * 70 | 0},225,255,${.2 + Math.random() * .5})`; c2.fillRect(x, y, w, l); if (y + l > 256) c2.fillRect(x, y - 256, w, l); } });
+        fallT.wrapS = fallT.wrapT = THREE.RepeatWrapping; fallT.repeat.set(1, 2);
+        const fallM = new THREE.MeshBasicMaterial({ map: fallT, transparent: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false, blending: THREE.AdditiveBlending });
+        const sprays = [];
+        const cascade = (x, y0, z, ry, w, bend) => {
+          const h = y0 - .04, geo = new THREE.PlaneGeometry(w, h, 1, 16); geo.translate(0, -h / 2, 0); const p = geo.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, .03 + bend * Math.sqrt(Math.max(0, Math.min(1, -p.getY(i) / 1.6))));
+          const m = new THREE.Mesh(geo, fallM); m.position.set(x, y0, z); m.rotation.y = ry; g.add(m);
+          const foot = new THREE.Vector3(0, -h, .03 + bend).applyEuler(m.rotation).add(m.position);
+          const src = sprite("150,215,255", 1, 1, .5); src.position.copy(new THREE.Vector3(0, 0, .05).applyEuler(m.rotation).add(m.position)); src.scale.set(w * 1.4, .35, 1); g.add(src);
+          for (let k = 0; k < 2; k++) { const s = sprite("200,235,255", 1, 1, .5); s.position.set(foot.x, .12 + k * .14, foot.z); g.add(s); sprays.push({ s, w, k }); }
+        };
+        [[-2.2, 5.95, .5], [-.6, 4.3, .7], [1.0, 6.4, .45], [2.2, 3.25, .6]].forEach(([x, y, w], k) => [-1, 1].forEach(sz => cascade(sz > 0 ? x : -x * .85 + .2, y, sz * .41, sz > 0 ? 0 : Math.PI, w, .24 + (k % 2) * .06)));
+        [-1, 1].forEach(sz => cascade(EX + out * .14, CH + .25, sz * .44, faceRY(out), .16, .1));
+        const topW = new THREE.Mesh(new THREE.PlaneGeometry(CW, .9), fallM); topW.rotation.x = -Math.PI / 2; topW.position.set(0, CH + .32, 0); g.add(topW);
+        const poolT = canvasTex(256, 256, c2 => { c2.fillStyle = "rgba(30,90,170,.4)"; c2.fillRect(0, 0, 256, 256); for (let i = 0; i < 34; i++) { c2.strokeStyle = `rgba(150,215,255,${.15 + Math.random() * .35})`; c2.lineWidth = 1.5; c2.beginPath(); c2.ellipse(40 + Math.random() * 176, 40 + Math.random() * 176, 8 + Math.random() * 28, 3 + Math.random() * 9, 0, 0, 7); c2.stroke(); } });
+        poolT.wrapS = poolT.wrapT = THREE.RepeatWrapping; poolT.repeat.set(4, 2);
+        const pool = new THREE.Mesh(new THREE.PlaneGeometry(CW + 1.6, 2.6), new THREE.MeshBasicMaterial({ map: poolT, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false })); pool.rotation.x = -Math.PI / 2; pool.position.set(out * .3, .045, 0); g.add(pool);
+        const mist = []; for (let i = 0; i < (lite ? 4 : 8); i++) { const s = sprite("160,210,255", 1, 1, .18); s.scale.set(2.2, .8, 1); s.position.set((Math.random() - .5) * CW, .4, (Math.random() < .5 ? -1 : 1) * (.7 + Math.random() * .4)); g.add(s); mist.push(s); }
+        anims.push(t => { fallT.offset.y = (t / 650) % 1; poolT.offset.x = (t / 26000) % 1; poolT.offset.y = Math.sin(t / 5000) * .05; sprays.forEach((o, i) => { const f = .7 + Math.sin(t / 60 + i * 2.1) * .2 + Math.sin(t / 23 + i) * .1; o.s.scale.set(o.w * 1.6 * f, (.35 + o.k * .2) * f, 1); }); mist.forEach((s, i) => s.material.opacity = .14 + Math.sin(t / 1600 + i) * .06); });
         const gl = sprite(T.glow, 1, 1, .4); gl.position.set(EX + out * .75, .3, 0); gl.scale.set(2, 1, 1); g.add(gl);
       },
+      // The Veil: the case dressed in a wedding gown. Lace over the top and down every side, pooling into a train; pearls and satin bows
       veil(g, EX, out, T) {
-        const silver = std(T.trim, { metalness: .8, roughness: .3 }); box(.05, CH, .06, silver, EX + out * .13, CH / 2, .5, g).castShadow = false; box(.05, CH, .06, silver, EX + out * .13, CH / 2, -.5, g).castShadow = false;
-        const vg = new THREE.PlaneGeometry(1.5, 5.6, 8, 20), vm = new THREE.MeshStandardMaterial({ color: 0xf4f4fa, transparent: true, opacity: .32, side: THREE.DoubleSide, roughness: .9, depthWrite: false }), veil = new THREE.Mesh(vg, vm);
-        veil.position.set(EX + out * .45, CH - 2.5, 0); veil.rotation.y = out < 0 ? -Math.PI / 2 : Math.PI / 2; g.add(veil); const base = vg.attributes.position.array.slice();
-        anims.push(t => { const p = vg.attributes.position; for (let i = 0; i < p.count; i++) { const x = base[i * 3], y = base[i * 3 + 1], k = (2.8 - y) / 5.6; p.setZ(i, Math.sin(t / 900 + y * 1.3 + x * 2) * .14 * k + k * k * .25); } p.needsUpdate = true; });
-        const maskM = std(0xf2f0ec, { roughness: .3, metalness: .1, flatShading: false }); [-.35, .35].forEach((dz, k) => { const m = new THREE.Mesh(new THREE.SphereGeometry(.26, 16, 12, 0, Math.PI), maskM); m.scale.set(.75, 1.05, .5); m.position.set(EX - out * .5, CH + .5, dz); m.rotation.y = out < 0 ? -Math.PI / 2 : Math.PI / 2; m.rotation.z = (k ? -1 : 1) * .2; g.add(m); });
-        // PRAY: a votive rack · Haunte Couture: a dress form and a mirror
-        const rack = new THREE.Group(); rack.position.set(EX + out * .55, 0, -.9); g.add(rack); box(.5, .6, .5, std(0x2a1a14), 0, .3, 0, rack).castShadow = false; for (let r2 = 0; r2 < 2; r2++) for (let k = 0; k < 3; k++) candle(rack, -.15 + k * .15, .6 - r2 * .2, -.1 + r2 * .2, .06);
-        const form = new THREE.Group(); form.position.set(EX + out * .55, 0, .95); g.add(form); box(.04, .9, .04, std(0x1a1a1a), 0, .45, 0, form).castShadow = false; const torso = new THREE.Mesh(new THREE.CylinderGeometry(.16, .22, .7, 10), std(0x1a1218)); torso.position.y = 1.25; form.add(torso); const skirt = new THREE.Mesh(new THREE.ConeGeometry(.42, .9, 12, 1, true), std(0x2a0a14, { side: THREE.DoubleSide })); skirt.position.y = .55; form.add(skirt);
+        const laceT = canvasTex(256, 256, c2 => { c2.fillStyle = "rgba(250,248,255,.2)"; c2.fillRect(0, 0, 256, 256); c2.strokeStyle = "rgba(255,255,255,.75)"; c2.lineWidth = 1; for (let y = 0; y < 256; y += 32) for (let x = -32; x < 288; x += 32) { const cx = x + ((y / 32) % 2 ? 16 : 0), cy = y + 16; c2.beginPath(); c2.arc(cx, cy, 7, 0, 7); c2.stroke(); for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; c2.beginPath(); c2.ellipse(cx + Math.cos(a) * 4, cy + Math.sin(a) * 4, 2.5, 1.2, a, 0, 7); c2.stroke(); } } c2.strokeStyle = "rgba(255,255,255,.18)"; for (let x = 0; x < 256; x += 4) { c2.beginPath(); c2.moveTo(x, 0); c2.lineTo(x, 256); c2.stroke(); } c2.fillStyle = "rgba(255,255,255,.95)"; for (let i = 0; i < 220; i++) c2.fillRect(Math.random() * 256, Math.random() * 256, 1.2, 1.2); });
+        laceT.wrapS = laceT.wrapT = THREE.RepeatWrapping;
+        const lace = (rw, rh) => { const t2 = laceT.clone(); t2.needsUpdate = true; t2.repeat.set(rw * 2.5, rh * 2.5); return new THREE.MeshStandardMaterial({ map: t2, transparent: true, depthWrite: false, side: THREE.DoubleSide, roughness: .6, metalness: .1, color: 0xffffff, emissive: 0x5a5a66 }); };
+        const top = CH + .33, ry = faceRY(out);
+        const cover = new THREE.Mesh(new THREE.PlaneGeometry(CW + .5, 1.2), lace(6, 1.4)); cover.rotation.x = -Math.PI / 2; cover.position.set(0, top, 0); g.add(cover);
+        [-1, 1].forEach(sz => drape(g, CW + .5, CH + .32, V(0, top, sz * .58), sz > 0 ? 0 : Math.PI, lace(7, 7), { fold: .16, fq: 6, flare: .7, sway: .05 }));
+        drape(g, 1.35, CH - 3.1 + .3, V(EX + out * .24, top, 0), ry, lace(1.6, 3), { fold: .1, fq: 9, flare: .12, sway: .06 });
+        // ruffled tiers down the skirt
+        [-1, 1].forEach(sz => [1.3, 3.0, 4.7].forEach((d, k) => drape(g, CW + .5, .55, V(0, top - d, sz * (.62 + k * .08)), sz > 0 ? 0 : Math.PI, lace(7, .5), { fold: .14, fq: 16, flare: .08, sway: .03 })));
+        // the train, spilling across the floor
+        const trG = new THREE.PlaneGeometry(CW + 2.2, 3.0, 26, 12); trG.rotateX(-Math.PI / 2); const tp = trG.attributes.position; for (let i = 0; i < tp.count; i++) tp.setY(i, .05 + Math.max(0, Math.sin(tp.getX(i) * 3.1 + tp.getZ(i) * 2.3)) * .05); trG.computeVertexNormals();
+        const train = new THREE.Mesh(trG, lace(8, 4)); train.position.x = out * .4; g.add(train);
+        // pearls swagged across the end, satin bows at the corners
+        const pearl = std(0xf4f0ea, { roughness: .25, metalness: .2, emissive: 0x24221e });
+        beads(g, swag(V(EX + out * .36, top - .1, -.66), V(EX + out * .36, top - .1, .66), .55), .035, pearl);
+        beads(g, swag(V(EX + out * .38, top - .1, -.66), V(EX + out * .38, top - .1, .66), .95), .035, pearl);
+        [-1, 1].forEach(sz => beads(g, swag(V(EX, top - .1, sz * .7), V(EX - out * (CW - .4), top - .1, sz * .7), .5), .03, pearl));
+        const satin = std(0xf6f4fb, { roughness: .35, emissive: 0x1a1a22 });
+        [-1, 1].forEach(sz => { const bw = new THREE.Group(); bw.position.set(EX + out * .36, top - .1, sz * .68); bw.rotation.y = ry; g.add(bw); [-1, 1].forEach(s2 => { const l = new THREE.Mesh(new THREE.TorusGeometry(.13, .035, 6, 14), satin); l.position.x = s2 * .13; l.scale.set(1, .6, .5); bw.add(l); const tl = box(.06, .45, .02, satin, s2 * .07, -.25, 0, bw); tl.rotation.z = s2 * .25; tl.castShadow = false; }); bw.add(new THREE.Mesh(new THREE.SphereGeometry(.06, 8, 6), satin)); });
+        const maskM = std(0xf2f0ec, { roughness: .3, metalness: .1, flatShading: false }); [-.35, .35].forEach((dz, k) => { const m = new THREE.Mesh(new THREE.SphereGeometry(.26, 16, 12, 0, Math.PI), maskM); m.scale.set(.75, 1.05, .5); m.position.set(EX - out * .5, CH + .58, dz); m.rotation.y = ry; m.rotation.z = (k ? -1 : 1) * .2; g.add(m); });
         const gl = sprite(T.glow, 1, 1, .3); gl.position.set(EX + out * .3, 3.6, 0); gl.scale.set(2.2, 5, 1); g.add(gl);
       },
+      // The Crossing: the end of the case is a portal. A swirling gate ringed in light, sparks drawn into it, the ferryman's lantern and oar beside it
       crossing(g, EX, out, T) {
-        const df = std(0x1a1410); box(.1, 2.2, .08, df, EX + out * .14, 1.1, .38, g).castShadow = false; box(.1, 2.2, .08, df, EX + out * .14, 1.1, -.38, g).castShadow = false; box(.1, .08, .84, df, EX + out * .14, 2.2, 0, g).castShadow = false;
-        const light = new THREE.Mesh(new THREE.PlaneGeometry(.7, 2.1), new THREE.MeshBasicMaterial({ color: 0xfff2d0, toneMapped: false })); light.position.set(EX + out * .1, 1.08, 0); light.rotation.y = out < 0 ? -Math.PI / 2 : Math.PI / 2; g.add(light);
-        const hinge = new THREE.Group(); hinge.position.set(EX + out * .14, 0, .35); g.add(hinge); const door = box(.06, 2.1, .68, std(0x3a2a1e), out * .0, 1.06, -.34, hinge); door.castShadow = false; hinge.rotation.y = -out * .55;
-        const gl = sprite(T.glow, 1, 1, .7); gl.position.set(EX + out * .6, 1.1, 0); gl.scale.set(2.2, 3, 1); g.add(gl);
+        const PW = 1.35, PH = 3.1, pg = new THREE.Group(); pg.position.set(EX + out * .15, PH + .25, 0); pg.rotation.y = faceRY(out); g.add(pg);
+        const vortT = canvasTex(256, 256, c2 => { const gr = c2.createRadialGradient(128, 128, 0, 128, 128, 128); gr.addColorStop(0, "rgba(255,250,232,1)"); gr.addColorStop(.22, "rgba(255,214,150,.6)"); gr.addColorStop(.75, "rgba(150,80,40,.25)"); gr.addColorStop(1, "rgba(0,0,0,0)"); c2.fillStyle = gr; c2.fillRect(0, 0, 256, 256); for (let arm = 0; arm < 6; arm++) for (let k = 0; k < 70; k++) { const u = k / 70, a = arm / 6 * Math.PI * 2 + u * 5, r = 6 + u * 112; c2.fillStyle = `rgba(255,${200 + u * 40 | 0},150,${(1 - u) * .5})`; c2.beginPath(); c2.arc(128 + Math.cos(a) * r, 128 + Math.sin(a) * r, 2 + u * 9, 0, 7); c2.fill(); } });
+        const layer = (spin, op, sc, z) => { const t2 = vortT.clone(); t2.needsUpdate = true; t2.center.set(.5, .5); const m = new THREE.Mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshBasicMaterial({ map: t2, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false, opacity: op, side: THREE.DoubleSide })); m.scale.set(PW * sc, PH * sc, 1); m.position.z = z; pg.add(m); anims.push(t => { t2.rotation = t / spin; }); return m; };
+        const core = new THREE.Mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshBasicMaterial({ color: 0x07050a, transparent: true, opacity: .85 })); core.scale.set(PW, PH, 1); pg.add(core);
+        layer(2600, .95, 1, .004); layer(-1700, .55, .8, .008);
+        const pts = []; for (let k = 0; k < 64; k++) { const a = k / 64 * Math.PI * 2; pts.push(V(Math.cos(a) * PW, Math.sin(a) * PH, .02)); }
+        const rim = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 128, .07, 8, true), new THREE.MeshBasicMaterial({ color: 0xffd890, toneMapped: false })); pg.add(rim);
+        const aura = sprite(T.glow, 1, 1, .5); aura.scale.set(PW * 3.2, PH * 2.5, 1); aura.position.z = -.05; pg.add(aura);
+        const runes = []; for (let k = 0; k < (lite ? 8 : 14); k++) { const s = sprite("255,205,130", 1, 1, .9); s.scale.setScalar(.32); pg.add(s); runes.push({ s, a: k / 14 * Math.PI * 2 }); }
+        const sparks = []; for (let k = 0; k < (lite ? 12 : 26); k++) { const s = sprite("255,235,190", 1, 1, 0); pg.add(s); sparks.push({ s, u: Math.random(), a: Math.random() * 6.28, sp: .3 + Math.random() * .3 }); }
+        anims.push((t, dt) => { runes.forEach(r => { r.a += dt * .35; r.s.position.set(Math.cos(r.a) * PW * 1.04, Math.sin(r.a) * PH * 1.02, .06); r.s.material.opacity = .6 + Math.sin(t / 200 + r.a * 3) * .3; }); sparks.forEach(p => { p.u += dt * p.sp; if (p.u > 1) { p.u = 0; p.a = Math.random() * 6.28; } const r = 1.25 - p.u, a = p.a + p.u * 3.5; p.s.position.set(Math.cos(a) * PW * r, Math.sin(a) * PH * r, .08 + (1 - p.u) * .3); p.s.material.opacity = Math.sin(p.u * Math.PI) * .9; p.s.scale.setScalar(.2 * (1 - p.u * .6)); }); rim.material.color.setHSL(.11, 1, .72 + Math.sin(t / 300) * .08); });
         const arm = std(0x1a1a1a, { metalness: .6 }); box(.7, .05, .05, arm, EX + out * .35, CH - .6, 0, g).castShadow = false; const lan = new THREE.Group(); lan.position.set(EX + out * .62, CH - 1.1, 0); g.add(lan); box(.02, .4, .02, arm, 0, .3, 0, lan).castShadow = false; box(.26, .34, .26, new THREE.MeshStandardMaterial({ color: 0xffd890, emissive: 0xffa040, emissiveIntensity: 1.2, transparent: true, opacity: .85 }), 0, 0, 0, lan).castShadow = false; box(.3, .05, .3, arm, 0, .2, 0, lan).castShadow = false;
         const lg = sprite("255,190,90", 1, 1, .6); lg.scale.set(1.6, 1.6, 1); lan.add(lg); anims.push(t => { lan.rotation.z = Math.sin(t / 900) * .08; lg.material.opacity = .5 + Math.sin(t / 90) * .06 + Math.sin(t / 37) * .04; });
-        const oar = new THREE.Group(); oar.position.set(EX + out * .35, 0, -.75); oar.rotation.z = -out * .22; g.add(oar); box(.06, 2.6, .06, std(0x6a4a2a), 0, 1.3, 0, oar).castShadow = false; box(.04, .7, .22, std(0x6a4a2a), 0, .3, 0, oar).castShadow = false;
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(1.4, 5.5, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xfff0d0, transparent: true, opacity: .06, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide })); cone.position.set(EX + out * 1.0, 2.9, 0); g.add(cone);
+        const oar = new THREE.Group(); oar.position.set(EX + out * .45, 0, -1.55); oar.rotation.z = -out * .22; g.add(oar); box(.06, 2.6, .06, std(0x6a4a2a), 0, 1.3, 0, oar).castShadow = false; box(.04, .7, .22, std(0x6a4a2a), 0, .3, 0, oar).castShadow = false;
       },
+      // Purgatory: stuck between. Floating stone steps spiral up round the case; pale souls climb them into a shaft of light; ash falls; dull embers below
       purgatory(g, EX, out, T) {
-        const frame = std(0xb8b8c0, { metalness: .7, roughness: .3 }); const mir = new THREE.Mesh(new THREE.PlaneGeometry(.8, 1.3), new THREE.MeshStandardMaterial({ color: 0x0a0c10, metalness: 1, roughness: .05 })); mir.position.set(EX + out * .135, 4.5, 0); mir.rotation.y = out < 0 ? -Math.PI / 2 : Math.PI / 2; g.add(mir); [[0, .7, .9, .07], [0, -.7, .9, .07], [.42, 0, .07, 1.47], [-.42, 0, .07, 1.47]].forEach(([dz, dy, w, h]) => box(.06, h, w, frame, EX + out * .14, 4.5 + dy, dz, g).castShadow = false);
+        const frame = std(0xb8b8c0, { metalness: .7, roughness: .3 }); const mir = new THREE.Mesh(new THREE.PlaneGeometry(.8, 1.3), new THREE.MeshStandardMaterial({ color: 0x0a0c10, metalness: 1, roughness: .05 })); mir.position.set(EX + out * .135, 4.5, 0); mir.rotation.y = faceRY(out); g.add(mir); [[0, .7, .9, .07], [0, -.7, .9, .07], [.42, 0, .07, 1.47], [-.42, 0, .07, 1.47]].forEach(([dz, dy, w, h]) => box(.06, h, w, frame, EX + out * .14, 4.5 + dy, dz, g).castShadow = false);
         const fog = []; for (let i = 0; i < 6; i++) { const s = sprite("200,205,215", 1, 1, .22); s.position.set(EX + out * (.6 + Math.random()), .4, (Math.random() - .5) * 2.2); s.scale.set(2.4, .9, 1); g.add(s); fog.push(s); } anims.push(t => fog.forEach((s, i) => { s.position.z = Math.sin(t / 3000 + i * 1.7) * 1.1; s.material.opacity = .16 + Math.sin(t / 1800 + i) * .07; }));
-        const dropM = new THREE.MeshBasicMaterial({ color: 0xbfd8ff, transparent: true, opacity: .8 }), drops = []; for (let i = 0; i < 5; i++) { const d = new THREE.Mesh(new THREE.SphereGeometry(.03, 6, 4), dropM); d.scale.y = 1.8; g.add(d); drops.push({ d, p: Math.random(), z: (Math.random() - .5) * .8 }); } anims.push((t, dt) => drops.forEach(o => { o.p = (o.p + dt / 1.6) % 1; o.d.position.set(EX + out * .2, CH - .1 - o.p * o.p * (CH - .2), o.z); }));
         const gl = sprite(T.glow, 1, 1, .35); gl.position.set(EX + out * .5, 4.5, 0); gl.scale.set(2.2, 2.6, 1); g.add(gl);
         cobwebs(g, EX, out);
+        const a0 = out > 0 ? 0 : Math.PI, RX = CW / 2 + .85, RZ = 1.45, Y0 = .35, Y1 = CH + 1.1;
+        const path = u => { const a = a0 + .7 + u * (Math.PI * 2 - 1.4); return { x: Math.cos(a) * RX, z: Math.sin(a) * RZ, y: Y0 + u * (Y1 - Y0), ry: Math.atan2(-Math.cos(a) * RZ, -Math.sin(a) * RX) }; };
+        const stepM = std(0xa8aab4, { roughness: .9, emissive: 0x1a1c24 }), N = lite ? 12 : 18, steps = [];
+        for (let i = 0; i < N; i++) { const p = path(i / (N - 1)), s = box(.6, .14, .95, stepM, p.x, p.y, p.z, g); s.rotation.y = p.ry; s.castShadow = false; const under = sprite("190,210,240", 1, 1, .3); under.scale.set(1.1, .4, 1); under.position.y = -.15; s.add(under); steps.push({ s, y: p.y, ph: i * .7 }); }
+        anims.push(t => steps.forEach(o => { o.s.position.y = o.y + Math.sin(t / 1500 + o.ph) * .06; }));
+        const end = path(1);
+        const shaft = new THREE.Mesh(new THREE.ConeGeometry(1.1, 4.6, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xe8f0ff, transparent: true, opacity: .09, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide })); shaft.position.set(end.x, Y1 + 2.3, end.z); g.add(shaft);
+        const top = sprite("220,232,255", 1, 1, .5); top.position.set(end.x, Y1 + .8, end.z); top.scale.set(2.4, 2.4, 1); g.add(top);
+        const soulT = canvasTex(128, 256, c2 => { const gr = c2.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, "rgba(228,234,246,.92)"); gr.addColorStop(.6, "rgba(200,212,230,.55)"); gr.addColorStop(1, "rgba(200,212,230,0)"); c2.fillStyle = gr; c2.shadowColor = "rgba(190,215,255,.9)"; c2.shadowBlur = 16; c2.beginPath(); c2.moveTo(64, 20); c2.quadraticCurveTo(96, 22, 92, 70); c2.quadraticCurveTo(104, 140, 100, 250); c2.quadraticCurveTo(82, 230, 72, 250); c2.quadraticCurveTo(60, 228, 48, 250); c2.quadraticCurveTo(36, 232, 26, 250); c2.quadraticCurveTo(24, 140, 36, 70); c2.quadraticCurveTo(32, 22, 64, 20); c2.fill(); c2.shadowBlur = 0; c2.fillStyle = "rgba(14,16,24,.9)"; c2.beginPath(); c2.ellipse(64, 58, 15, 20, 0, 0, 7); c2.fill(); });
+        const souls = []; for (let i = 0; i < 3; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: soulT, transparent: true, depthWrite: false, opacity: 0 })); s.scale.set(.55, 1.1, 1); g.add(s); souls.push(s); }
+        anims.push(t => souls.forEach((s, i) => { const u = ((t / 26000) + i / 3) % 1.15; let p; if (u <= 1) { p = path(u); s.position.set(p.x, p.y + .62, p.z); } else { s.position.set(end.x, Y1 + .62 + (u - 1) * 16, end.z); } s.material.opacity = Math.min(1, u * 8, Math.max(0, 1.15 - u) * 9) * .6; }));
+        const ash = []; for (let i = 0; i < (lite ? 8 : 16); i++) { const s = sprite("205,205,215", 1, 1, .45); s.scale.setScalar(.06 + Math.random() * .05); g.add(s); ash.push({ s, x: (Math.random() - .5) * (CW + 1.5), z: (Math.random() - .5) * 2.6, p: Math.random(), sp: .05 + Math.random() * .05 }); }
+        anims.push((t, dt) => ash.forEach(o => { o.p = (o.p + dt * o.sp) % 1; o.s.position.set(o.x + Math.sin(t / 900 + o.z * 3) * .2, (CH + 1.5) * (1 - o.p), o.z); }));
+        embers(g, EX + out * .5, 0, 0, 6, "255,90,50", .9);
       },
+      // Reaper: the case shrouded in torn black cloth, scythes leaning on every side and one laid across the top; something watching from under the shroud
       reaper(g, EX, out, T) {
-        const steel = std(0xc8ccd4, { metalness: .9, roughness: .25 }), haft = std(0x2a1a12);
-        [-1, 1].forEach(sz => { const sc = new THREE.Group(); sc.position.set(EX + out * .2, 4.6, 0); sc.rotation.x = sz * .55; g.add(sc); box(.07, 2.8, .07, haft, 0, 0, 0, sc).castShadow = false; const blade = new THREE.Mesh(new THREE.TorusGeometry(.5, .05, 4, 16, Math.PI * .8), steel); blade.position.set(0, 1.3, sz * -.42); blade.rotation.y = Math.PI / 2; blade.rotation.z = sz > 0 ? 0 : Math.PI * .2; blade.scale.z = .3; sc.add(blade); });
-        const hg = new THREE.Group(); hg.position.set(EX - out * .9, CH + .15, 0); g.add(hg); const glassM = new THREE.MeshStandardMaterial({ color: 0xd8e0e8, transparent: true, opacity: .35, roughness: .1 }); [.28, .72].forEach((y, k) => { const c = new THREE.Mesh(new THREE.ConeGeometry(.22, .44, 12), glassM); c.position.y = y; c.rotation.x = k ? 0 : Math.PI; hg.add(c); }); [.0, 1.0].forEach(y => box(.55, .06, .55, haft, 0, y, 0, hg).castShadow = false); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => box(.04, 1, .04, haft, a * .22, .5, b * .22, hg).castShadow = false); const sand = new THREE.Mesh(new THREE.ConeGeometry(.15, .2, 12), std(0xb3121c, { emissive: 0x4a0408 })); sand.position.y = .15; hg.add(sand);
-        const bone = std(0xe8e0cc, { roughness: .7 }), black = std(0x050505); [[-.2, .3], [-1.9, -.25], [-2.6, .2]].forEach(([dx, dz]) => { const sk = new THREE.Group(); sk.position.set(EX - out * Math.abs(dx) - out * .1, CH + .22, dz); sk.rotation.y = out < 0 ? -Math.PI / 2 : Math.PI / 2; g.add(sk); const hd = new THREE.Mesh(new THREE.SphereGeometry(.2, 10, 8), bone); hd.scale.set(1, .95, 1.1); sk.add(hd); box(.22, .1, .16, bone, 0, -.15, .05, sk).castShadow = false; [-1, 1].forEach(s2 => { const e = new THREE.Mesh(new THREE.SphereGeometry(.05, 6, 4), black); e.position.set(s2 * .075, .02, .17); sk.add(e); }); });
-        const gl = sprite(T.glow, 1, 1, .45); gl.position.set(EX + out * .4, 4.6, 0); gl.scale.set(2.6, 3.2, 1); g.add(gl);
-        cobwebs(g, EX, out);
+        const steel = std(0xc8ccd4, { metalness: .9, roughness: .25, emissive: 0x30343c }), haft = std(0x2a1a12);
+        [-1, 1].forEach(sz => { const sc = new THREE.Group(); sc.position.set(EX + out * .34, 4.6, 0); sc.rotation.x = sz * .55; g.add(sc); box(.07, 2.8, .07, haft, 0, 0, 0, sc).castShadow = false; const blade = new THREE.Mesh(new THREE.TorusGeometry(.5, .05, 4, 16, Math.PI * .8), steel); blade.position.set(0, 1.3, sz * -.42); blade.rotation.y = Math.PI / 2; blade.rotation.z = sz > 0 ? 0 : Math.PI * .2; blade.scale.z = .3; sc.add(blade); });
+        const scythe = (x, y, z, rx, ry, rz, s) => { const sc = new THREE.Group(); sc.position.set(x, y, z); sc.rotation.set(rx, ry, rz); sc.scale.setScalar(s); g.add(sc); box(.07, 2.8, .07, haft, 0, 0, 0, sc).castShadow = false; const bl = new THREE.Mesh(new THREE.TorusGeometry(.5, .05, 4, 16, Math.PI * .8), steel); bl.position.set(-.5, 1.38, 0); bl.scale.z = .3; sc.add(bl); return sc; };
+        [-1, 1].forEach(sz => [-1.6, 1.1].forEach((x, k) => scythe(x * (sz > 0 ? 1 : -1), 1.4, sz * .82, -sz * .22, k ? 0 : Math.PI, 0, 1)));
+        scythe(-.3, CH + .5, 0, 0, 0, -Math.PI / 2, 1.5);
+        const hg = new THREE.Group(); hg.position.set(EX - out * .9, CH + .35, .3); g.add(hg); const glassM = new THREE.MeshStandardMaterial({ color: 0xd8e0e8, transparent: true, opacity: .35, roughness: .1 }); [.28, .72].forEach((y, k) => { const c = new THREE.Mesh(new THREE.ConeGeometry(.22, .44, 12), glassM); c.position.y = y; c.rotation.x = k ? 0 : Math.PI; hg.add(c); }); [0, 1.0].forEach(y => box(.55, .06, .55, haft, 0, y, 0, hg).castShadow = false); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => box(.04, 1, .04, haft, a * .22, .5, b * .22, hg).castShadow = false); const sand = new THREE.Mesh(new THREE.ConeGeometry(.15, .2, 12), std(0xb3121c, { emissive: 0x4a0408 })); sand.position.y = .15; hg.add(sand);
+        const bone = std(0xe8e0cc, { roughness: .7 }), black = std(0x050505); [[-1.9, -.3], [-2.6, .32]].forEach(([dx, dz]) => { const sk = new THREE.Group(); sk.position.set(EX - out * Math.abs(dx) - out * .1, CH + .45, dz); sk.rotation.y = faceRY(out); g.add(sk); const hd = new THREE.Mesh(new THREE.SphereGeometry(.2, 10, 8), bone); hd.scale.set(1, .95, 1.1); sk.add(hd); box(.22, .1, .16, bone, 0, -.15, .05, sk).castShadow = false; [-1, 1].forEach(s2 => { const e = new THREE.Mesh(new THREE.SphereGeometry(.05, 6, 4), black); e.position.set(s2 * .075, .02, .17); sk.add(e); }); });
+        // the shroud: torn black cloth over the top and down every side
+        const ragT = canvasTex(256, 512, c2 => { c2.fillStyle = "#0d0a0c"; c2.fillRect(0, 0, 256, 470); for (let x = 0; x < 256; x += 6) { const v = 30 + Math.random() * 26 | 0; c2.fillStyle = `rgba(${v},${v - 4},${v},${.3 + Math.random() * .35})`; c2.fillRect(x, 0, 2 + Math.random() * 4, 470); } c2.fillStyle = "#0d0a0c"; c2.beginPath(); c2.moveTo(0, 460); for (let x = 0; x <= 256; x += 12) c2.lineTo(x, 466 + Math.random() * 46); c2.lineTo(256, 460); c2.fill(); c2.globalCompositeOperation = "destination-out"; for (let i = 0; i < 16; i++) { c2.beginPath(); c2.ellipse(Math.random() * 256, 260 + Math.random() * 200, 3 + Math.random() * 7, 8 + Math.random() * 22, 0, 0, 7); c2.fill(); } });
+        ragT.wrapS = THREE.RepeatWrapping;
+        const rag = rw => { const t2 = ragT.clone(); t2.needsUpdate = true; t2.repeat.set(rw, 1); return new THREE.MeshStandardMaterial({ map: t2, alphaTest: .5, side: THREE.DoubleSide, roughness: .7, color: 0xffffff, emissive: 0x0a0306 }); };
+        const top = CH + .33, cover = new THREE.Mesh(new THREE.PlaneGeometry(CW + .5, 1.25), new THREE.MeshStandardMaterial({ color: 0x0d0a0c, roughness: .8, side: THREE.DoubleSide })); cover.rotation.x = -Math.PI / 2; cover.position.set(0, top, 0); g.add(cover);
+        [-1, 1].forEach(sz => drape(g, CW + .5, CH + .2, V(0, top, sz * .6), sz > 0 ? 0 : Math.PI, rag(4), { fold: .2, fq: 5, flare: .25, sway: .07, slow: 1800 }));
+        drape(g, 1.3, CH - 3.15 + .3, V(EX + out * .22, top, 0), faceRY(out), rag(1), { fold: .06, fq: 8, flare: .1, sway: .05, slow: 1800 });
+        // eyes in the dark of the shroud, blinking now and then
+        const eyes = [-1, 1].map(s2 => { const e = sprite("255,40,40", 1, 1, .9); e.scale.setScalar(.14); e.position.set(EX + out * .42, CH - 1.0, s2 * .12); g.add(e); return e; });
+        anims.push(t => { const open = Math.sin(t / 3700) > -.96 ? 1 : 0; eyes.forEach(e => e.scale.set(.16, .16 * open + .01, 1)); });
+        const gl = sprite(T.glow, 1, 1, .45); gl.position.set(EX + out * .5, 4.6, 0); gl.scale.set(2.6, 3.2, 1); g.add(gl);
       },
       chainz(g, EX, out, T) {
         const ef = EX + out * .2;
@@ -4412,6 +4609,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       hud: { loc: "Up the foyer stairs", title: "THE HAUNTED LIBRARY", sub: "Two floors of stacks. Keep your voice down. The Reaper's Ledger at the far end gives hints for his relics.", color: "#e0323c" },
       update(t, dt, near, enteringId) {
         doors.update(near, enteringId, dt);
+        anims.forEach(f => f(t, dt));   // the dressed cases and the book that slides out when you open one
         if (reduce) return;
         chand.rotation.z = Math.sin(t / 2600) * .035; chand.rotation.x = Math.sin(t / 3300) * .025;
         chL.intensity = 1.5 + Math.sin(t / 70) * .06 + (Math.sin(t / 2900) > .985 ? -1.1 : 0);
@@ -5902,11 +6100,11 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     }, true);
     addEventListener("keyup", e => { if (PIANO.mode && (e.code === "ShiftLeft" || e.code === "ShiftRight")) { PIANO.sustain = false; pianoUI.querySelector('[data-pa="sus"]').setAttribute("aria-pressed", false); } });
   }
-  function loungeSit(pos, rot, camFrom) {
+  function loungeSit(pos, rot, camFrom, o = {}) {
     for (const k in keys) keys[k] = false; target = null;
     let yw = 0; if (camFrom) { const cy = Math.atan2(camFrom.x - pos.x, camFrom.z - pos.z); yw = Math.atan2(Math.sin(cy - rot - Math.PI), Math.cos(cy - rot - Math.PI)); yw = Math.max(-2.5, Math.min(2.5, yw)); }
-    lounge = { pos: avatar.position.clone(), yaw: yw }; avatar.position.set(pos.x, .18 + .32, pos.z); avatar.rotation.y = rot; view.camYaw = rot + Math.PI;
-    legL.rotation.x = legR.rotation.x = -1.4; showToast("Take a seat", "By the fire", "Move to stand up.", "");
+    lounge = { pos: avatar.position.clone(), yaw: yw, room: cur && cur.id, y: o.y != null ? o.y : .18 + .32 }; avatar.position.set(pos.x, lounge.y, pos.z); avatar.rotation.y = rot; view.camYaw = rot + Math.PI;
+    legL.rotation.x = legR.rotation.x = -1.4; showToast(o.kicker || "Take a seat", o.title || "By the fire", o.text || "Move to stand up.", "");
   }
   function standUp() {
     if (!seated) return;
@@ -6645,7 +6843,28 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const saved = store.get("mortez.relics", []); relics.forEach(r => r.got = saved.includes(r.id));
     const pill = document.getElementById("relicPill"), relicN = document.getElementById("relicN");
     const sixDone = () => relics.filter(r => !r.final && r.got).length >= SIX;
-    function updatePill() { const n = relics.filter(r => r.got).length; relicN.textContent = n; pill.hidden = !FLAGS.relics; if (n === relics.length) pill.classList.add("done"); }
+    function updatePill() { const n = relics.filter(r => r.got).length; relicN.textContent = n; pill.hidden = !FLAGS.relics; if (pill.hidden) closeList(); if (n === relics.length) pill.classList.add("done"); if (!listEl.hidden) drawList(); }
+    // tap the count to see which relics you have, and where the rest might be
+    const listEl = document.getElementById("relicList"), rowsEl = document.getElementById("relicRows");
+    const ROOM = { plaza: "the grounds", foyer: "the foyer", courtyard: "the courtyard", dining: "the dining hall", film: "the chapel", library: "the library" };
+    function drawList() {
+      rowsEl.innerHTML = "";
+      relics.forEach(r => {
+        const li = document.createElement("li"), known = r.got || hints.includes(r.id), locked = r.final && !sixDone();
+        li.className = (r.got ? "got" : "") + (r.final ? " final" : "");
+        const name = r.got || known || (r.final && !locked) ? r.name : r.final ? "The last relic" : "Undiscovered relic";
+        const where = r.got ? "Found in " + ROOM[r.space] : locked ? "Find the other six first" : r.final ? "Waiting by the Reaper's Ledger in the library" : known ? "Hidden in " + ROOM[r.space] + " · on your map there" : "Somewhere in the Chateau";
+        li.innerHTML = '<span class="rl-ic">' + (r.got ? "✓" : r.final ? "🗝" : "?") + '</span><span><b></b><small></small></span>';
+        li.querySelector("b").textContent = name; li.querySelector("small").textContent = where; rowsEl.appendChild(li);
+      });
+    }
+    function openList() { drawList(); listEl.hidden = false; pill.setAttribute("aria-expanded", "true"); const b = pill.getBoundingClientRect().bottom; if (b) { listEl.style.top = Math.round(b + 8) + "px"; listEl.style.maxHeight = Math.max(180, innerHeight - b - 92) + "px"; } }
+    function closeList() { if (listEl.hidden) return; listEl.hidden = true; pill.setAttribute("aria-expanded", "false"); }
+    pill.addEventListener("click", e => { e.stopPropagation(); SFX.init(); SFX.page && SFX.page(); listEl.hidden ? openList() : closeList(); pill.blur(); });
+    ["pointerdown", "mousedown", "touchstart"].forEach(ev => pill.addEventListener(ev, e => e.stopPropagation(), { passive: true }));
+    ["pointerdown", "click", "mousedown", "touchstart"].forEach(ev => listEl.addEventListener(ev, e => e.stopPropagation(), { passive: true }));
+    addEventListener("pointerdown", e => { if (!listEl.hidden && !listEl.contains(e.target) && !pill.contains(e.target)) closeList(); });
+    addEventListener("keydown", e => { if (e.code === "Escape") closeList(); });
     function relicMesh(id) {
       const g = new THREE.Group(), red = new THREE.MeshBasicMaterial({ color: 0xc8102a }), gold = new THREE.MeshStandardMaterial({ color: 0xc9a14a, metalness: .7, roughness: .3, emissive: 0x3a2a08 });
       if (id === "rose") { const b = new THREE.Mesh(new THREE.ConeGeometry(.16, .26, 8), new THREE.MeshBasicMaterial({ color: 0x14060a })); b.rotation.x = Math.PI; b.position.y = .12; g.add(b); const s = new THREE.Mesh(new THREE.CylinderGeometry(.015, .015, .5, 4), new THREE.MeshBasicMaterial({ color: 0x1a2a14 })); s.position.y = -.2; g.add(s); }
@@ -6680,7 +6899,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       const n = relics.filter(x => x.got).length;
       SFX.init(); SFX.page && SFX.page();
       if (r.final) { SFX.musicbox && SFX.musicbox(); showToast("The Reaper's Key", "The study is open", "Go back to the foyer and up the stairs. The door marked KEEP OUT will open for you now.", n + " / " + relics.length, true); }
-      else if (sixDone() && !relics.find(x => x.final).got) { SFX.musicbox && SFX.musicbox(); setAura(true); showToast("The Reaper's Relics", "All six found. Sum fortis.", "The Reaper marks you as one of his own; look at the red glow you carry now. One relic is left: his key, waiting at the Ledger in the library.", n + " / " + relics.length, true); }
+      else if (sixDone() && !relics.find(x => x.final).got) { SFX.musicbox && SFX.musicbox(); setAura(true); if (!hints.includes("key")) { hints.push("key"); store.set("mortez.hints", hints); } showToast("The Reaper's Relics", "All six found. Sum fortis.", "The Reaper marks you as one of his own; look at the red glow you carry now. One relic is left: his key, waiting at the Ledger in the library.", n + " / " + relics.length, true); }
       else showToast("Relic found", r.name, (SIX - relics.filter(x => !x.final && x.got).length) + " still hidden in the Chateau. Stuck? The Reaper's Ledger in the library gives hints.", n + " / " + relics.length);
     }
     let aura = null;
@@ -6696,7 +6915,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       // one hint per read: the next relic you haven't found (in turn), and it lights up on the mini map
       const open = relics.filter(r => !r.got && (!r.final || sixDone()));
       const pick = open.find(r => !hints.includes(r.id)) || open[(n + hints.length) % open.length];
-      if (!hints.includes(pick.id)) { hints.push(pick.id); store.set("mortez.hints", hints); }
+      if (!hints.includes(pick.id)) { hints.push(pick.id); store.set("mortez.hints", hints); if (!listEl.hidden) drawList(); }
       const found = relics.filter(r => r.got).map(r => "✓ " + r.name).join("\n");
       showToast("The Reaper's Ledger", pick.final ? "The last relic" : "A hint, written in red", pick.hint + "\n\nIt's marked on your map when you're in the right room." + (found ? "\n\n" + found : ""), n + " / " + relics.length, true);
     }
@@ -6715,7 +6934,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     }
 
     return {
-      init() { placeRelics(); updatePill(); if (sixDone()) setAura(true); },
+      init() { placeRelics(); updatePill(); if (sixDone()) { setAura(true); if (!hints.includes("key")) { hints.push("key"); store.set("mortez.hints", hints); } } },
       welcome: () => openWelcome(),
       hasKey: () => STUDY_UNLOCKED_FOR_TESTING || relics.some(r => r.final && r.got), relicCount: () => relics.filter(r => !r.final && r.got).length, relicMesh,
       tick(now, dt) { tickHaunt(now, dt); intro(now); if (now - mapT > 90) { mapT = now; drawMini(); } },
@@ -6919,7 +7138,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     }
     if (!hop && !seated && !lounge && !PIANO.mode && !BAT.on) avatar.position.y = .18 + fy + jump.y + (jump.y > 0 ? 0 : Math.abs(Math.sin(walkT)) * .05);
     if (PIANO.mode) legL.rotation.x = legR.rotation.x = -1.4;
-    if (lounge) { legL.rotation.x = legR.rotation.x = -1.4; if (!view.drag) view.yaw = lounge.yaw; if (cur.id !== "foyer") lounge = null; }
+    if (lounge) { legL.rotation.x = legR.rotation.x = -1.4; if (!view.drag) view.yaw = lounge.yaw; if (cur.id !== lounge.room) lounge = null; }
     shadowDisc.position.set(avatar.position.x, .19 + (BAT.on ? BAT.ground : fy), avatar.position.z);
 
     near = null; let best = 2.2;
