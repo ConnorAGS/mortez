@@ -397,6 +397,9 @@ a.cl-card { text-decoration: none; }
 .ch-pick b { font: 600 22px var(--display); }
 .ch-pick small { font: 500 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .ch-code { display: flex; gap: 8px; }
+.ride-clock { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 50%; transform: translateX(-50%); z-index: 30; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 18px; border-radius: 14px; background: rgba(10,6,8,.82); border: 1px solid #e0323c; pointer-events: none; }
+.ride-clock b { font: 700 34px/1 var(--mono); color: #fff; letter-spacing: .02em; }
+.ride-clock span { font: 600 11px var(--mono); letter-spacing: .08em; color: #ff8f96; max-width: 70vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .photo { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: rgba(5,3,4,.72); animation: phIn .35s ease; }
 @keyframes phIn { from { opacity: 0; } to { opacity: 1; } }
 .ph-card { width: min(420px, 100%); max-height: calc(100svh - 32px); overflow-y: auto; background: #f3ece0; color: #1a1214; border-radius: 6px; padding: 14px 14px 16px; box-shadow: 0 30px 80px rgba(0,0,0,.7); transform: rotate(-1.5deg); }
@@ -5644,6 +5647,11 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       if (si !== lastNow) { lastNow = si; ltList.querySelectorAll(".lt-row.sec").forEach(r => r.classList.toggle("now", +r.dataset.sec === si)); }
     }
     function showLT(on) { lt.hidden = !on; if (on) { renderLT(); tickLT(); } }
+    // with #timing on: a big song clock at the top of the ride, so you can read off when each line should land
+    if (TIMING_TOOL) {
+      const rc = document.createElement("div"); rc.className = "ride-clock"; rc.hidden = true; document.body.appendChild(rc);
+      setInterval(() => { const on = !!cur && cur.id === "mine"; rc.hidden = !on; if (on) { const L = LYRICS.filter(x => x.t <= R.t).pop(); rc.innerHTML = "<b>" + fmt(R.t) + "</b><span>" + (L ? L.text.replace(/\s*\/\s*/g, " ") : "") + "</span>"; } }, 50);
+    }
     ltScrub.addEventListener("input", () => { scrubbing = true; space._seek(+ltScrub.value); });
     ltScrub.addEventListener("change", () => { scrubbing = false; });
     lt.querySelector("#ltRate").addEventListener("change", e => { rate = +e.target.value; if (audio) audio.playbackRate = rate; });
