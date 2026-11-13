@@ -17,7 +17,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;600;700;900&family=Pirata+One&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 /* Layout: a full-bleed gate hero, then alternating bands: the new single, a sideways catalogue rail,
    one Chateau banner, videos, the shop, the coven, the footer. One accent: blood red. */
@@ -29,7 +29,7 @@
   --ash: #a59b9e;            /* secondary text */
   --blood: #e0323c;          /* the one accent */
   --blood-deep: #8a0f18;
-  --display: "Pirata One", "UnifrakturCook", Georgia, serif;
+  --display: "Grenze Gotisch", "Pirata One", "UnifrakturCook", Georgia, serif;
   --body: "Figtree", "Segoe UI", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
   --gutter: max(16px, env(safe-area-inset-left, 0px));
@@ -63,7 +63,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .top { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; z-index: 50; transition: background .3s, border-color .3s; border-bottom: 1px solid transparent; }
 .top.solid { background: rgba(10,8,9,.86); backdrop-filter: blur(10px); border-color: var(--stone); }
 .top .wrap { display: flex; align-items: center; gap: 24px; padding-block: 14px; }
-.mark { font: 400 34px/1 var(--display); text-decoration: none; letter-spacing: .02em; }
+.mark { font: 600 34px/1 var(--display); text-decoration: none; letter-spacing: .02em; }
 .mark span { color: var(--blood); }
 .mark img { display: block; height: 30px; width: auto; filter: drop-shadow(0 1px 6px rgba(0,0,0,.5)); }
 .nav { display: flex; gap: 22px; margin-left: auto; }
@@ -100,7 +100,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .hero-row p { margin: 6px 0 0; max-width: 34ch; font-size: clamp(17px, 1.6vw, 20px); color: var(--bone); }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; }
 .callout { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 96px); right: max(var(--gutter-r), calc((100vw - var(--photo-w)) / 2 + 16px)); display: grid; gap: 4px; padding: 14px 18px; border-left: 2px solid var(--blood); background: rgba(10,8,9,.55); backdrop-filter: blur(8px); text-decoration: none; max-width: 260px; }
-.callout strong { font: 400 34px/1 var(--display); }
+.callout strong { font: 600 34px/1 var(--display); }
 .callout:hover strong { color: var(--blood); }
 .scroll-cue { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); width: 1px; height: 44px; background: linear-gradient(var(--bone), transparent); animation: cue 2.4s ease-in-out infinite; opacity: .6; }
 @keyframes cue { 0%, 100% { transform: translateX(-50%) scaleY(.4); transform-origin: top } 50% { transform: translateX(-50%) scaleY(1); transform-origin: top } }
@@ -111,13 +111,13 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* the fog curtain when you enter the Chateau */
 .curtain { position: fixed; inset: 0; z-index: 90; pointer-events: none; background: radial-gradient(circle at 50% 55%, rgba(30,24,26,.0) 0%, var(--night) 60%); opacity: 0; transition: opacity .9s ease; display: grid; place-items: center; }
 .curtain.on { opacity: 1; pointer-events: auto; background: var(--night); }
-.curtain span { font: 400 clamp(40px, 7vw, 84px) var(--display); color: var(--bone); opacity: 0; transition: opacity .6s .3s; }
+.curtain span { font: 600 clamp(40px, 7vw, 84px) var(--display); color: var(--bone); opacity: 0; transition: opacity .6s .3s; }
 .curtain.on span { opacity: 1; }
 
 /* ---------- marquee ---------- */
 .marquee { border-block: 1px solid var(--stone); background: var(--crypt); overflow: hidden; padding-block: 14px; }
 .marquee-track { display: flex; gap: 44px; width: max-content; animation: marquee 48s linear infinite; }
-.marquee span { font: 400 30px/1 var(--display); white-space: nowrap; color: var(--ash); }
+.marquee span { font: 600 30px/1 var(--display); white-space: nowrap; color: var(--ash); }
 .marquee span i { font-style: normal; color: var(--blood); margin-left: 44px; }
 @keyframes marquee { to { transform: translateX(-50%) } }
 
@@ -125,7 +125,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .band { padding-block: clamp(72px, 10vw, 140px); }
 .band.raised { background: var(--crypt); }
 .sec-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: clamp(28px, 4vw, 48px); }
-.stack { font: 400 clamp(64px, 11vw, 168px)/.82 var(--display); }
+.stack { font: 600 clamp(64px, 11vw, 168px)/.82 var(--display); }
 .stack em { font-style: normal; color: transparent; -webkit-text-stroke: 1.5px var(--bone); }
 .stack .r { color: var(--blood); }
 .lede { max-width: 52ch; color: var(--ash); margin: 0; }
@@ -134,7 +134,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .single { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
 .cover { position: relative; aspect-ratio: 1; max-width: 100%; border-radius: 4px; overflow: hidden; background: radial-gradient(circle at 50% 120%, rgba(255,80,40,.55), transparent 55%), linear-gradient(160deg, #1a1012, #070506); border: 1px solid var(--stone); display: grid; place-items: center; }
 .cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.single blockquote { margin: 24px 0; padding-left: 18px; border-left: 2px solid var(--blood); font: 400 clamp(26px, 3vw, 38px)/1.1 var(--display); color: var(--bone); white-space: pre-line; }
+.single blockquote { margin: 24px 0; padding-left: 18px; border-left: 2px solid var(--blood); font: 600 clamp(26px, 3vw, 38px)/1.1 var(--display); color: var(--bone); white-space: pre-line; }
 .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
 @media (max-width: 860px) { .single { grid-template-columns: 1fr; } }
 
@@ -213,7 +213,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @keyframes nightzoom { to { scale: 1.12 } }
 .night::before { content: ""; position: absolute; inset: 0; z-index: -3; background: radial-gradient(ellipse 55% 60% at 50% 45%, rgba(10,8,9,.15), rgba(10,8,9,.88) 75%), linear-gradient(180deg, var(--night) 0%, transparent 18%, transparent 80%, var(--night) 100%); }
 .night .fog { z-index: -2; opacity: .5; } .night .flash { z-index: -2; }
-.night .ghost { position: absolute; z-index: -2; left: 50%; top: 50%; transform: translate(-50%, -54%); font: 400 clamp(110px, 24vw, 380px)/.8 var(--display); color: transparent; -webkit-text-stroke: 1px rgba(239,232,232,.12); white-space: nowrap; pointer-events: none; letter-spacing: .02em; }
+.night .ghost { position: absolute; z-index: -2; left: 50%; top: 50%; transform: translate(-50%, -54%); font: 600 clamp(110px, 24vw, 380px)/.8 var(--display); color: transparent; -webkit-text-stroke: 1px rgba(239,232,232,.12); white-space: nowrap; pointer-events: none; letter-spacing: .02em; }
 .night .in { display: grid; justify-items: center; text-align: center; gap: 20px; max-width: 720px; padding-inline: 16px; }
 .night h2 { font-size: clamp(60px, 9vw, 132px); text-shadow: 0 0 50px rgba(0,0,0,.8); }
 .night h2 .r { color: var(--blood); text-shadow: 0 0 40px rgba(224,50,60,.55); }
@@ -236,7 +236,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .prod .row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
 .prod b { font: 600 15px var(--body); } .prod .pr { font: 500 13px var(--mono); color: var(--blood); white-space: nowrap; }
 .prod small { font: 500 11px var(--mono); letter-spacing: .1em; color: var(--ash); text-transform: uppercase; }
-.prod.more .ph { background: var(--blood); display: grid; place-items: center; } .prod.more .ph span { font: 400 clamp(40px, 4vw, 56px)/.9 var(--display); color: #fff; text-align: center; }
+.prod.more .ph { background: var(--blood); display: grid; place-items: center; } .prod.more .ph span { font: 600 clamp(40px, 4vw, 56px)/.9 var(--display); color: #fff; text-align: center; }
 
 /* the coven */
 .coven { text-align: center; display: grid; justify-items: center; gap: 22px; }
