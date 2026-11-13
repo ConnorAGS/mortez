@@ -65,6 +65,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .top .wrap { display: flex; align-items: center; gap: 24px; padding-block: 14px; }
 .mark { font: 400 34px/1 var(--display); text-decoration: none; letter-spacing: .02em; }
 .mark span { color: var(--blood); }
+.mark img { display: block; height: 30px; width: auto; filter: drop-shadow(0 1px 6px rgba(0,0,0,.5)); }
 .nav { display: flex; gap: 22px; margin-left: auto; }
 .nav a { font: 500 12px var(--mono); letter-spacing: .14em; text-transform: uppercase; text-decoration: none; color: var(--ash); transition: color .2s; }
 .nav a:hover { color: var(--bone); }
@@ -93,7 +94,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .flash { position: absolute; inset: 0; z-index: -1; background: #dfe6ff; opacity: 0; mix-blend-mode: overlay; pointer-events: none; animation: lightning 11s infinite; }
 @keyframes lightning { 0%, 86%, 100% { opacity: 0 } 87% { opacity: .55 } 88% { opacity: .05 } 89.5% { opacity: .7 } 92% { opacity: 0 } }
 .hero-inner { width: 100%; padding-bottom: clamp(28px, 5vw, 56px); }
-.hero-word { font: 400 clamp(72px, min(22vw, 35svh), 640px)/.78 var(--display); letter-spacing: -.01em; margin: 0 0 18px -.04em; text-shadow: 0 0 60px rgba(224,50,60,.35); }
+.hero-word { margin: 0 0 22px; line-height: 0; }
+.hero-word img { display: block; width: clamp(240px, min(62vw, 92svh), 1500px); height: auto; filter: drop-shadow(0 0 40px rgba(224,50,60,.35)) drop-shadow(0 4px 18px rgba(0,0,0,.6)); }
 .hero-row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 22px; }
 .hero-row p { margin: 6px 0 0; max-width: 34ch; font-size: clamp(17px, 1.6vw, 20px); color: var(--bone); }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -250,7 +252,8 @@ footer { border-top: 1px solid var(--stone); padding-block: 48px 34px; }
 .foot h4 { margin: 0 0 12px; font: 500 12px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ash); }
 .foot ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .foot a { text-decoration: none; color: var(--bone); } .foot a:hover { color: var(--blood); }
-.foot .big { font: 400 clamp(64px, 9vw, 120px)/.85 var(--display); }
+.foot .big { line-height: 0; }
+.foot .big img { width: clamp(200px, 28vw, 380px); height: auto; }
 .legal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--stone); font: 500 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ash); }
 @media (max-width: 760px) { .foot { grid-template-columns: 1fr 1fr; } .foot > div:first-child { grid-column: 1 / -1; } }
 
@@ -287,7 +290,7 @@ footer { border-top: 1px solid var(--stone); padding-block: 48px 34px; }
 <body>
 <header class="top" id="top">
   <div class="wrap">
-    <a class="mark" href="#home" aria-label="Mortez, home">Morte<span>z</span></a>
+    <a class="mark" href="#home" aria-label="Mortez, home"><img src="media/mortez-logo-white-sm.png" alt="Mortez" width="700" height="262"></a>
     <nav class="nav" id="nav" aria-label="Main">
       <a href="#music">Music</a><a href="#lyrics">Lyrics</a><a href="#videos">Videos</a><a href="shop/">Merch</a><a href="#coven">Join the Coven</a><a href="?contact" data-book>Contact</a>
     </nav>
@@ -301,7 +304,7 @@ footer { border-top: 1px solid var(--stone); padding-block: 48px 34px; }
     <div class="hero-img" role="img" aria-label="Rachele Royale and Brett Daniels of Mortez"></div>
         <a class="callout" href="#music"><span class="label"><b>New single</b> · out now</span><strong>CHAINZ</strong><span class="label">Listen and read the lyrics ↓</span></a>
     <div class="wrap hero-inner">
-      <h1 class="hero-word">Mortez</h1>
+      <h1 class="hero-word"><img src="media/mortez-logo-white.png" alt="Mortez" width="1399" height="524"></h1>
       <div class="hero-row">
         <div><span class="label">Gothic opera · darkwave · metal</span><p>The new single CHAINZ is out now everywhere you listen.</p></div>
         <div class="hero-ctas"><a class="btn btn-blood" href="#music">Listen to CHAINZ</a><a class="btn btn-ghost" href="#lyrics">Read the lyrics</a></div>
@@ -383,7 +386,7 @@ Lay me down in your chains</blockquote>
 <footer>
   <div class="wrap">
     <div class="foot">
-      <div><div class="big">Mortez</div><p class="lede" style="margin-top:14px">Gothic opera, darkwave and metal.<br>Booking and press: <button type="button" class="linkish" id="bookBtn" style="background:none;border:0;padding:0;color:var(--blood);font:inherit;cursor:pointer;text-decoration:underline">send a message</button></p></div>
+      <div><div class="big"><img src="media/mortez-logo-white.png" alt="Mortez" width="1399" height="524" loading="lazy"></div><p class="lede" style="margin-top:14px">Gothic opera, darkwave and metal.<br>Booking and press: <button type="button" class="linkish" id="bookBtn" style="background:none;border:0;padding:0;color:var(--blood);font:inherit;cursor:pointer;text-decoration:underline">send a message</button></p></div>
       <div><h4>Listen</h4><ul id="footListen"></ul></div>
       <div><h4>Follow</h4><ul id="footSocial"></ul></div>
     </div>
