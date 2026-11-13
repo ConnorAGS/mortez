@@ -5730,7 +5730,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const lr = r.leg ? r.leg.rotation.x : 0, sit = lr < -1 || (r.local && seated), sw = sit ? 0 : lr;
     const A = (n, rots) => { const bn = r.b[n]; if (!bn) return; const q = bn.quaternion.copy(r.rest.get(bn)), ax = r.ax.get(bn); rots.forEach(([k, a]) => { if (a) q.premultiply(rigQ.setFromAxisAngle(ax[k], a)); }); };
     const br = Math.sin(t / 900) * .02;
-    A("LeftArm", [["z", -.78], ["x", sit ? -.5 : sw * .9]]); A("RightArm", [["z", .78], ["x", sit ? -.5 : -sw * .9]]);
+    A("LeftArm", [["z", -.66], ["x", sit ? -.5 : sw * .9]]); A("RightArm", [["z", .66], ["x", sit ? -.5 : -sw * .9]]);
     A("LeftForeArm", [["x", sit ? -.5 : -.14], ["z", sit ? 0 : -.1]]); A("RightForeArm", [["x", sit ? -.5 : -.14], ["z", sit ? 0 : .1]]);
     A("LeftUpLeg", [["x", sit ? -1.5 : -sw * 1.2]]); A("RightUpLeg", [["x", sit ? -1.5 : sw * 1.2]]);
     A("LeftLeg", [["x", sit ? 1.5 : Math.max(0, sw) * 1.1 + .04]]); A("RightLeg", [["x", sit ? 1.5 : Math.max(0, -sw) * 1.1 + .04]]);
