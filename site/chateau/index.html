@@ -5697,7 +5697,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     reaper: { name: "Reaper", robe: 0x15131a, trim: 0x2c2832, eye: 0xff2a36, lady: false },
     lady: { name: "Lady Reaper", robe: 0x8e0f1a, trim: 0x3a0508, eye: 0xffd2a0, lady: true },
     // band-only: real 3D models, unlocked in the character screen with a private code
-    brett: { name: "Lord Mortez", robe: 0x15131a, trim: 0x2c2832, eye: 0xffd2a0, lady: false, glb: "../media/chars/lord-mortez.glb", height: 1.85, band: "Brett" }
+    brett: { name: "Lord Mortez", robe: 0x15131a, trim: 0x2c2832, eye: 0xffd2a0, lady: false, glb: "../media/chars/lord-mortez.glb", height: 2.1, band: "Brett" }
   };
   // codes are kept only as SHA-256 fingerprints, so the real code never appears in the page
   const BAND_CODES = { brett: "6d6fb5f93262bfd5833974db13c91145e257952aec6abac186e20816c4ee7834" };
@@ -5730,8 +5730,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const lr = r.leg ? r.leg.rotation.x : 0, sit = lr < -1 || (r.local && seated), sw = sit ? 0 : lr;
     const A = (n, rots) => { const bn = r.b[n]; if (!bn) return; const q = bn.quaternion.copy(r.rest.get(bn)), ax = r.ax.get(bn); rots.forEach(([k, a]) => { if (a) q.premultiply(rigQ.setFromAxisAngle(ax[k], a)); }); };
     const br = Math.sin(t / 900) * .02;
-    A("LeftArm", [["z", -1.12], ["x", sit ? -.5 : sw * .9]]); A("RightArm", [["z", 1.12], ["x", sit ? -.5 : -sw * .9]]);
-    A("LeftForeArm", [["x", sit ? -.5 : -.12]]); A("RightForeArm", [["x", sit ? -.5 : -.12]]);
+    A("LeftArm", [["z", -.95], ["x", sit ? -.5 : sw * .9]]); A("RightArm", [["z", .95], ["x", sit ? -.5 : -sw * .9]]);
+    A("LeftForeArm", [["x", sit ? -.5 : -.1], ["z", sit ? 0 : .12]]); A("RightForeArm", [["x", sit ? -.5 : -.1], ["z", sit ? 0 : -.12]]);
     A("LeftUpLeg", [["x", sit ? -1.5 : -sw * 1.2]]); A("RightUpLeg", [["x", sit ? -1.5 : sw * 1.2]]);
     A("LeftLeg", [["x", sit ? 1.5 : Math.max(0, sw) * 1.1 + .04]]); A("RightLeg", [["x", sit ? 1.5 : Math.max(0, -sw) * 1.1 + .04]]);
     A("Spine1", [["x", br]]);
