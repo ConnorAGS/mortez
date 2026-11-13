@@ -691,9 +691,9 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
 @media (max-width: 600px) {
   .pill-more { display: inline-block; }
   .actions { flex-wrap: nowrap; align-items: flex-start; position: relative; }
-  .actions > #contactBtn, .actions > #mpBtn, .actions > #menuBtn { display: none; }
-  body.acts-open .actions > #contactBtn:not([hidden]), body.acts-open .actions > #mpBtn:not([hidden]), body.acts-open .actions > #menuBtn:not([hidden]) { display: block; position: absolute; right: 0; min-width: 170px; text-align: left; background: #141012; backdrop-filter: none; padding: 10px 16px; font-size: 14px; }
-  body.acts-open .actions > #contactBtn { top: calc(100% + 8px); } body.acts-open .actions > #mpBtn { top: calc(100% + 50px); } body.acts-open .actions > #menuBtn { top: calc(100% + 92px); }
+  .actions > #contactBtn, .actions > #mpBtn, .actions > #menuBtn, .actions > #charBtn { display: none; }
+  body.acts-open .actions > #contactBtn:not([hidden]), body.acts-open .actions > #mpBtn:not([hidden]), body.acts-open .actions > #menuBtn:not([hidden]), body.acts-open .actions > #charBtn:not([hidden]) { display: block; position: absolute; right: 0; min-width: 170px; text-align: left; background: #141012; backdrop-filter: none; padding: 10px 16px; font-size: 14px; }
+  body.acts-open .actions > #contactBtn { top: calc(100% + 8px); } body.acts-open .actions > #mpBtn { top: calc(100% + 50px); } body.acts-open .actions > #menuBtn { top: calc(100% + 92px); } body.acts-open .actions > #charBtn { top: calc(100% + 134px); }
   body.acts-open .pill-more { background: #e0323c; border-color: #e0323c; }
   body.acts-open .hud { z-index: 40; }
   body.acts-open .mp-lg { display: inline; }
@@ -730,6 +730,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       <button class="pill" id="plazaBtn" type="button" hidden>← Outside</button>
       <button class="pill pill-exit" id="rideExit" type="button" hidden>✕ Exit ride</button>
       <button class="pill pill-mp" id="mpBtn" type="button" hidden>Play<span class="mp-lg"> together</span></button>
+      <button class="pill" id="charBtn" type="button" title="Change your character or name">Character</button>
       <button class="pill" id="menuBtn" type="button">Classic view</button>
       <button class="pill pill-more" id="moreBtn" type="button" aria-expanded="false" aria-label="More options">☰</button>
     </div>
@@ -5854,6 +5855,10 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     if (await tryBandCode(k, codeIn.value)) { codeBox.hidden = true; codeIn.value = ""; codeFor = null; charNote.textContent = CHARACTERS[k].name + " unlocked on this device."; syncBand(); pickChar(k); }
     else { charNote.textContent = "That code isn't right."; codeIn.select(); }
   }
+  document.getElementById("charBtn").addEventListener("click", e => { e.stopPropagation(); document.body.classList.remove("acts-open"); openChars(); });
+  // #character in the address opens this screen straight away (handy for the band's first unlock)
+  const charHash = () => { if (/^#(character|unlock)$/i.test(location.hash)) { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} setTimeout(openChars, 400); } };
+  addEventListener("hashchange", charHash); setTimeout(charHash, 1500);
   charEl.querySelectorAll("[data-char]").forEach(b => b.addEventListener("click", () => {
     const k = b.dataset.char;
     if (CHARACTERS[k] && CHARACTERS[k].band && !bandUnlocked(k)) { codeFor = k; codeBox.hidden = false; charNote.textContent = CHARACTERS[k].name + " is for " + CHARACTERS[k].band + " only. Enter the private code."; setTimeout(() => codeIn.focus(), 30); return; }
