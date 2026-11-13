@@ -397,6 +397,19 @@ a.cl-card { text-decoration: none; }
 .ch-pick b { font: 600 22px var(--display); }
 .ch-pick small { font: 500 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .ch-code { display: flex; gap: 8px; }
+.photo { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: rgba(5,3,4,.72); animation: phIn .35s ease; }
+@keyframes phIn { from { opacity: 0; } to { opacity: 1; } }
+.ph-card { width: min(420px, 100%); max-height: calc(100svh - 32px); overflow-y: auto; background: #f3ece0; color: #1a1214; border-radius: 6px; padding: 14px 14px 16px; box-shadow: 0 30px 80px rgba(0,0,0,.7); transform: rotate(-1.5deg); }
+.ph-card img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #111; border-radius: 2px; }
+.ph-cap { margin: 10px 2px 8px; font: 700 22px var(--display); text-align: center; color: #2a0a0e; }
+.ph-code { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1.5px dashed #8a1a22; border-radius: 8px; background: #fff8ee; }
+.ph-code span { font: 600 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: #8a1a22; }
+.ph-code b { flex: 1; font: 700 18px var(--mono); letter-spacing: .08em; }
+.ph-code button, .ph-btn { border: 0; border-radius: 999px; background: #c8202a; color: #fff; font: 600 13px var(--body); padding: 8px 14px; cursor: pointer; text-decoration: none; text-align: center; }
+.ph-note { margin: 8px 2px 12px; font: 13px/1.45 var(--body); color: #4a3a3c; }
+.ph-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.ph-btns .ph-btn { flex: 1 1 auto; }
+.ph-btn.ghost { background: none; color: #2a0a0e; border: 1px solid #b8a898; }
 .logo-h { display: block; height: .92em; width: auto; max-width: 100%; filter: drop-shadow(0 2px 12px rgba(0,0,0,.6)); }
 .ch-code input { flex: 1; min-width: 0; background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); padding: 10px 12px; font: 15px var(--body); }
 .ch-code button { border: 0; border-radius: 10px; background: #e0323c; color: #fff; font: 600 14px var(--body); padding: 0 16px; cursor: pointer; }
@@ -952,6 +965,15 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
   <div class="cl-wrap" id="classicBody"></div>
 </div>
 
+<div class="photo" id="photo" hidden role="dialog" aria-modal="true" aria-labelledby="phTitle">
+  <div class="ph-card">
+    <img id="phImg" alt="Your photo on the throne">
+    <p class="ph-cap" id="phTitle">On the throne</p>
+    <div class="ph-code"><span>Your merch code</span><b id="phCode"></b><button type="button" id="phCopy">Copy</button></div>
+    <p class="ph-note">A reward for sitting where few have sat. Use it at checkout in the Mortez shop.</p>
+    <div class="ph-btns"><a id="phSave" class="ph-btn" download="mortez-throne.jpg">Save photo</a><a class="ph-btn" href="../shop/index.html">Shop merch</a><button type="button" class="ph-btn ghost" id="phClose">Close</button></div>
+  </div>
+</div>
 <div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="wcTitle">
   <div class="wc-card">
     <span class="wc-k">Welcome to</span>
@@ -4168,10 +4190,35 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       }
       colliders.push({ x: O.x + T2.x, z: O.z - D + 1.4, r: 1.1 });
       const rot = th.rotation.y, seat = LL(T2.x + Math.sin(rot) * .1, 0, -D + 1.6 + Math.cos(rot) * .1);
-      inter.push({ spot: LL(T2.x + Math.sin(rot) * 2.4, 0, -D + 1.6 + Math.cos(rot) * 2.4), obj: th, label: "Sit on " + T2.who + "'s throne", act: () => { SFX.init(); SFX.whisper && SFX.whisper(1); loungeSit(seat, rot, LL(T2.x * 2, 0, -D + 9), { y: 1.07, kicker: "Take a seat", title: T2.title, text: T2.text + " Move to stand up." }); } });
+      inter.push({ spot: LL(T2.x + Math.sin(rot) * 2.4, 0, -D + 1.6 + Math.cos(rot) * 2.4), obj: th, label: "Sit on " + T2.who + "'s throne", act: () => { SFX.init(); SFX.whisper && SFX.whisper(1); loungeSit(seat, rot, LL(T2.x * 2, 0, -D + 9), { y: 1.07, kicker: "Take a seat", title: T2.title, text: T2.text + " Move to stand up." }); throneSnap(T2.title); } });
     });
 
-    // ---- the reliquary: the six relics you found, turning under a glass dome
+    // ---- a throne photo: sit, hold still, a flash, and a keepsake photo with a merch code
+  // THRONE_CODE: set this to the real discount code once the shop's checkout is live (it's shown, not checked, here)
+  const THRONE_CODE = "THRONE15";
+  let snapT = 0;
+  function throneSnap(title) {
+    clearTimeout(snapT);
+    snapT = setTimeout(() => {
+      if (!lounge) return;   // they stood up before the flash
+      const fx = document.getElementById("scareFx");
+      try {
+        renderer.render(scene, camera);
+        const url = renderer.domElement.toDataURL("image/jpeg", .9);
+        document.getElementById("phImg").src = url; document.getElementById("phSave").href = url;
+      } catch (e) { return; }
+      if (fx) { fx.hidden = false; fx.style.background = "#fff"; fx.style.opacity = .9; setTimeout(() => { fx.style.transition = "opacity .6s"; fx.style.opacity = 0; setTimeout(() => { fx.style.transition = ""; if (!cur || cur.id !== "haunted") fx.hidden = true; }, 650); }, 60); }
+      SFX.page && SFX.page();
+      document.getElementById("phTitle").textContent = title;
+      document.getElementById("phCode").textContent = THRONE_CODE;
+      setTimeout(() => { document.getElementById("photo").hidden = false; document.getElementById("phClose").focus(); }, 700);
+      try { localStorage.setItem("mortez.throneCode", THRONE_CODE); } catch (e) {}
+    }, 2200);
+  }
+  document.getElementById("phClose").addEventListener("click", () => { document.getElementById("photo").hidden = true; canvas.focus(); });
+  document.getElementById("phCopy").addEventListener("click", e => { const b = e.currentTarget; const done = () => { b.textContent = "Copied"; setTimeout(() => b.textContent = "Copy", 1500); }; try { navigator.clipboard.writeText(THRONE_CODE).then(done, () => {}); } catch (err) {} });
+  ["keydown", "pointerdown"].forEach(ev => document.getElementById("photo").addEventListener(ev, e => e.stopPropagation()));
+  // ---- the reliquary: the six relics you found, turning under a glass dome
     const ped = new THREE.Group(); ped.position.set(0, 0, -D / 2 + 1); root.add(ped);
     const base = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.45, 1, 8), std(0x14100e)); base.position.y = .5; ped.add(base);
     const top = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.35, .08, 24), gold); top.position.y = 1.04; ped.add(top);
@@ -4777,8 +4824,8 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     // the ten scenes, laid out to match sheet A-4 of the blueprint (x across, z away from the foyer)
     const plaster = std(0x4a4648), dmk = (c) => { const t = damaskTexture(); t.repeat.set(4, 1.4); return new THREE.MeshStandardMaterial({ map: t, color: c, roughness: .9 }); };
     const ROOMS_H = [
-      { n: 1, t: "Hanging Sheets Hall", x0: -4, x1: 4, z0: -10, z1: -2, mat: plaster },
-      { n: 2, t: "Portrait Corridor", x0: -24, x1: -4, z0: -8, z1: -2, mat: dmk(0xffffff) },
+      { n: 1, t: "The Entrance Hall", x0: -4, x1: 4, z0: -10, z1: -2, mat: plaster },
+      { n: 2, t: "The Sheet Corridor", x0: -24, x1: -4, z0: -8, z1: -2, mat: dmk(0xffffff) },
       { n: 3, t: "The Piano Parlor", x0: -24, x1: -12, z0: -22, z1: -8, mat: dmk(0x6a9a7a) },
       { n: 4, t: "The Nursery", x0: -24, x1: -12, z0: -36, z1: -22, mat: dmk(0xc8a0a8) },
       { n: 5, t: "The Dining Room", x0: -12, x1: 14, z0: -36, z1: -26, mat: std(0x2a1810) },
@@ -4819,7 +4866,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     // 1 · sheets
     S.sheets = [];
     const sheetM = new THREE.MeshStandardMaterial({ color: 0xd8d4cc, roughness: 1, side: THREE.DoubleSide, transparent: true, opacity: .92 });
-    for (let i = 0; i < 16; i++) { const g = new THREE.Group(); g.position.set(-3.2 + (i % 4) * 2.1 + (Math.random() - .5) * .6, CH - .05, -3.3 - Math.floor(i / 4) * 1.7); root.add(g); const geo = new THREE.PlaneGeometry(1.5, 3.2, 1, 6); geo.translate(0, -1.6, 0); const p = geo.attributes.position; for (let v = 0; v < p.count; v++) p.setZ(v, Math.sin(p.getY(v) * 2 + i) * .08); geo.computeVertexNormals(); const m = new THREE.Mesh(geo, sheetM); m.rotation.y = (Math.random() - .5) * .6; g.add(m); S.sheets.push({ g, ph: Math.random() * 6, push: 0 }); }
+    for (let i = 0; i < 14; i++) { const g = new THREE.Group(); g.position.set(-21.6 + (i % 7) * 2.5 + (i < 7 ? 0 : 1.25) + (Math.random() - .5) * .4, CH - .05, i < 7 ? -3.7 : -6.2); root.add(g); const geo = new THREE.PlaneGeometry(1.5, 3.2, 1, 6); geo.translate(0, -1.6, 0); const p = geo.attributes.position; for (let v = 0; v < p.count; v++) p.setZ(v, Math.sin(p.getY(v) * 2 + i) * .08); geo.computeVertexNormals(); const m = new THREE.Mesh(geo, sheetM); m.rotation.y = (Math.random() - .5) * .6; g.add(m); S.sheets.push({ g, ph: Math.random() * 6, push: 0 }); }
     // 2 · portraits that turn into skulls
     S.portraits = [];
     const skullT = (() => { const [c, g] = cv(256, 340); g.fillStyle = "#0a0606"; g.fillRect(0, 0, 256, 340); g.fillStyle = "#d8cfb8"; g.beginPath(); g.arc(128, 140, 64, 0, 7); g.fill(); g.fillRect(96, 180, 64, 50); g.fillStyle = "#0a0606"; [-1, 1].forEach(k => { g.beginPath(); g.arc(128 + k * 24, 140, 18, 0, 7); g.fill(); }); g.fillRect(122, 168, 12, 18); for (let i = 0; i < 5; i++) g.fillRect(100 + i * 12, 212, 6, 16); g.fillStyle = "#ff2030"; [-1, 1].forEach(k => { g.beginPath(); g.arc(128 + k * 24, 142, 5, 0, 7); g.fill(); }); return tex(c); })();
@@ -4898,6 +4945,27 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const trapG = new THREE.Group(); trapG.position.set(TRAP.x - .9, .01, TRAP.z); root.add(trapG);
     const trap = box(1.8, .06, 1.8, std(0x2a1a12), .9, 0, 0, trapG); trap.castShadow = false;
     const trapGlow = new THREE.Mesh(new THREE.RingGeometry(.9, 1.15, 4), new THREE.MeshBasicMaterial({ color: 0xff2030, transparent: true, opacity: 0 })); trapGlow.rotation.x = -Math.PI / 2; trapGlow.rotation.z = Math.PI / 4; trapGlow.position.set(TRAP.x, .03, TRAP.z); root.add(trapGlow);
+
+    // ---- dressing the house: candle sconces on the walls, cobwebs in the corners, fog on the floor, writing on the walls
+    const glowT = (() => { const [c, g] = cv(64, 64), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, "rgba(255,190,110,.9)"); gr.addColorStop(.35, "rgba(255,140,60,.35)"); gr.addColorStop(1, "rgba(255,120,40,0)"); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return tex(c); })();
+    const iron = std(0x1a1614, { metalness: .6, roughness: .5 });
+    S.sconces = [];
+    const sconce = (x, z, nx, nz) => { const g = new THREE.Group(); g.position.set(x + nx * .14, 2.25, z + nz * .14); g.rotation.y = Math.atan2(nx, nz); root.add(g); box(.16, .3, .06, iron, 0, 0, -.06, g).castShadow = false; box(.05, .05, .22, iron, 0, -.08, .04, g).castShadow = false; box(.16, .04, .16, iron, 0, -.1, .16, g).castShadow = false; const f = candle(g, 0, -.08, .16); const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowT, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); gl.position.set(0, .3, .2); gl.scale.setScalar(.9); g.add(gl); S.sconces.push({ f, gl, ph: Math.random() * 6 }); };
+    const nearGap = (ax, at, c) => GAPS.some(gp => (ax === "z" ? gp.z === at : gp.x === at) && Math.abs(gp.c - c) < 1.9);
+    ROOMS_H.forEach(r => { if (r.n === 7 || r.n === 9) return;
+      const wx = r.x1 - r.x0, wz = r.z1 - r.z0;
+      if (wx >= wz) [[r.z0 + .1, 1], [r.z1 - .1, -1]].forEach(([z, nz], k) => { for (let x = r.x0 + 2 + k * 1.5; x < r.x1 - 1.5; x += 4.2) if (!nearGap("z", nz > 0 ? r.z0 : r.z1, x)) sconce(x, z, 0, nz); });
+      else [[r.x0 + .1, 1], [r.x1 - .1, -1]].forEach(([x, nx], k) => { for (let z = r.z0 + 2 + k * 1.5; z < r.z1 - 1.5; z += 4.2) if (!nearGap("x", nx > 0 ? r.x0 : r.x1, z)) sconce(x, z, nx, 0); });
+    });
+    ROOMS_H.forEach((r, i) => [[r.x0, r.z0, 1, 1], [r.x1, r.z1, -1, -1], [r.x0, r.z1, 1, -1], [r.x1, r.z0, -1, 1]].slice(0, i % 2 ? 2 : 3).forEach(([x, z, sx, sz]) => { const w = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 1.7), webM); w.position.set(x + sx * .5, CH - .55, z + sz * .5); w.rotation.y = Math.atan2(sx, sz); root.add(w); }));
+    S.floorFog = [];
+    [1, 2, 4, 5, 10].forEach(n => { const r = ROOMS_H[n - 1]; for (let k = 0; k < 4; k++) { const p = new THREE.Sprite(new THREE.SpriteMaterial({ map: puff, transparent: true, opacity: .22, depthWrite: false, color: 0x8a8090 })); p.position.set(r.x0 + 1 + Math.random() * (r.x1 - r.x0 - 2), .35, r.z0 + 1 + Math.random() * (r.z1 - r.z0 - 2)); p.scale.set(4.5, 1.3, 1); root.add(p); S.floorFog.push({ p, ph: Math.random() * 6, x: p.position.x }); } });
+    const scrawl = (text, x, z, ry, w) => { const [c, g] = cv(1024, 256); g.textAlign = "center"; g.textBaseline = "middle"; g.font = `900 150px ${DISP}`; g.fillStyle = "rgba(140,8,14,.92)"; g.fillText(text, 512, 110); for (let i = 0; i < 26; i++) { const dx = 120 + Math.random() * 780, l = 20 + Math.random() * 90; g.fillRect(dx, 150, 4 + Math.random() * 5, l); g.beginPath(); g.arc(dx + 3, 150 + l, 5, 0, 7); g.fill(); } const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w / 4), new THREE.MeshBasicMaterial({ map: tex(c), transparent: true, depthWrite: false, opacity: .9 })); m.position.set(x, 2.9, z); m.rotation.y = ry; root.add(m); };
+    scrawl("KEEP WALKING", 0, -9.85, 0, 4.2); scrawl("HE SEES YOU", -23.85, -29, Math.PI / 2, 4.5); scrawl("DON'T LOOK BACK", 9.85, -9.5, -Math.PI / 2, 5); scrawl("GET OUT", 23.85, -12, -Math.PI / 2, 4);
+    // the entrance hall: a grandfather clock stopped at midnight, a dead chandelier, a coat rack with an old cloak
+    const clock = new THREE.Group(); clock.position.set(-3.35, 0, -8.6); clock.rotation.y = Math.PI / 2; root.add(clock); box(.7, 2.4, .45, std(0x2a160c), 0, 1.2, 0, clock); const face = new THREE.Mesh(new THREE.CircleGeometry(.24, 20), std(0xe8dcc0)); face.position.set(0, 1.95, .23); clock.add(face); [[0, .09], [.4, .14]].forEach(([a, l]) => { const hnd = box(.02, l, .01, std(0x0a0a0a), Math.sin(a) * l / 2, 1.95 + Math.cos(a) * l / 2, .24, clock); hnd.rotation.z = -a; hnd.castShadow = false; }); S.pend = box(.04, .7, .02, std(0xc9a14a, { metalness: .7 }), 0, .95, .23, clock); colliders.push({ x: O.x - 3.35, z: O.z - 8.6, r: .55, y: 0 });
+    const chand = new THREE.Group(); chand.position.set(0, CH - .6, -6); root.add(chand); box(.03, .6, .03, iron, 0, .3, 0, chand).castShadow = false; const ring = new THREE.Mesh(new THREE.TorusGeometry(.7, .03, 6, 24), iron); ring.rotation.x = Math.PI / 2; chand.add(ring); for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; candle(chand, Math.cos(a) * .7, 0, Math.sin(a) * .7).visible = k % 3 === 0; } S.chand = chand;
+    const rack = new THREE.Group(); rack.position.set(3.2, 0, -3); root.add(rack); box(.06, 1.9, .06, std(0x2a160c), 0, .95, 0, rack); const cloak = new THREE.Mesh(new THREE.ConeGeometry(.35, 1.3, 10, 1, true), std(0x120e10, { side: THREE.DoubleSide })); cloak.position.set(0, 1.15, .12); rack.add(cloak); S.cloak = cloak;
 
     // ---- walking: inside any scene, or through an opening
     const shrink = .45;
@@ -4982,7 +5050,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
         if (st.falling) {
           const k = (t - st.falling) / 1000; trapG.rotation.z = -Math.min(1.5, k * 4);
           avatar.position.y = .18 - Math.max(0, k - .2) * Math.max(0, k - .2) * 9;
-          if (k > 1.2 && !st.ended) { st.ended = true; travel("mine"); }
+          if (k > 1.2 && !st.ended) { st.ended = true; travel("foyer"); setTimeout(() => showToast("You made it out", "The Haunted Hall", "Back in the foyer, in one piece. Go again if you dare.", ""), 1600); }
           return;
         }
         triggerScenes(t);
@@ -5012,6 +5080,9 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
           if (!soft() && Math.sin(t / 230) > .93) flash("255,255,255", .22);
         }
         S.streamers.forEach(s2 => { s2.m.rotation.y += Math.sin(t / 800 + s2.ph) * .004; });
+        S.sconces.forEach(o => { const f = .8 + Math.sin(t / 60 + o.ph) * .12 + Math.sin(t / 23 + o.ph * 2) * .08; o.f.scale.y = 1.8 * f; o.gl.material.opacity = .55 * f; });
+        S.floorFog.forEach(o => { o.p.position.x = o.x + Math.sin(t / 4000 + o.ph) * .8; o.p.material.opacity = .18 + Math.sin(t / 1700 + o.ph) * .06; });
+        S.pend.rotation.z = Math.sin(t / 900) * .12; S.chand.rotation.z = Math.sin(t / 2100) * .03; S.cloak.rotation.y = Math.sin(t / 1800) * .15;
         S.fog.forEach((p, i) => p.material.opacity = .28 + Math.sin(t / 1500 + i) * .08);
         if (S.lunge) { const k = (t - S.lunge) / 1000; const tx = Math.min(1, k * 4), back = Math.max(0, Math.min(1, (k - .9) * 1.5)); S.reaper.position.x = -10.6 + (ax - 1.2 - -10.6) * tx * (1 - back); S.reaper.position.z = -13 + (az - -13) * tx * (1 - back); if (k > 1.6) S.reaper.visible = false; trapGlow.material.opacity = k > 1.2 ? .5 + Math.sin(t / 150) * .3 : 0; if (k > 1.2 && k < 1.3) hSub.textContent = "The floor gives way. Step onto the trapdoor."; }
         // screen effects
@@ -5510,7 +5581,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     }
     // ---- tap-to-time: press T on each line as it's sung, then Y to copy the timings (for the band to lock them exactly)
     // only for setting the timings: open the ride with ?timing (e.g. /chateau/?room=station&timing). Visitors never see it.
-    const TIMING_TOOL = new URLSearchParams(location.search).has("timing");
+    const TIMING_TOOL = new URLSearchParams(location.search).has("timing") || /^#timing$/i.test(location.hash);
     const tap = { on: false, i: 0, times: [] };
     addEventListener("keydown", e => {
       if (!cur || cur.id !== "mine" || !TIMING_TOOL) return;
@@ -6593,7 +6664,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       const tagM = new THREE.SpriteMaterial({ transparent: true, depthWrite: false }), tag = new THREE.Sprite(tagM); tag.position.y = 2.5; tag.scale.set(1.15, .29, 1); g.add(tag);
       const bubM = new THREE.SpriteMaterial({ transparent: true, depthWrite: false, depthTest: false }), bub = new THREE.Sprite(bubM); bub.position.y = 3.25; bub.scale.set(2.6, .81, 1); bub.visible = false; bub.renderOrder = 980; g.add(bub);
       const sh = new THREE.Mesh(new THREE.CircleGeometry(.5, 20), new THREE.MeshBasicMaterial({ color: 0, transparent: true, opacity: .3 })); sh.rotation.x = -Math.PI / 2; sh.position.y = .01 - .18; g.add(sh);
-      o = { id, g, l1, l2, tagM, bub, bubM, model: null, kind: "", name: "", sp: "", tp: new THREE.Vector3(), tr: 0, m: 0, walk: 0, seen: 0, swing: 0, bubUntil: 0, snap: true };
+      o = { id, g, l1, l2, tagM, bub, bubM, model: null, kind: "", name: "", sp: "", tp: new THREE.Vector3(), tr: 0, m: 0, walk: 0, seen: 0, born: performance.now(), swing: 0, bubUntil: 0, snap: true };
       others.set(id, o); return o;
     }
     function setLook(o, name, kind) {
@@ -6667,7 +6738,11 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     // a speech bubble over a reaper: an emote or a preset phrase
     function bubble(o, text, big) { if (!o) return; o.bubM.map && o.bubM.map.dispose(); o.bubM.map = bubbleTex(text, big ? 256 : 512); o.bubM.needsUpdate = true; o.bub.scale.set(big ? 1.3 : 2.6, .81, 1); o.bubUntil = performance.now() + (big ? 3500 : 5000); }
     const myState = () => ({ k: "st", id: myId, sp: cur ? cur.id : "", x: +avatar.position.x.toFixed(2), y: +avatar.position.y.toFixed(2), z: +avatar.position.z.toFixed(2), r: +avatar.rotation.y.toFixed(3), v: avatar.visible ? 1 : 0, b: BAT.on ? 1 : 0, rt: cur && cur.ride ? +cur.rt.toFixed(2) : 0, seat: RIDE_SEAT });
-    const myHi = () => Object.assign({ k: "hi", id: myId }, me());
+    // one id per browser tab that survives reconnects, so the live world can retire this tab's old connection instead of showing a frozen twin
+    const SID = (() => { try { let v = sessionStorage.getItem("mortez.sid"); if (!v) { v = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); sessionStorage.setItem("mortez.sid", v); } return v; } catch (e) { return Math.random().toString(36).slice(2, 14); } })();
+    const recentLeft = new Map();
+    let lastBeat = 0;
+    const myHi = () => Object.assign({ k: "hi", id: myId, sid: SID }, me());
     function channelOpen(p) {
       p.open = true;
       if (isHost) {
@@ -6682,7 +6757,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       if (isHost) { m.id = p.id; if (m.k === "chat") m.t = clean(m.t); toAll(m, p.id); }   // the host relays, and stamps who it came from
       if (m.k === "full") { fail("That session is full (8 reapers)."); return; }
       if (!m.id || m.id === myId) return;
-      if (m.k === "hi") { const fresh = !others.has(m.id); const o = remote(m.id); setLook(o, clean(m.name).slice(0, 18) || "Reaper", CHARACTERS[m.kind] ? m.kind : "reaper"); if (fresh) { say(o.name + " joined.", true); showToast("Play together", o.name + " joined", "They're in the Chateau with you. Press Enter to chat.", ""); } roster(); }
+      if (m.k === "hi") { const fresh = !others.has(m.id); const o = remote(m.id); setLook(o, clean(m.name).slice(0, 18) || "Reaper", CHARACTERS[m.kind] ? m.kind : "reaper"); const back = performance.now() - (recentLeft.get(o.name) || -1e9) < 20000; if (fresh && !back) { say(o.name + " joined.", true); showToast("Play together", o.name + " joined", "They're in the Chateau with you. Press Enter to chat.", ""); } roster(); }
       else if (m.k === "st") { const o = remote(m.id); if (o.sp !== m.sp) { o.snap = true; o.sp = String(m.sp || ""); roster(); } o.tp.set(+m.x || 0, +m.y || 0, +m.z || 0); o.tr = +m.r || 0; o.vis = !!m.v; o.bat = !!m.b; o.rt = +m.rt || 0; o.seat = Math.max(0, Math.min(TRAIN_CARS - 1, m.seat | 0)); o.seen = performance.now(); }
       else if (m.k === "chat") { const o = others.get(m.id); const t = clean(m.t); if (!o || !t || muted.has(m.id) || (!FLAGS.liveChat && state !== "live")) return; say([o.name, t, m.id]); o.bubM.map && o.bubM.map.dispose(); o.bubM.map = bubbleTex(t); o.bubM.needsUpdate = true; o.bubUntil = performance.now() + 6000; }
       else if (m.k === "sw") { const o = others.get(m.id); if (o) o.swing = 1; }
@@ -6691,7 +6766,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       else if (m.k === "cin") { const i = m.i | 0, at = m.at ? m.at - skew : Date.now(); cinState = { i, at: at + skew }; cinemaRemote(i, at); }
       else if (m.k === "fx") { const f = FX[m.n]; if (typeof f === "function" && cur && cur.id === m.sp) try { f(m.d && typeof m.d === "object" ? m.d : {}, others.get(m.id)); } catch (e) {} }
       else if (m.k === "pn") { const n = Math.round(+m.n); if (n >= 36 && n <= 96 && cur && cur.id === "foyer" && PIANO.foyer) { PIANO.hush = performance.now() + 5000; PIANO.foyer.playNote(n, true); } }
-      else if (m.k === "bye") { const o = others.get(m.id); if (o) { say(o.name + " left.", true); dropRemote(m.id); roster(); } }
+      else if (m.k === "bye") { const o = others.get(m.id); if (o) { const n = o.name; dropRemote(m.id); roster(); recentLeft.set(n, performance.now()); setTimeout(() => { if (recentLeft.has(n) && ![...others.values()].some(x => x.name === n)) say(n + " left.", true); }, 3000); } }
     }
     function dropPeer(id) {
       const p = peers.get(id); if (!p) return; peers.delete(id); try { p.pc.close(); } catch (e) {}
@@ -6780,8 +6855,9 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
         wheel.addEventListener("keydown", e => { if (e.code === "Escape") { setW(false); canvas.focus(); } }); const j = q.get("join"); if (j) { const go = () => { if (charOpen) return setTimeout(go, 700); openPanel(); $("mpCode").value = j.toUpperCase(); join(j); }; setTimeout(go, 900); } },
       tick(now, dt) {
         if (!on()) return;
-        if (now - lastSend > (state === "live" ? 100 : 200)) { lastSend = now; const st = myState(), sig = [st.sp, st.x, st.y, st.z, st.r, st.v, st.b].join(); if (sig !== lastSig || now % 1000 < 110) { lastSig = sig; toAll(st); } const hi = JSON.stringify(me()); if (hi !== meSent) { meSent = hi; toAll(myHi()); } }
+        if (now - lastSend > (state === "live" ? 100 : 200)) { lastSend = now; const st = myState(), sig = [st.sp, st.x, st.y, st.z, st.r, st.v, st.b].join(); if (sig !== lastSig || now - lastBeat > 4000) { lastSig = sig; lastBeat = now; toAll(st); } const hi = JSON.stringify(me()); if (hi !== meSent) { meSent = hi; toAll(myHi()); } }
         others.forEach(o => {
+          if (state === "off" && now - Math.max(o.seen, o.born) > 45000) { dropRemote(o.id); roster(); return; }   // gone quiet: they've left
           // on the ride: friends whose song is in step with yours sit in their car on your train
           if (cur && cur.id === "mine") {
             const ok = o.sp === "mine" && !!o.model && now - o.seen < 20000 && Math.abs(o.rt - cur.rt) < 4; o.g.visible = ok; o.snap = true; if (!ok) return;

@@ -7,6 +7,8 @@ const KINDS = ["reaper", "lady", "brett", "rachele"];
 const EMOTES = ["🔥", "🖤", "💀", "🦇", "👏", "🤘"];
 const PHRASES = ["Love this song", "Sum fortis", "Join the coven", "Where's the key?", "Found a relic!", "This way"];
 const ROOMS = /^[a-z]{2,12}$/;
+const SID = /^[a-z0-9]{8,24}$/;
+const STALE = 45000;                               // a reaper we haven't heard from in this long has gone (phone locked, tab closed, network dropped)
 
 function allowed(origin, env) {
   if (!origin) return false;
@@ -48,7 +50,8 @@ export class World extends DurableObject {
     }
     const id = "p" + crypto.randomUUID().replace(/-/g, "").slice(0, 10);
     this.ctx.acceptWebSocket(server);
-    server.serializeAttachment({ id, name: "", kind: "", st: null, w: 0, n: 0 });
+    server.serializeAttachment({ id, name: "", kind: "", st: null, w: 0, n: 0, t: Date.now(), sid: "" });
+    this.sweep();
     const cin = await this.ctx.storage.get("cin");
     server.send(JSON.stringify({ k: "you", id, now: Date.now(), cin: cin || null, here: this.ctx.getWebSockets().length }));
     for (const ws of this.ctx.getWebSockets()) {
@@ -72,12 +75,18 @@ export class World extends DurableObject {
     if (typeof raw !== "string" || raw.length > 1500) return;
     const a = ws.deserializeAttachment(); if (!a) return;
     const t = Date.now(); if (t - a.w > 1000) { a.w = t; a.n = 0; } if (++a.n > 30) return;   // no more than 30 messages a second
+    if (t - a.t > 5000) { a.t = t; ws.serializeAttachment(a); this.sweep(); }   // note we heard from them; now and then clear out the silent ones
     let m; try { m = JSON.parse(raw); } catch (e) { return; }
     if (!m || typeof m.k !== "string") return;
     const sp = a.st ? a.st.sp : "", here = b => b.st && b.st.sp === sp;
     switch (m.k) {
       case "hi": {
         a.name = clean(m.name) || "Reaper"; a.kind = KINDS.includes(m.kind) ? m.kind : "reaper";
+        // the same browser tab reconnecting (after a dropped network or a locked phone): close its old connection so it doesn't linger as a frozen twin
+        if (typeof m.sid === "string" && SID.test(m.sid)) {
+          a.sid = m.sid;
+          for (const o of this.ctx.getWebSockets()) { if (o === ws) continue; const b = o.deserializeAttachment(); if (b && b.sid === a.sid) this.drop(o); }
+        }
         ws.serializeAttachment(a); this.send({ k: "hi", id: a.id, name: a.name, kind: a.kind }, null, ws); return;
       }
       case "st": {
@@ -105,6 +114,11 @@ export class World extends DurableObject {
     }
   }
 
+  drop(ws) { this.bye(ws); try { ws.serializeAttachment(null); } catch (e) {} try { ws.close(4000, "replaced"); } catch (e) {} }
+  sweep() {
+    const t = Date.now();
+    for (const ws of this.ctx.getWebSockets()) { const a = ws.deserializeAttachment(); if (a && a.t && t - a.t > STALE) this.drop(ws); }
+  }
   bye(ws) { const a = ws.deserializeAttachment(); if (a && a.id) this.send({ k: "bye", id: a.id }, null, ws); }
   async webSocketClose(ws, code) { this.bye(ws); try { ws.close(code === 1005 ? 1000 : code, "bye"); } catch (e) {} }
   async webSocketError(ws) { this.bye(ws); }
