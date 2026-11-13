@@ -396,6 +396,9 @@ a.cl-card { text-decoration: none; }
 .ch-pick { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; text-align: left; background: var(--glass); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; cursor: pointer; min-width: 0; }
 .ch-pick b { font: 400 22px var(--display); }
 .ch-pick small { font: 500 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ch-code { display: flex; gap: 8px; }
+.ch-code input { flex: 1; min-width: 0; background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); padding: 10px 12px; font: 15px var(--body); }
+.ch-code button { border: 0; border-radius: 10px; background: #e0323c; color: #fff; font: 600 14px var(--body); padding: 0 16px; cursor: pointer; }
 .ch-pick[aria-pressed="true"] { border-color: var(--neon); box-shadow: 0 0 22px rgba(224,50,60,.35); }
 .ch-pick.locked { opacity: .55; }
 .ch-pick:focus-visible { outline: 2px solid var(--neon); outline-offset: 2px; }
@@ -984,10 +987,11 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     <div class="ch-picks" role="group" aria-label="Character">
       <button type="button" class="ch-pick" data-char="reaper" aria-pressed="true"><b>Reaper</b><small>Black robe</small></button>
       <button type="button" class="ch-pick" data-char="lady" aria-pressed="false"><b>Lady Reaper</b><small>Red robe</small></button>
-      <button type="button" class="ch-pick locked" data-locked="Brett"><b>Brett</b><small>Band only 🔒</small></button>
+      <button type="button" class="ch-pick locked" data-char="brett" data-band="Brett"><b>Lord Mortez</b><small>Band only 🔒</small></button>
       <button type="button" class="ch-pick locked" data-locked="Rachelle"><b>Rachelle</b><small>Band only 🔒</small></button>
     </div>
     <p class="ch-note" id="charNote" aria-live="polite"></p>
+    <div class="ch-code" id="charCode" hidden><input id="charCodeIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Private code"><button type="button" id="charCodeGo">Unlock</button></div>
     <label class="ct-field ch-name"><span>Your name</span><input id="charName" name="charName" maxlength="18" autocomplete="nickname" placeholder="What do the dead call you?"></label>
     <button class="ct-send ch-go" type="submit">Walk through the gate</button>
   </form>
@@ -5690,10 +5694,52 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
   // ---------- Avatar: the visitor's reaper (picked on the character screen) ----------
   const CHARACTERS = {
     reaper: { name: "Reaper", robe: 0x15131a, trim: 0x2c2832, eye: 0xff2a36, lady: false },
-    lady: { name: "Lady Reaper", robe: 0x8e0f1a, trim: 0x3a0508, eye: 0xffd2a0, lady: true }
+    lady: { name: "Lady Reaper", robe: 0x8e0f1a, trim: 0x3a0508, eye: 0xffd2a0, lady: true },
+    // band-only: real 3D models, unlocked in the character screen with a private code
+    brett: { name: "Lord Mortez", robe: 0x15131a, trim: 0x2c2832, eye: 0xffd2a0, lady: false, glb: "../media/chars/lord-mortez.glb", height: 1.85, band: "Brett" }
   };
+  // codes are kept only as SHA-256 fingerprints, so the real code never appears in the page
+  const BAND_CODES = { brett: "6d6fb5f93262bfd5833974db13c91145e257952aec6abac186e20816c4ee7834" };
+  const bandUnlocked = k => { try { return (JSON.parse(localStorage.getItem("mortez.band") || "[]")).includes(k); } catch (e) { return false; } };
+  async function tryBandCode(k, code) {
+    try { const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(code.trim().toLowerCase())); const h = [...new Uint8Array(d)].map(x => x.toString(16).padStart(2, "0")).join(""); if (h !== BAND_CODES[k]) return false; } catch (e) { return false; }
+    try { const a = JSON.parse(localStorage.getItem("mortez.band") || "[]"); if (!a.includes(k)) a.push(k); localStorage.setItem("mortez.band", JSON.stringify(a)); } catch (e) {}
+    return true;
+  }
+  // loading a rigged model (only when someone actually uses one) and posing its Mixamo skeleton in code: arms down, walk, sit
+  const GLB = {}, bandRigs = new Set(), rigQ = new THREE.Quaternion();
+  const loadScript = src => new Promise((res, rej) => { const el = document.createElement("script"); el.src = src; el.onload = res; el.onerror = rej; document.head.appendChild(el); });
+  function loadGLB(url) { return GLB[url] || (GLB[url] = (async () => { if (!THREE.GLTFLoader) await loadScript("vendor/GLTFLoader.js"); if (!THREE.SkeletonUtils) await loadScript("vendor/SkeletonUtils.js"); return await new Promise((res, rej) => new THREE.GLTFLoader().load(url, res, undefined, rej)); })()); }
+  function buildModel(kind, leg) {
+    const C = CHARACTERS[kind], g = new THREE.Group();
+    const ph = new THREE.Mesh(new THREE.CylinderGeometry(.28, .32, 1.8, 10), new THREE.MeshBasicMaterial({ color: 0x0a090b, transparent: true, opacity: .55 })); ph.position.y = .9; g.add(ph);
+    loadGLB(C.glb).then(gltf => {
+      const m = THREE.SkeletonUtils.clone(gltf.scene); m.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(m), sc = C.height / Math.max(.01, box.max.y - box.min.y); m.scale.setScalar(sc); m.position.y = -box.min.y * sc; m.updateMatrixWorld(true);
+      const b = {}; m.traverse(o => { if (o.isBone) b[o.name.replace(/^mixamorig:?/, "")] = o; if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
+      const r = { m, b, leg, g, rest: new Map(), ax: new Map(), baseY: m.position.y, hipY: 0, local: false };
+      const mq = new THREE.Quaternion(); m.getWorldQuaternion(mq); const mqi = mq.clone().invert(), pw = new THREE.Quaternion();
+      for (const n in b) { const bn = b[n]; r.rest.set(bn, bn.quaternion.clone()); bn.parent.getWorldQuaternion(pw); const inv = pw.clone().premultiply(mqi).invert(); r.ax.set(bn, { x: new THREE.Vector3(1, 0, 0).applyQuaternion(inv), z: new THREE.Vector3(0, 0, 1).applyQuaternion(inv), y: new THREE.Vector3(0, 1, 0).applyQuaternion(inv) }); }
+      if (b.Hips) { const v = new THREE.Vector3(); b.Hips.getWorldPosition(v); r.hipY = v.y; }
+      g.remove(ph); g.add(m); g.userData.rig = r; r.local = g === avatarModel; bandRigs.add(r); poseRig(r, 0);
+    }).catch(() => { ph.material.opacity = .9; });
+    return g;
+  }
+  function poseRig(r, t) {
+    const lr = r.leg ? r.leg.rotation.x : 0, sit = lr < -1 || (r.local && seated), sw = sit ? 0 : lr;
+    const A = (n, rots) => { const bn = r.b[n]; if (!bn) return; const q = bn.quaternion.copy(r.rest.get(bn)), ax = r.ax.get(bn); rots.forEach(([k, a]) => { if (a) q.premultiply(rigQ.setFromAxisAngle(ax[k], a)); }); };
+    const br = Math.sin(t / 900) * .02;
+    A("LeftArm", [["z", -1.12], ["x", sit ? -.5 : sw * .9]]); A("RightArm", [["z", 1.12], ["x", sit ? -.5 : -sw * .9]]);
+    A("LeftForeArm", [["x", sit ? -.5 : -.12]]); A("RightForeArm", [["x", sit ? -.5 : -.12]]);
+    A("LeftUpLeg", [["x", sit ? -1.5 : -sw * 1.2]]); A("RightUpLeg", [["x", sit ? -1.5 : sw * 1.2]]);
+    A("LeftLeg", [["x", sit ? 1.5 : Math.max(0, sw) * 1.1 + .04]]); A("RightLeg", [["x", sit ? 1.5 : Math.max(0, -sw) * 1.1 + .04]]);
+    A("Spine1", [["x", br]]);
+    r.m.position.y = sit ? r.baseY - (r.hipY - .12) : r.baseY + (sit ? 0 : -Math.abs(sw) * .03);
+  }
+  function poseRigs(now) { bandRigs.forEach(r => { if (!r.g.parent) { bandRigs.delete(r); return; } poseRig(r, now); }); }
   const visorMat = new THREE.MeshBasicMaterial({ color: 0xff2a36 });
-  function buildReaper(kind, eyeMat) {
+  function buildReaper(kind, eyeMat, leg) {
+    if (CHARACTERS[kind] && CHARACTERS[kind].glb) return buildModel(kind, leg);
     const C = CHARACTERS[kind] || CHARACTERS.reaper, g = new THREE.Group();
     const robe = std(C.robe, { roughness: .85 }), trimM = std(C.trim), bone = std(0xcfc6b4), skin = new THREE.MeshBasicMaterial({ color: 0x030203 });
     const prof = C.lady ? [[0, .02], [.66, .02], [.56, .18], [.38, .62], [.24, .98], [.3, 1.22], [.3, 1.42], [0, 1.5]]
@@ -5736,9 +5782,10 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     if (tagMat.map) tagMat.map.dispose(); tagMat.map = tex(c); tagMat.needsUpdate = true; nameTag.visible = !!name;
   }
   function setAvatar(kind, name) {
-    avatarKind = CHARACTERS[kind] ? kind : "reaper";
+    avatarKind = CHARACTERS[kind] && !(CHARACTERS[kind].band && !bandUnlocked(kind)) ? kind : "reaper";
     if (avatarModel) avatar.remove(avatarModel);
-    avatarModel = buildReaper(avatarKind, visorMat); avatar.add(avatarModel);
+    avatarModel = buildReaper(avatarKind, visorMat, legL); avatar.add(avatarModel); legL.visible = legR.visible = !CHARACTERS[avatarKind].glb;
+    if (avatarModel.userData.rig) avatarModel.userData.rig.local = true;
     visorMat.color.set(CHARACTERS[avatarKind].eye);
     setNameTag(name || "");
   }
@@ -5757,14 +5804,20 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
   const charRim = new THREE.PointLight(0xff2a36, 1.6, 8, 2); charRim.position.set(0, 2, -2.5); charScene.add(charRim);
   const charMoon = new THREE.Mesh(new THREE.CircleGeometry(3.2, 40), new THREE.MeshBasicMaterial({ color: 0xe6dccb, fog: false })); charMoon.position.set(0, 3.2, -9); charScene.add(charMoon);
   const plinths = {};
-  ["reaper", "lady"].forEach((k, i) => {
-    const g = new THREE.Group(); g.position.set(i ? 1.15 : -1.15, 0, 0); charScene.add(g);
+  function addPlinth(k, x) {
+    const g = new THREE.Group(); g.position.set(x, 0, 0); charScene.add(g);
     const pl = new THREE.Mesh(new THREE.CylinderGeometry(.75, .85, .3, 20), std(0x2c2931)); pl.position.y = -.15; g.add(pl);
     const em = new THREE.MeshBasicMaterial({ color: CHARACTERS[k].eye });
     const m = buildReaper(k, em); g.add(m);
     plinths[k] = { g, m };
-  });
-  charCam.position.set(0, 1.55, 6.4); charCam.lookAt(0, 1.05, 0);
+  }
+  function layPlinths() {
+    if (bandUnlocked("brett") && !plinths.brett) addPlinth("brett", 0);
+    const ks = Object.keys(plinths), gap = ks.length > 2 ? 1.7 : 2.3;
+    ks.forEach((k, i) => plinths[k].g.position.x = (i - (ks.length - 1) / 2) * gap);
+    charCam.position.set(0, 1.55, ks.length > 2 ? 7.6 : 6.4); charCam.lookAt(0, 1.05, 0);
+  }
+  addPlinth("reaper", -1.15); addPlinth("lady", 1.15); layPlinths();
   function drawChars(t) {
     if (!charOpen || !charRenderer) return;
     const w = charCanvas.clientWidth, h = charCanvas.clientHeight;
@@ -5775,13 +5828,14 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     requestAnimationFrame(drawChars);
   }
   function pickChar(k) {
+    if (CHARACTERS[k] && CHARACTERS[k].band && !bandUnlocked(k)) return;
     charPick = k;
     charEl.querySelectorAll("[data-char]").forEach(b => b.setAttribute("aria-pressed", b.dataset.char === k ? "true" : "false"));
   }
   function openChars() {
     charOpen = true; charEl.hidden = false; for (const k in keys) keys[k] = false;
     if (!charRenderer) { try { charRenderer = new THREE.WebGLRenderer({ canvas: charCanvas, antialias: true }); charRenderer.setPixelRatio(Math.min(devicePixelRatio, 1.5)); } catch (e) { charRenderer = null; } }
-    pickChar(avatarKind); requestAnimationFrame(drawChars);
+    syncBand(); pickChar(avatarKind); requestAnimationFrame(drawChars);
     setTimeout(() => charName.focus(), 50);
   }
   function closeChars() {
@@ -5791,7 +5845,22 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     charOpen = false; charEl.hidden = true; canvas.focus();
     window.SITE.player = { kind: charPick, name };
   }
-  charEl.querySelectorAll("[data-char]").forEach(b => b.addEventListener("click", () => pickChar(b.dataset.char)));
+  // band-only characters: tap one, enter the private code once, and it's unlocked on this device
+  const codeBox = document.getElementById("charCode"), codeIn = document.getElementById("charCodeIn"), charNote = document.getElementById("charNote");
+  let codeFor = null;
+  function syncBand() { charEl.querySelectorAll("[data-band]").forEach(b => { const k = b.dataset.char, on = bandUnlocked(k); b.classList.toggle("locked", !on); b.querySelector("small").textContent = on ? "Band only · unlocked" : "Band only 🔒"; }); layPlinths(); }
+  async function submitCode() {
+    if (!codeFor) return; const k = codeFor;
+    if (await tryBandCode(k, codeIn.value)) { codeBox.hidden = true; codeIn.value = ""; codeFor = null; charNote.textContent = CHARACTERS[k].name + " unlocked on this device."; syncBand(); pickChar(k); }
+    else { charNote.textContent = "That code isn't right."; codeIn.select(); }
+  }
+  charEl.querySelectorAll("[data-char]").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.char;
+    if (CHARACTERS[k] && CHARACTERS[k].band && !bandUnlocked(k)) { codeFor = k; codeBox.hidden = false; charNote.textContent = CHARACTERS[k].name + " is for " + CHARACTERS[k].band + " only. Enter the private code."; setTimeout(() => codeIn.focus(), 30); return; }
+    codeBox.hidden = true; codeFor = null; charNote.textContent = ""; pickChar(k);
+  }));
+  document.getElementById("charCodeGo").addEventListener("click", submitCode);
+  codeIn.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") { e.preventDefault(); submitCode(); } });
   charEl.querySelectorAll("[data-locked]").forEach(b => b.addEventListener("click", () => { document.getElementById("charNote").textContent = b.dataset.locked + " is only playable by " + b.dataset.locked + ". Band login comes later."; }));
   document.getElementById("charForm").addEventListener("submit", e => { e.preventDefault(); closeChars(); });
   charName.addEventListener("keydown", e => e.stopPropagation());
@@ -6512,7 +6581,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       others.set(id, o); return o;
     }
     function setLook(o, name, kind) {
-      if (kind !== o.kind && CHARACTERS[kind]) { if (o.model) o.g.remove(o.model); o.model = buildReaper(kind, new THREE.MeshBasicMaterial({ color: CHARACTERS[kind].eye })); o.g.add(o.model); o.kind = kind; }
+      if (kind !== o.kind && CHARACTERS[kind]) { if (o.model) o.g.remove(o.model); o.model = buildReaper(kind, new THREE.MeshBasicMaterial({ color: CHARACTERS[kind].eye }), o.l1); o.g.add(o.model); o.kind = kind; o.l1.visible = o.l2.visible = !CHARACTERS[kind].glb; }
       if (name !== o.name) { o.name = name; const [c, g] = cv(512, 128); g.textAlign = "center"; g.textBaseline = "middle"; fit(g, name, 600, 64, 470, BODY); g.lineWidth = 8; g.strokeStyle = "rgba(0,0,0,.75)"; g.strokeText(name, 256, 66); g.fillStyle = "#ffd2cf"; g.fillText(name, 256, 66); if (o.tagM.map) o.tagM.map.dispose(); o.tagM.map = tex(c); o.tagM.needsUpdate = true; }
     }
     function dropRemote(id) { const o = others.get(id); if (!o) return; scene.remove(o.g); others.delete(id); }
@@ -7133,6 +7202,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
   }
   function tick(now) {
     const dt = Math.min(.05, (now - last) / 1000); last = now;
+    poseRigs(now);
     if ((ui() && ui().classicOpen) || farewellOpen) { requestAnimationFrame(tick); return; }
     if (!degraded && document.visibilityState === "visible") {
       fpsAcc += (now - (tick.prev || now)); fpsN++;
