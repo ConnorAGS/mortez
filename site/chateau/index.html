@@ -172,7 +172,28 @@ body.riding .toast { left: auto; right: 20px; top: 84px; width: min(320px, calc(
 .cn-now b { font: 800 26px var(--display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cn-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .cn-actions a, .cn-actions button { border-radius: 999px; padding: 8px 14px; font: 600 13px var(--body); cursor: pointer; text-decoration: none; }
-.cn-actions a { background: #ff5d5d; color: #14070a; }
+.cn-actions a { background: none; color: var(--ink); border: 1px solid var(--line); }
+.cn-actions .cn-play { background: #e0323c; color: #fff; border: 0; font-weight: 700; padding: 9px 18px; box-shadow: 0 6px 22px rgba(224,50,60,.45); }
+.cn-actions .cn-play.on { background: #2a1418; color: var(--ink); border: 1px solid #e0323c; box-shadow: none; }
+.cn-card .th::after { content: "▶"; position: absolute; z-index: 1; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: rgba(224,50,60,.9); color: #fff; font: 600 14px var(--body); box-shadow: 0 4px 14px rgba(0,0,0,.5); opacity: .92; transition: transform .2s; }
+.cn-card:hover .th::after { transform: scale(1.12); }
+.cn-card.playing .th::after { content: "❚❚"; font-size: 11px; letter-spacing: -1px; }
+.look { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(100% + 8px); display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
+.look > * { pointer-events: auto; }
+.look-pad { display: grid; grid-template-columns: repeat(3, 38px); grid-template-rows: repeat(3, 38px); gap: 3px; }
+.look-pad button { border-radius: 10px; border: 1px solid rgba(255,255,255,.18); background: rgba(14,9,11,.72); color: var(--ink); font: 13px var(--body); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+.look-pad button.on, .look-pad button:hover { background: rgba(224,50,60,.55); border-color: #e0323c; }
+.look-pad [data-lk="u"] { grid-column: 2; grid-row: 1; } .look-pad [data-lk="l"] { grid-column: 1; grid-row: 2; } .look-pad [data-lk="r"] { grid-column: 3; grid-row: 2; } .look-pad [data-lk="d"] { grid-column: 2; grid-row: 3; }
+.look-pad span { grid-column: 2; grid-row: 2; display: grid; place-items: center; font: 600 9px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.look-back { border-radius: 999px; border: 1px solid #e0323c; background: rgba(14,9,11,.85); color: var(--ink); padding: 7px 14px; font: 600 12.5px var(--body); cursor: pointer; }
+.look-back kbd { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-left: 6px; }
+.look-tip { margin: 0; font: 600 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: rgba(243,233,223,.65); text-shadow: 0 1px 4px #000; }
+@media (pointer: coarse) { .look-tip .wc-keys, .look-back kbd { display: none; } }
+/* while seated: only the screen controls and chat; the room's title, map and buttons step aside */
+body.seated .hud .top, body.seated .mini, body.seated .relics, body.seated .relic-list, body.seated #moreBtn { visibility: hidden; }
+/* while seated, room chat moves up out of the way of the screen controls */
+body.seated .mpchat { top: calc(env(safe-area-inset-top, 0px) + 12px); bottom: auto; flex-direction: column; }
+body.seated .mplog { max-height: 80px; }
 .cn-actions button { background: none; color: var(--ink); border: 1px solid var(--line); }
 .cn-actions kbd { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: 6px; }
 .cn-bar { display: flex; align-items: center; gap: 8px; }
@@ -189,6 +210,27 @@ body.riding .toast { left: auto; right: 20px; top: 84px; width: min(320px, calc(
 body.seated .hud .bottom, body.seated .prompt, body.seated .joy { visibility: hidden; }
 body.riding .jumpBtn { visibility: hidden; }
 @media (max-width: 520px) { .cn-card { width: 136px; } .cn-arrow { display: none; } }
+/* phones: a compact, single-row control strip */
+@media (max-width: 700px), (max-height: 520px) {
+  .cinema { padding: 18px 10px calc(env(safe-area-inset-bottom, 0px) + 8px); gap: 6px; padding-left: max(10px, env(safe-area-inset-left, 0px)); padding-right: max(10px, env(safe-area-inset-right, 0px)); }
+  .cn-head { align-items: center; gap: 6px 10px; }
+  .cn-now b { font-size: 17px; }
+  .cn-now span { font-size: 9.5px; }
+  .cn-actions { gap: 6px; }
+  .cn-actions a, .cn-actions button { padding: 6px 11px; font-size: 12px; }
+  .cn-actions .cn-play { padding: 7px 14px; }
+  .cn-actions kbd { display: none; }
+  .cn-track { gap: 8px; padding: 2px 2px 4px; }
+  .cn-card { width: 118px; border-radius: 8px; }
+  .cn-card .meta { padding: 4px 7px 6px; } .cn-card b { font-size: 12px; } .cn-card small { display: none; }
+  .cn-card .th::after { width: 26px; height: 26px; font-size: 11px; }
+  .cn-arrow { width: 30px; height: 30px; font-size: 18px; }
+  body.seated .mpchat { width: min(240px, 46vw); }
+  .look-pad { grid-template-columns: repeat(3, 34px); grid-template-rows: repeat(3, 34px); }
+  .look-tip { display: none; }
+  body.seated .mplog { max-height: 54px; }
+}
+@media (max-height: 420px) { .look-pad { grid-template-columns: repeat(3, 30px); grid-template-rows: repeat(3, 30px); } .look { flex-direction: row-reverse; align-items: flex-end; } .cn-card { width: 96px; } .cn-card .meta { display: none; } .cn-now b { font-size: 15px; } }
 
 .leap-fx { position: fixed; inset: 0; pointer-events: none; opacity: 0; }
 .leap-skip { position: fixed; right: 20px; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); background: rgba(7,6,15,.7); color: var(--ink); border: 1px solid rgba(127,212,255,.6); border-radius: 999px; padding: 10px 18px; font: 600 14px var(--body); cursor: pointer; z-index: 3; }
@@ -854,8 +896,13 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
 
 <div class="cinema" id="cinema" hidden>
   <div class="cn-head">
-    <div class="cn-now"><span>Now showing</span><b id="cnNow"></b></div>
-    <div class="cn-actions"><a id="cnYT" target="_blank" rel="noopener" hidden>Open on YouTube ↗</a><button id="cnCam" type="button">View: Seat<kbd>V</kbd></button><button id="cnStand" type="button">Stand up<kbd>Esc</kbd></button></div>
+    <div class="cn-now"><span id="cnState">Pick a video, then press play</span><b id="cnNow"></b></div>
+    <div class="cn-actions"><button class="cn-play" id="cnPlay" type="button">▶ Play on the big screen</button><a id="cnYT" target="_blank" rel="noopener" hidden>Open on YouTube ↗</a><button id="cnCam" type="button">View: Seat<kbd>V</kbd></button><button id="cnStand" type="button">Stand up<kbd>Esc</kbd></button></div>
+  </div>
+  <div class="look" aria-label="Look around">
+    <div class="look-pad" id="lookPad"><button type="button" data-lk="u" aria-label="Look up">▲</button><button type="button" data-lk="l" aria-label="Look left">◀</button><span>Look</span><button type="button" data-lk="r" aria-label="Look right">▶</button><button type="button" data-lk="d" aria-label="Look down">▼</button></div>
+    <button class="look-back" id="lookBack" type="button" hidden>⟲ Face the screen<kbd>R</kbd></button>
+    <p class="look-tip">Drag to look around<span class="wc-keys"> · or W A S D</span></p>
   </div>
   <div class="cn-bar">
     <button class="cn-arrow" id="cnPrev" type="button" aria-label="Previous">‹</button>
@@ -5904,9 +5951,19 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     if (cur && cur.setScreen) cur.setScreen(it);
     stopScreen();
     if (play) playOnScreen(it);
+    playUI();
   }
+  // the one clear control: play (or stop) the selected video on the big screen
+  const cnPlayBtn = document.getElementById("cnPlay"), cnState = document.getElementById("cnState");
+  function playUI() {
+    cnPlayBtn.hidden = !canEmbed;
+    cnPlayBtn.textContent = cnPlaying ? "■ Stop" : "▶ Play on the big screen"; cnPlayBtn.classList.toggle("on", cnPlaying);
+    cnState.textContent = !canEmbed ? "Videos play on the big screen on the live site" : cnPlaying ? "Now showing" : "Pick a video, then press play";
+    cnTrack.querySelectorAll(".cn-card").forEach((b, k) => b.classList.toggle("playing", cnPlaying && k === cnIndex));
+  }
+  cnPlayBtn.addEventListener("click", e => { e.stopPropagation(); if (cnPlaying) { stopScreen(); playUI(); } else userPlay(cnIndex); });
   const cnVideo = document.getElementById("cnVideo");
-  cnVideo.addEventListener("error", () => { if (cnPlaying) stopScreen(); });
+  cnVideo.addEventListener("error", () => { if (cnPlaying) { stopScreen(); playUI(); } });
   // the shared screening: everyone seated in the Chapel watches the same video from the same moment (live world)
   function cinemaRemote(i, atLocal) {
     if (!seated || !cur || cur.id !== "film") return;
@@ -5920,7 +5977,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     if (!canEmbed || (!id && !it.video)) return; // in previews the poster stays on the screen; the open link plays it
     if (id) { cnVideo.hidden = true; cnIframe.hidden = false; cnIframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1${from}`; }
     else { cnIframe.hidden = true; cnVideo.hidden = false; cnVideo.src = it.video; cnVideo.play().catch(() => {}); }
-    frameEl.hidden = false; cnPlaying = true;
+    frameEl.hidden = false; cnPlaying = true; playUI();
   }
   function stopScreen() { frameEl._r = null; if (cnPlaying) { cnIframe.src = "about:blank"; cnVideo.pause(); cnVideo.removeAttribute("src"); cnVideo.load(); frameEl.hidden = true; cnPlaying = false; } }
   let seatState = null;
@@ -5937,7 +5994,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
   // the seat camera: pick a view and drag to look around while you sit
   const SEAT_VIEWS = ["Seat", "Close-up", "Over the shoulder", "The crowd"];
   const seatV = { mode: 0, yaw: 0, pitch: 0, zoom: 1 }, seatP = new THREE.Vector3(), seatT = new THREE.Vector3(), seatD = new THREE.Vector3();
-  function setSeatView(m) { seatV.mode = ((m % SEAT_VIEWS.length) + SEAT_VIEWS.length) % SEAT_VIEWS.length; seatV.yaw = seatV.pitch = 0; seatV.zoom = 1; const b = document.getElementById("cnCam"); if (b) b.firstChild.textContent = "View: " + SEAT_VIEWS[seatV.mode]; }
+  function setSeatView(m) { seatV.mode = ((m % SEAT_VIEWS.length) + SEAT_VIEWS.length) % SEAT_VIEWS.length; seatV.yaw = seatV.pitch = 0; seatV.back = false; seatV.zoom = 1; const b = document.getElementById("cnCam"); if (b) b.firstChild.textContent = "View: " + SEAT_VIEWS[seatV.mode]; }
   function sitDown(seat) {
     const st = seat || (cur && cur.seat); if (!cur || !st) return;
     seatState = st; setSeatView(0);
@@ -6114,6 +6171,12 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     seatState = null;
     canvas.focus();
   }
+  const seatLook = { l: false, r: false, u: false, d: false }, lookBack = document.getElementById("lookBack");
+  lookBack.addEventListener("click", e => { e.stopPropagation(); seatV.back = true; });
+  document.querySelectorAll("#lookPad [data-lk]").forEach(b => { const k = b.dataset.lk, on = v => e => { e.preventDefault(); e.stopPropagation(); seatLook[k] = v; b.classList.toggle("on", v); };
+    b.addEventListener("pointerdown", on(true)); ["pointerup", "pointerleave", "pointercancel"].forEach(ev => b.addEventListener(ev, on(false))); b.addEventListener("contextmenu", e => e.preventDefault()); });
+  const LOOK_KEYS = { KeyA: "l", KeyD: "r", KeyW: "u", KeyS: "d" };
+  addEventListener("keyup", e => { const k = LOOK_KEYS[e.code]; if (k) seatLook[k] = false; });
   function seatCamera(dt) {
     const st = seatState, aspect = innerWidth / innerHeight, sc = st.screenC;
     const sit = st.sit || st.pos;
@@ -6132,7 +6195,10 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     camera.fov = Math.max(28, Math.min(105, fov * seatV.zoom)); camera.updateProjectionMatrix();
     camera.position.lerp(seatP, dt ? Math.min(1, dt * 4) : 1);
     camera.lookAt(seatT); camera.rotateY(seatV.yaw); camera.rotateX(seatV.pitch);
-    if (!view.drag) { seatV.yaw *= Math.max(0, 1 - dt * .35); seatV.pitch *= Math.max(0, 1 - dt * .35); }
+    // look around: drag, WASD, or the look pad; the view stays where you leave it until you face the screen again
+    const lk = seatLook; if (lk.l || lk.r || lk.u || lk.d) { seatV.yaw = Math.max(-2.4, Math.min(2.4, seatV.yaw + ((lk.l ? 1 : 0) - (lk.r ? 1 : 0)) * dt * 1.4)); seatV.pitch = Math.max(-.9, Math.min(.9, seatV.pitch + ((lk.u ? 1 : 0) - (lk.d ? 1 : 0)) * dt * 1.0)); }
+    if (seatV.back) { seatV.yaw *= Math.max(0, 1 - dt * 6); seatV.pitch *= Math.max(0, 1 - dt * 6); if (Math.abs(seatV.yaw) + Math.abs(seatV.pitch) < .01) { seatV.yaw = seatV.pitch = 0; seatV.back = false; } }
+    lookBack.hidden = Math.abs(seatV.yaw) + Math.abs(seatV.pitch) < .08 || seatV.back;
     // anyone sitting between you and the screen fades out while you watch (the room's audience, friends, and your own reaper in the seat view)
     {
       camera.updateMatrixWorld();
@@ -6300,8 +6366,10 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     if (cur && cur.id === "leap") { const k = map[e.code]; if (k) { keys[k] = true; e.preventDefault(); } return; }
     if (seated) {
       if (e.code === "KeyV" || e.code === "KeyC") { e.preventDefault(); setSeatView(seatV.mode + 1); return; }
-      if (e.code === "ArrowLeft" || e.code === "KeyA") { e.preventDefault(); selectVideo(cnIndex - 1, false); }
-      else if (e.code === "ArrowRight" || e.code === "KeyD") { e.preventDefault(); selectVideo(cnIndex + 1, false); }
+      if (LOOK_KEYS[e.code] && !(document.activeElement && document.activeElement.tagName === "INPUT")) { e.preventDefault(); seatLook[LOOK_KEYS[e.code]] = true; seatV.back = false; return; }
+      if (e.code === "KeyR") { e.preventDefault(); seatV.back = true; return; }
+      if (e.code === "ArrowLeft") { e.preventDefault(); selectVideo(cnIndex - 1, false); }
+      else if (e.code === "ArrowRight") { e.preventDefault(); selectVideo(cnIndex + 1, false); }
       else if ((e.code === "Enter" || e.code === "Space") && document.activeElement && !document.activeElement.closest(".cinema")) { e.preventDefault(); userPlay(cnIndex); }
       return;
     }
@@ -6347,7 +6415,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const dx = e.clientX - d.x, dy = e.clientY - d.y; d.x = e.clientX; d.y = e.clientY; d.moved += Math.abs(dx) + Math.abs(dy);
     if (d.moved < 6) return;
     view.dragged = true;
-    if (seated) { seatV.yaw = Math.max(-2.4, Math.min(2.4, seatV.yaw - dx * .005)); seatV.pitch = Math.max(-.9, Math.min(.9, seatV.pitch - dy * .004)); }
+    if (seated) { seatV.back = false; seatV.yaw = Math.max(-2.4, Math.min(2.4, seatV.yaw - dx * .005)); seatV.pitch = Math.max(-.9, Math.min(.9, seatV.pitch - dy * .004)); }
     else if (cur && cur.ride) {
       view.rideYaw = Math.max(-1.6, Math.min(1.6, view.rideYaw - dx * .005));
       view.ridePitch = Math.max(-.7, Math.min(.7, view.ridePitch - dy * .004));
