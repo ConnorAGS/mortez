@@ -5584,7 +5584,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     }
     // ---- tap-to-time: press T on each line as it's sung, then Y to copy the timings (for the band to lock them exactly)
     // only for setting the timings: open the ride with ?timing (e.g. /chateau/?room=station&timing). Visitors never see it.
-    const TIMING_TOOL = new URLSearchParams(location.search).has("timing") || /^#timing$/i.test(location.hash);
+    const TIMING_TOOL = new URLSearchParams(location.search).has("timing") || /^#timing$/i.test(location.hash) || /claude|anthropic/i.test(location.hostname);   // always on in the Claude preview, off on the real site unless asked for
     const tap = { on: false, i: 0, times: [] };
     addEventListener("keydown", e => {
       if (!cur || cur.id !== "mine" || !TIMING_TOOL) return;
