@@ -5788,7 +5788,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     lady: { name: "Lady Reaper", robe: 0x8e0f1a, trim: 0x3a0508, eye: 0xffd2a0, lady: true },
     // band-only: real 3D models, unlocked in the character screen with a private code
     brett: { name: "Lord Mortez", robe: 0x15131a, trim: 0x2c2832, eye: 0xffd2a0, lady: false, glb: "../media/chars/lord-mortez.glb", height: 2.1, band: "Brett" },
-    rachele: { name: "Lady Mortez", robe: 0x15131a, trim: 0x2c2832, eye: 0xffd2a0, lady: true, glb: "../media/chars/rachelle.glb", height: 2.0, arm: 1.0, swing: 1.4, knee: .9, elbow: .2, bend: .1, legIn: .09, band: "Rachelle" }
+    rachele: { name: "Lady Mortez", robe: 0x15131a, trim: 0x2c2832, eye: 0xffd2a0, lady: true, glb: "../media/chars/rachelle.glb", height: 2.0, arm: 1.0, swing: 1.7, knee: 1.6, elbow: .2, bend: .12, legIn: .09, band: "Rachelle" }
   };
   // codes are kept only as SHA-256 fingerprints, so the real code never appears in the page
   const BAND_CODES = { brett: "6d6fb5f93262bfd5833974db13c91145e257952aec6abac186e20816c4ee7834", rachele: "68d61ce301b9b16d386bb543bfce128f22b2ea47bc81c76a0dc04a6f428fd16f" };
@@ -5817,42 +5817,17 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     }).catch(() => { ph.material.opacity = .9; });
     return g;
   }
-  // a procedural walk cycle on the Mixamo skeleton, driven by the same step phase as the robed reapers:
-  // hips bob, sway and turn with each step, the chest turns against them, knees fold through the swing, feet roll, arms swing loose from the shoulder
   function poseRig(r, t) {
-    const lr = r.leg ? r.leg.rotation.x : 0, sit = lr < -1 || (r.local && seated);
-    const ud = (r.leg && r.leg.userData) || {}, dt = Math.min(.05, Math.max(0, (t - (r.lt || t)) / 1000)); r.lt = t;
-    const target = sit ? 0 : Math.max(0, Math.min(1, ud.amt || 0));
-    r.a = (r.a || 0) + (target - (r.a || 0)) * Math.min(1, dt * 7);   // ease in and out of walking instead of snapping
-    if (ud.ph != null && target > .02) r.ph = ud.ph; else r.ph = (r.ph || 0);
-    const a = r.a, ph = r.ph, s1 = Math.sin(ph), c1 = Math.cos(ph), as = r.swing, ks = r.knee;
-    const A = (n, rots) => { const bn = r.b[n]; if (!bn) return; const q = bn.quaternion.copy(r.rest.get(bn)), ax = r.ax.get(bn); rots.forEach(([k, v]) => { if (v) q.premultiply(rigQ.setFromAxisAngle(ax[k], v)); }); };
-    const idle = (1 - a) * (sit ? 0 : 1), br = Math.sin(t / 1100);   // breathing and a slow weight shift when standing
-    if (sit) {
-      A("Hips", []); A("Spine", []); A("Spine1", [["x", br * .015]]); A("Spine2", []); A("Neck", []); A("Head", []);
-      A("LeftArm", [["z", -r.arm], ["x", -.5]]); A("RightArm", [["z", r.arm], ["x", -.5]]);
-      A("LeftForeArm", [["x", -.5]]); A("RightForeArm", [["x", -.5]]);
-      A("LeftUpLeg", [["z", -r.legIn], ["x", -1.5]]); A("RightUpLeg", [["z", r.legIn], ["x", -1.5]]);
-      A("LeftLeg", [["x", 1.5]]); A("RightLeg", [["x", 1.5]]); A("LeftFoot", []); A("RightFoot", []);
-      r.m.position.y = r.baseY - (r.hipY - .12); return;
-    }
-    // thighs: forward is a negative turn about X here
-    const thL = -s1 * .5 * a, thR = s1 * .5 * a;
-    // knees fold most while that leg swings through (moving forward), a little on landing
-    const kneeL = a * ks * (.1 + .85 * Math.max(0, Math.cos(ph - .35)) ** 1.5) + r.bend, kneeR = a * ks * (.1 + .85 * Math.max(0, Math.cos(ph + Math.PI - .35)) ** 1.5) + r.bend;
-    A("Hips", [["y", s1 * .13 * a], ["z", Math.sin(ph) * .05 * a + Math.sin(t / 2300) * .015 * idle]]);
-    A("Spine", [["x", .05 * a]]); A("Spine1", [["y", -s1 * .16 * a], ["x", br * .02 * idle]]); A("Spine2", [["y", -s1 * .07 * a]]);
-    A("Neck", [["y", s1 * .08 * a]]); A("Head", [["y", s1 * .06 * a], ["x", -.03 * a]]);
-    A("LeftUpLeg", [["z", -r.legIn], ["x", thL]]); A("RightUpLeg", [["z", r.legIn], ["x", thR]]);
-    A("LeftLeg", [["x", kneeL]]); A("RightLeg", [["x", kneeR]]);
-    A("LeftFoot", [["x", -(thL + kneeL) * .55 + Math.max(0, s1) * .25 * a]]); A("RightFoot", [["x", -(thR + kneeR) * .55 + Math.max(0, -s1) * .25 * a]]);
-    // arms swing against the legs, loose at the elbow (more bend on the forward swing)
-    const swL = s1 * .5 * a * as, swR = -s1 * .5 * a * as;
-    A("LeftShoulder", [["y", -s1 * .05 * a]]); A("RightShoulder", [["y", -s1 * .05 * a]]);
-    A("LeftArm", [["z", -r.arm - br * .01 * idle], ["x", swL + br * .015 * idle]]); A("RightArm", [["z", r.arm + br * .01 * idle], ["x", swR - br * .015 * idle]]);
-    A("LeftForeArm", [["x", -.16 - r.elbow - Math.max(0, -swL) * .9 - .12 * a], ["z", -.1]]); A("RightForeArm", [["x", -.16 - r.elbow - Math.max(0, -swR) * .9 - .12 * a], ["z", .1]]);
-    A("LeftHand", [["x", -.1 * a]]); A("RightHand", [["x", -.1 * a]]);
-    r.m.position.y = r.baseY + (Math.cos(ph * 2) * .03 - .02) * a;   // up over the standing leg, down as the stride opens
+    const lr = r.leg ? r.leg.rotation.x : 0, sit = lr < -1 || (r.local && seated), sw = sit ? 0 : lr;
+    const A = (n, rots) => { const bn = r.b[n]; if (!bn) return; const q = bn.quaternion.copy(r.rest.get(bn)), ax = r.ax.get(bn); rots.forEach(([k, a]) => { if (a) q.premultiply(rigQ.setFromAxisAngle(ax[k], a)); }); };
+    const br = Math.sin(t / 900) * .02;
+    const as = r.swing, ks = r.knee;
+    A("LeftArm", [["z", -r.arm], ["x", sit ? -.5 : sw * .9 * as]]); A("RightArm", [["z", r.arm], ["x", sit ? -.5 : -sw * .9 * as]]);
+    A("LeftForeArm", [["x", sit ? -.5 : -.14 - r.elbow - Math.max(0, -sw) * .5 * as], ["z", sit ? 0 : -.1]]); A("RightForeArm", [["x", sit ? -.5 : -.14 - r.elbow - Math.max(0, sw) * .5 * as], ["z", sit ? 0 : .1]]);
+    A("LeftUpLeg", [["z", -r.legIn], ["x", sit ? -1.5 : -sw * 1.2]]); A("RightUpLeg", [["z", r.legIn], ["x", sit ? -1.5 : sw * 1.2]]);
+    A("LeftLeg", [["x", sit ? 1.5 : Math.max(0, sw) * 1.1 * ks + Math.abs(sw) * .35 * (ks - 1) + r.bend]]); A("RightLeg", [["x", sit ? 1.5 : Math.max(0, -sw) * 1.1 * ks + Math.abs(sw) * .35 * (ks - 1) + r.bend]]);
+    A("Spine1", [["x", br]]);
+    r.m.position.y = sit ? r.baseY - (r.hipY - .12) : r.baseY + (sit ? 0 : -Math.abs(sw) * .03);
   }
   function poseRigs(now) { bandRigs.forEach(r => { if (!r.g.parent) { bandRigs.delete(r); return; } poseRig(r, now); }); }
   const visorMat = new THREE.MeshBasicMaterial({ color: 0xff2a36 });
@@ -6904,7 +6879,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
           const show = !!cur && o.sp === cur.id && o.vis !== false && !!o.model && now - o.seen < 20000; o.g.visible = show; if (!show) { o.snap = true; return; }
           const d = o.g.position.distanceTo(o.tp); if (o.snap || d > 8) { o.g.position.copy(o.tp); o.g.rotation.set(0, o.tr, 0); o.snap = false; }
           const k = Math.min(1, dt * 10); o.g.position.lerp(o.tp, k); let dr = o.tr - o.g.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); o.g.rotation.y += dr * k;
-          const sp = Math.min(1, Math.hypot(o.tp.x - o.g.position.x, o.tp.z - o.g.position.z) * 6); o.m += (sp - o.m) * k; o.walk += dt * 10 * o.m; const sw = Math.sin(o.walk) * .35 * o.m; o.l1.rotation.x = sw; o.l2.rotation.x = -sw; o.l1.userData.ph = o.walk; o.l1.userData.amt = o.m;
+          const sp = Math.min(1, Math.hypot(o.tp.x - o.g.position.x, o.tp.z - o.g.position.z) * 6); o.m += (sp - o.m) * k; o.walk += dt * 10 * o.m; const sw = Math.sin(o.walk) * .35 * o.m; o.l1.rotation.x = sw; o.l2.rotation.x = -sw;
           if (o.swing > 0 && o.model && o.model.userData.scythe) { o.swing = Math.max(0, o.swing - dt * 2.2); o.model.rotation.y = (1 - o.swing) * Math.PI * 2 * (o.swing > 0 ? 1 : 0); } else if (o.model) o.model.rotation.y = 0;
           o.bub.visible = now < o.bubUntil;
           if (o.bat) { if (!o.batM) { o.batM = buildBat(); o.batM.g.scale.setScalar(1.7); o.batM.g.position.y = 1.1; o.g.add(o.batM.g); } o.batM.g.visible = true; if (o.model) o.model.visible = false; o.l1.visible = o.l2.visible = false; const f = Math.sin(now / 1000 * 15 + o.id.length); o.batM.wl.rotation.z = -f * .9 - .1; o.batM.wr.rotation.z = f * .9 + .1; }
@@ -7389,7 +7364,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       walkT += dt * 10;
     } else walkT *= .8;
     const sw = Math.sin(walkT) * .35 * Math.min(1, mag);
-    legL.rotation.x = sw; legR.rotation.x = -sw; legL.userData.ph = walkT; legL.userData.amt = Math.min(1, mag);
+    legL.rotation.x = sw; legR.rotation.x = -sw;
     const fy = cur.footY || 0;
     // jumping: a simple hop with gravity, on top of whatever floor you're standing on
     if (jump.v || jump.y > 0) {
