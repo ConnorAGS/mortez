@@ -5791,7 +5791,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     rachele: { name: "Lady Mortez", robe: 0x15131a, trim: 0x2c2832, eye: 0xffd2a0, lady: true, glb: "../media/chars/rachelle.glb", height: 2.0, arm: 1.0, swing: 1.7, knee: 1.6, elbow: .2, bend: .12, legIn: .09, band: "Rachelle" }
   };
   // codes are kept only as SHA-256 fingerprints, so the real code never appears in the page
-  const BAND_CODES = { brett: "6d6fb5f93262bfd5833974db13c91145e257952aec6abac186e20816c4ee7834", rachele: "68d61ce301b9b16d386bb543bfce128f22b2ea47bc81c76a0dc04a6f428fd16f" };
+  const BAND_CODES = { brett: "c9f29e5312e7cfe6c2ffdff2f033d3dbbdb1908832d268524b6ae8dc6bee5d83", rachele: "df2b6d2d707f68c98a2d47b7d64763cd18e2e206765ea0485a0d4f8f49addb15" };
   const bandUnlocked = k => { try { return (JSON.parse(localStorage.getItem("mortez.band") || "[]")).includes(k); } catch (e) { return false; } };
   async function tryBandCode(k, code) {
     try { const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(code.trim().toLowerCase())); const h = [...new Uint8Array(d)].map(x => x.toString(16).padStart(2, "0")).join(""); if (h !== BAND_CODES[k]) return false; } catch (e) { return false; }
