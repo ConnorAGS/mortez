@@ -5788,7 +5788,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     lady: { name: "Lady Reaper", robe: 0x8e0f1a, trim: 0x3a0508, eye: 0xffd2a0, lady: true },
     // band-only: real 3D models, unlocked in the character screen with a private code
     brett: { name: "Lord Mortez", robe: 0x15131a, trim: 0x2c2832, eye: 0xffd2a0, lady: false, glb: "../media/chars/lord-mortez.glb", height: 2.1, band: "Brett" },
-    rachele: { name: "Lady Mortez", robe: 0x15131a, trim: 0x2c2832, eye: 0xffd2a0, lady: true, glb: "../media/chars/rachelle.glb", height: 2.0, arm: 1.0, swing: 1.7, knee: 1.6, elbow: .2, bend: .12, band: "Rachelle" }
+    rachele: { name: "Lady Mortez", robe: 0x15131a, trim: 0x2c2832, eye: 0xffd2a0, lady: true, glb: "../media/chars/rachelle.glb", height: 2.0, arm: 1.0, swing: 1.7, knee: 1.6, elbow: .2, bend: .12, legIn: .09, band: "Rachelle" }
   };
   // codes are kept only as SHA-256 fingerprints, so the real code never appears in the page
   const BAND_CODES = { brett: "6d6fb5f93262bfd5833974db13c91145e257952aec6abac186e20816c4ee7834", rachele: "68d61ce301b9b16d386bb543bfce128f22b2ea47bc81c76a0dc04a6f428fd16f" };
@@ -5809,7 +5809,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
       const m = THREE.SkeletonUtils.clone(gltf.scene); m.updateMatrixWorld(true);
       const box = new THREE.Box3().setFromObject(m), sc = C.height / Math.max(.01, box.max.y - box.min.y); m.scale.setScalar(sc); m.position.y = -box.min.y * sc; m.updateMatrixWorld(true);
       const b = {}; m.traverse(o => { if (o.isBone) b[o.name.replace(/^mixamorig:?/, "")] = o; if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
-      const r = { m, b, leg, g, rest: new Map(), ax: new Map(), baseY: m.position.y, hipY: 0, local: false, arm: C.arm || .66, swing: C.swing || 1, knee: C.knee || 1, elbow: C.elbow || 0, bend: C.bend == null ? .04 : C.bend };
+      const r = { m, b, leg, g, rest: new Map(), ax: new Map(), baseY: m.position.y, hipY: 0, local: false, arm: C.arm || .66, swing: C.swing || 1, knee: C.knee || 1, elbow: C.elbow || 0, bend: C.bend == null ? .04 : C.bend, legIn: C.legIn || 0 };
       const mq = new THREE.Quaternion(); m.getWorldQuaternion(mq); const mqi = mq.clone().invert(), pw = new THREE.Quaternion();
       for (const n in b) { const bn = b[n]; r.rest.set(bn, bn.quaternion.clone()); bn.parent.getWorldQuaternion(pw); const inv = pw.clone().premultiply(mqi).invert(); r.ax.set(bn, { x: new THREE.Vector3(1, 0, 0).applyQuaternion(inv), z: new THREE.Vector3(0, 0, 1).applyQuaternion(inv), y: new THREE.Vector3(0, 1, 0).applyQuaternion(inv) }); }
       if (b.Hips) { const v = new THREE.Vector3(); b.Hips.getWorldPosition(v); r.hipY = v.y; }
@@ -5824,7 +5824,7 @@ body.riding .emoteBtn, body.seated .emoteBtn { display: none; }
     const as = r.swing, ks = r.knee;
     A("LeftArm", [["z", -r.arm], ["x", sit ? -.5 : sw * .9 * as]]); A("RightArm", [["z", r.arm], ["x", sit ? -.5 : -sw * .9 * as]]);
     A("LeftForeArm", [["x", sit ? -.5 : -.14 - r.elbow - Math.max(0, -sw) * .5 * as], ["z", sit ? 0 : -.1]]); A("RightForeArm", [["x", sit ? -.5 : -.14 - r.elbow - Math.max(0, sw) * .5 * as], ["z", sit ? 0 : .1]]);
-    A("LeftUpLeg", [["x", sit ? -1.5 : -sw * 1.2]]); A("RightUpLeg", [["x", sit ? -1.5 : sw * 1.2]]);
+    A("LeftUpLeg", [["z", -r.legIn], ["x", sit ? -1.5 : -sw * 1.2]]); A("RightUpLeg", [["z", r.legIn], ["x", sit ? -1.5 : sw * 1.2]]);
     A("LeftLeg", [["x", sit ? 1.5 : Math.max(0, sw) * 1.1 * ks + Math.abs(sw) * .35 * (ks - 1) + r.bend]]); A("RightLeg", [["x", sit ? 1.5 : Math.max(0, -sw) * 1.1 * ks + Math.abs(sw) * .35 * (ks - 1) + r.bend]]);
     A("Spine1", [["x", br]]);
     r.m.position.y = sit ? r.baseY - (r.hipY - .12) : r.baseY + (sit ? 0 : -Math.abs(sw) * .03);
